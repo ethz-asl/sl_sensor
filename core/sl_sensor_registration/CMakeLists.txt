@@ -12,6 +12,7 @@ add_definitions(-std=c++17 -Wall -Wextra)
 #############
 cs_add_library(${PROJECT_NAME}
         src/point_cloud_registration_algorithm.cpp
+	src/libpointmatcher_icp.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${PCL_INCLUDE_DIRS})
