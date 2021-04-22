@@ -4,7 +4,7 @@ namespace sl_sensor
 {
 namespace conversions
 {
-geometry_msgs::Pose eigen_to_pose(const Eigen::Matrix4f &matrix)
+geometry_msgs::Pose EigenToPose(const Eigen::Matrix4f &matrix)
 {
   geometry_msgs::Pose pose_output;
 
@@ -27,19 +27,19 @@ geometry_msgs::Pose eigen_to_pose(const Eigen::Matrix4f &matrix)
   return pose_output;
 };
 
-geometry_msgs::PoseStamped eigen_to_pose_stamped(const Eigen::Matrix4f &matrix, const ros::Time &time,
-                                                 const std::string &frame_id)
+geometry_msgs::PoseStamped EigenToPoseStamped(const Eigen::Matrix4f &matrix, const ros::Time &time,
+                                              const std::string &frame_id)
 {
   geometry_msgs::PoseStamped pose_stamped;
 
   pose_stamped.header.frame_id = frame_id;
   pose_stamped.header.stamp = time;
-  pose_stamped.pose = eigen_to_pose(matrix);
+  pose_stamped.pose = EigenToPose(matrix);
 
   return pose_stamped;
 };
 
-Eigen::Matrix4f swap_frames_matrix(const Eigen::Matrix4f &mat)
+Eigen::Matrix4f SwapFramesMatrix(const Eigen::Matrix4f &mat)
 {
   Eigen::Matrix3f RotSclInv =
       (mat.block<3, 3>(0, 0).array().rowwise() / mat.block<3, 3>(0, 0).colwise().squaredNorm().array()  // scaling
@@ -51,20 +51,20 @@ Eigen::Matrix4f swap_frames_matrix(const Eigen::Matrix4f &mat)
       .finished();
 };
 
-Eigen::Affine3d matrix4f_to_affine3d(const Eigen::Matrix4f &input)
+Eigen::Affine3d Matrix4fToAffine3d(const Eigen::Matrix4f &input)
 {
   Eigen::Matrix4d md(input.cast<double>());
   Eigen::Affine3d affine(md);
   return affine;
 };
 
-Eigen::Matrix4f invert_transformation_matrix(const Eigen::Matrix4f &mat)
+Eigen::Matrix4f InvertTransformationMatrix(const Eigen::Matrix4f &mat)
 {
   Eigen::Matrix3f RotSclInv = (mat.block<3, 3>(0, 0)).transpose();  // Rotation
   return (Eigen::Matrix4f(4, 4) << RotSclInv, -RotSclInv * mat.block<3, 1>(0, 3), 0, 0, 0, 1).finished();
 };
 
-Eigen::Matrix4f remove_pitch_and_roll(const Eigen::Matrix4f &mat)
+Eigen::Matrix4f RemovePitchandRoll(const Eigen::Matrix4f &mat)
 {
   Eigen::Matrix4f output_matrix = Eigen::Matrix4f::Identity();
 
