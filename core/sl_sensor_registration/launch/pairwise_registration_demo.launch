@@ -1,0 +1,65 @@
+<launch>
+
+  <arg name="rviz" default="true" />
+
+  <node pkg="sl_sensor_registration" type="pairwise_registration_node" name="pairwise_registration_node" output="screen"/>
+
+  <node pkg="pc_registration_kitti" type="pose_stamped_to_path_node" name="pose_stamped_to_path_node" output="screen">
+    <param name="subscribe_topic" value="registered_pose" />
+    <param name="publish_topic" value="path" />
+  </node>
+
+  <node pkg="pc_registration_kitti" type="pose_stamped_to_path_node" name="pose_stamped_to_path_node_vo" output="screen">
+    <param name="subscribe_topic" value="vo_pose" />
+    <param name="publish_topic" value="vo_path" />
+  </node>
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find pc_registration_kitti)/rviz/wall_eval.rviz" />
+  </group>
+
+
+  <param name="save_registered_pc" type="bool" value="1" />
+
+
+  <!-- File information -->
+
+  <?ignore
+  <param name="stitch_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/empty_wall/pc/" />
+  <param name="registration_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/empty_wall/pc_balls_removed/" />
+  <param name="output_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/empty_wall/pc_output/" />
+  <param name="relative_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/empty_wall/relative_pose.csv" />
+  <param name="absolute_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/empty_wall/registered_pc_pose.csv" />
+  <param name="input_pc_file_format" type="string" value=".ply" />
+  <param name="output_pc_file_format" type="string" value=".pcd" />
+  ?>
+
+  <?ignore
+  <param name="stitch_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall/pc/" />
+  <param name="registration_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall/pc/" />
+  <param name="output_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall/pc_output/" />
+  <param name="relative_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall/relative_pose.csv" />
+  <param name="absolute_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall/registered_pc_pose.csv" />
+  <param name="input_pc_file_format" type="string" value=".ply" />
+  <param name="output_pc_file_format" type="string" value=".pcd" />
+  ?>
+
+  <param name="stitch_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall_2/pc/" />
+  <param name="registration_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall_2/pc/" />
+  <param name="output_pc_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall_2/pc_output/" />
+  <param name="relative_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall_2/relative_pose.csv" />
+  <param name="absolute_pose_directory" type="string" value="/home/ltf/Desktop/sliding_data/debris_wall_2/registered_pc_pose.csv" />
+  <param name="input_pc_file_format" type="string" value=".ply" />
+  <param name="output_pc_file_format" type="string" value=".pcd" />
+  
+  <param name="use_hardcoded_guess_transform" type="bool" value="1"/>
+  <param name="pc_algo" type="string" value="lpm_icp" />
+  <param name="export_tag" type="string" value="no_subsampling_manual_guess" />
+  <param name="leafsize" type="double" value="0.000" /> <!-- subsmpling method is specified in the yaml file -->
+  <param name="yaml_directory" type="string" value="$(find pc_registration_kitti)/lpm_yaml/debris_wall_no_subsampling.yaml" />
+  <param name="register_with_z_axis_as_vertical" type="bool" value="0" />
+
+  <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 0 0 0 1 map my_frame 10" />
+
+
+</launch>
