@@ -1,5 +1,5 @@
 #include "sl_sensor_registration/libpointmatcher_icp.hpp"
-#include "sl_sensor_registration/pc_filters.hpp"
+#include "sl_sensor_registration/pc_utils.hpp"
 
 namespace sl_sensor
 {

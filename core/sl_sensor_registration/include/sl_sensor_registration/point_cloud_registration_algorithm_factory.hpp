@@ -11,13 +11,13 @@ namespace registration
 class PointCloudRegistrationAlgorithmFactory
 {
 public:
-  static std::unique_ptr<PointCloudRegistrationAlgorithm> get_instance(const std::string &algo_name)
+  static std::unique_ptr<PointCloudRegistrationAlgorithm> GetInstance(const std::string &algo_name)
   {
     std::unique_ptr<PointCloudRegistrationAlgorithm> output_ptr;
 
     if (algo_name == "lpm_icp")
     {
-      output_ptr = std::make_unique<Lpm_icp>();
+      output_ptr = std::make_unique<LibpointmatcherICP>();
     }
     else
     {

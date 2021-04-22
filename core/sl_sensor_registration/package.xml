@@ -13,11 +13,19 @@
 
   <depend>roscpp</depend>
   <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>eigen_catkin</depend>
   <depend>pcl_ros</depend>
-  <depend>libpointmatcher</depend>
-  <depend>libpointmatcher_ros</depend>
-  <depend>sensor_msgs</depend>
+  <depend>sl_sensor_timer</depend>
+  <depend>sl_sensor_csv</depend>
+  <depend>sl_sensor_conversions</depend>
+
+  <build_depend>libpointmatcher</build_depend>
+  <build_depend>libpointmatcher_ros</build_depend>
+  <build_export_depend>libpointmatcher</build_export_depend>
+  <build_export_depend>libpointmatcher_ros</build_export_depend>
+  <exec_depend>libpointmatcher</exec_depend>
+  <exec_depend>libpointmatcher_ros</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
