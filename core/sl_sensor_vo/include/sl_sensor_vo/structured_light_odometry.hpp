@@ -163,7 +163,7 @@ private:
  * @return true - Successful frame processing
  * @return false - Unsuccessful frame processing
  */
-bool FrameProcessing(VisualOdometryFrame& frame);
+bool FrameProcessing(VisualOdometryFrame &frame);
 
 /**
  * @brief Perform the frame matching step
@@ -175,8 +175,8 @@ bool FrameProcessing(VisualOdometryFrame& frame);
  * @return true - Successful
  * @return false - Unsuccessful
  */
-bool FrameMatching(VisualOdometryFrame& prev_frame, VisualOdometryFrame& curr_frame, Eigen::Matrix4f& output_transform,
-                   pcl::Correspondences& correspondences);
+bool FrameMatching(VisualOdometryFrame &prev_frame, VisualOdometryFrame &curr_frame, Eigen::Matrix4f &output_transform,
+                   pcl::Correspondences &correspondences);
 
 /**
  * @brief Initialise all functionality required for VO
@@ -197,14 +197,14 @@ void InitCsvOutput();
  *
  * @param image_ptr
  */
-void ImageCb(const sensor_msgs::ImageConstPtr& image_ptr);
+void ImageCb(const sensor_msgs::ImageConstPtr &image_ptr);
 
 /**
  * @brief Callback when a projector time is received
  *
  * @param time_numbered_ptr
  */
-void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
+void ProjectorTimeCb(const versavis::TimeNumberedConstPtr &time_numbered_ptr);
 
 /**
  * @brief Function that publishes a pose stamped message
@@ -212,7 +212,7 @@ void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
  * @param pose - pose to publish
  * @param timestamp
  */
-void PublishPoseStamped(const Eigen::Matrix4f& pose, const ros::Time& timestamp);
+void PublishPoseStamped(const Eigen::Matrix4f &pose, const ros::Time &timestamp);
 
 /**
  * @brief Publish 3D points of correspondences used for pose estimation (currently only publishes max 10 points to
@@ -223,8 +223,8 @@ void PublishPoseStamped(const Eigen::Matrix4f& pose, const ros::Time& timestamp)
  * @param pose - Absolute pose of the frame
  * @param timestamp
  */
-void PublishCorrespondences(const VisualOdometryFrame& frame, const pcl::Correspondences& correspondences,
-                            const Eigen::Matrix4f& pose, const ros::Time& timestamp);
+void PublishCorrespondences(const VisualOdometryFrame &frame, const pcl::Correspondences &correspondences,
+                            const Eigen::Matrix4f &pose, const ros::Time &timestamp);
 
 /**
  * @brief Visually display correspondences between two frames (Warning: this is a blocking function, only use for input
@@ -234,8 +234,8 @@ void PublishCorrespondences(const VisualOdometryFrame& frame, const pcl::Corresp
  * @param curr_frame
  * @param correspondences
  */
-void DisplayFeatureCorrespondences(const VisualOdometryFrame& prev_frame, const VisualOdometryFrame& curr_frame,
-                                   const pcl::Correspondences& correspondences);
+void DisplayFeatureCorrespondences(const VisualOdometryFrame &prev_frame, const VisualOdometryFrame &curr_frame,
+                                   const pcl::Correspondences &correspondences);
 
 /**
  * @brief Attempt to get an image sequence from subsriber inputs
@@ -245,7 +245,7 @@ void DisplayFeatureCorrespondences(const VisualOdometryFrame& prev_frame, const 
  * @return true - successful
  * @return false - unsuccessful
  */
-bool GetNextImageSequenceFromSubscribers(std::vector<cv::Mat>& image_sequence, std::vector<ros::Time>& timestamp_vec);
+bool GetNextImageSequenceFromSubscribers(std::vector<cv::Mat> &image_sequence, std::vector<ros::Time> &timestamp_vec);
 
 /**
  * @brief Get the Image From Image Buffer object
@@ -255,21 +255,169 @@ bool GetNextImageSequenceFromSubscribers(std::vector<cv::Mat>& image_sequence, s
  * @return true
  * @return false
  */
-bool GetImageFromImageBuffer(const ros::Time& target_time, sensor_msgs::ImageConstPtr& image_ptr);
+bool GetImageFromImageBuffer(const ros::Time &target_time, sensor_msgs::ImageConstPtr &image_ptr);
 
 /**
  * @brief Remove all images in the buffer that has a smaller timestamp than target_time
  *
  * @param target_time
  */
-void ClearAllImagesFromBufferBeforeTiming(const ros::Time& target_time);
+void ClearAllImagesFromBufferBeforeTiming(const ros::Time &target_time);
 
 /**
  * @brief Remove all projector timings in the buffer that has a smaller timestamp than target_time
  *
  * @param target_time
  */
-void ClearAllProjectorTimingsFromBufferBeforeTiming(const ros::Time& target_time);
+void ClearAllProjectorTimingsFromBufferBeforeTiming(const ros::Time &target_time);
+
+/**
+ * @brief Get the Median value
+ *
+ * @tparam T - numerical data type
+ * @param values - Vector of elements to find to median in
+ * @return T - Median value
+ */
+template <typename T>
+T GetMedian(const std::vector<T> &values)
+{
+  auto values_sorted = values;
+  int N = values.size();
+  std::sort(values_sorted.begin(), values_sorted.end());
+  return (N % 2 == 0) ? ((values_sorted.at(N / 2 - 1) + values_sorted.at(N / 2))) / 2.0f : (values_sorted.at(N / 2));
+}
+
+/**
+ * @brief Perform phase correlation image registration on an image sequence
+ *
+ * @param image_sequence - Vector of images
+ * @param reference_indice - indice specifying which image in image_sequence is the reference image
+ * @param shifts - Vector of 2D values indicating the required shifts
+ */
+static void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+                                                std::vector<cv::Point2d> &shifts);
+
+/**
+ * @brief Perform phase correlation image registration on an image sequence.
+ * Image is subsampled by subsample_factor before registration is performed
+ *
+ * @param image_sequence - Vector of images
+ * @param reference_indice - indice specifying which image in image_sequence is the reference image
+ * @param shifts - Vector of 2D values indicating the required shifts. Subsample factor has been accounted for (i.e.
+ * shifts are for non-subsampled images)
+ * @param subsample_factor - Factor to down scale images before registration. Set to a value <= 0.0 to disable
+ * subsampling
+ */
+static void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+                                                std::vector<cv::Point2d> &shifts, double subsample_factor);
+
+/**
+ * @brief Apply shifts to image sequence
+ *
+ * @param input_image_sequence
+ * @param output_image_sequence
+ * @param shifts - Vector of 2D values indicating the amount to translate the images horizontally or vertically
+ */
+static void ApplyShiftsToImageSequence(std::vector<cv::Mat> &input_image_sequence,
+                                       std::vector<cv::Mat> &output_image_sequence,
+                                       const std::vector<cv::Point2d> &shifts);
+
+/**
+ * @brief Convert rectangle values from MSER detector to a keypoint
+ *
+ * @param rect_vector - Vector of cv::Rect obtained from MSER detector
+ * @param keypoint_vec - Resulting keypoints
+ */
+static void ConverMserRectsToKeypoints(const std::vector<cv::Rect> &rect_vector,
+                                       std::vector<cv::KeyPoint> &keypoint_vec);
+
+/**
+ * @brief Detect MSER keypoints
+ *
+ * @param mser_detector_ptr - Pointer to MSER detector
+ * @param img - Image to detect MSER keypoints for
+ * @param keypoint_vec - resulting MSER keypoints
+ */
+static void DetectMserKeypoints(cv::Ptr<cv::MSER> mser_detector_ptr, const cv::Mat &img,
+                                std::vector<cv::KeyPoint> &keypoint_vec);
+
+/**
+ * @brief Get the Descriptor Matches between two sets of and descriptors
+ *
+ * @param matcher_ptr - Pointer to the Descriptor matcher used
+ * @param descriptors_static
+ * @param descriptors_moving
+ * @param good_matches - Vector of good matches
+ * @param ratio_thresh - Lowe's ratio
+ */
+static void GetDescriptorMatches(cv::Ptr<cv::DescriptorMatcher> matcher_ptr, const cv::Mat &descriptors_static,
+                                 const cv::Mat &descriptors_moving, std::vector<cv::DMatch> &good_matches,
+                                 float ratio_thresh);
+
+/**
+ * @brief Convert cv::DMatch -es to pcl::Correspondences
+ *
+ * @param dmatches
+ * @param correspondences
+ */
+static void CvDmatchesToPclCorrespondences(const std::vector<cv::DMatch> &dmatches,
+                                           pcl::Correspondences &correspondences);
+
+/**
+ * @brief Convert pcl::Correspondences to cv::DMatch -es
+ *
+ * @param dmatches
+ * @param correspondences
+ */
+static void PclCorrespondencesToCvDmatches(const pcl::Correspondences &correspondences,
+                                           std::vector<cv::DMatch> &dmatches);
+
+/**
+ * @brief Subsample an image sequence by subsample factor
+ *
+ * @param image_sequence_input
+ * @param image_sequence_output
+ * @param subsample_factor
+ */
+static void SubsampleImageSequence(const std::vector<cv::Mat> &image_sequence_input,
+                                   std::vector<cv::Mat> &image_sequence_output, double subsample_factor);
+
+/**
+ * @brief Only matches that are symmetrical are kept in the output symmetric_matches
+ *
+ * @param matches12
+ * @param matches21
+ * @param symmetric_matches
+ */
+static void KeepOnlySymmetricMatches(const std::vector<cv::DMatch> &matches12, const std::vector<cv::DMatch> &matches21,
+                                     std::vector<cv::DMatch> &symmetric_matches);
+
+/**
+ * @brief Median filtering over the 2D pixels shifts
+ *
+ * @param static_kps
+ * @param moving_kps
+ * @param kp_matches
+ * @param threshold - in pixels, all points within +- threshold of the median are considered inliers
+ */
+static void FilterCorrespondencesByMedianVerticalPixelShift(const std::vector<cv::KeyPoint> &static_kps,
+                                                            const std::vector<cv::KeyPoint> &moving_kps,
+                                                            std::vector<cv::DMatch> &kp_matches, double threshold);
+
+/**
+ * @brief Median filtering of 3D point distances, y distance, z distance and full l2 distance
+ *
+ * @param static_pc
+ * @param moving_pc
+ * @param correspondences
+ * @param y_threshold
+ * @param z_threshold
+ * @param l2_threshold
+ */
+static void FilterCorrespondencesByMedian3dDistances(const pcl::PointCloud<pcl::PointXYZ> &static_pc,
+                                                     const pcl::PointCloud<pcl::PointXYZ> &moving_pc,
+                                                     pcl::Correspondences &correspondences, double y_threshold,
+                                                     double z_threshold, double l2_threshold);
 
 }  // namespace vo
 }  // namespace sl_sensor
