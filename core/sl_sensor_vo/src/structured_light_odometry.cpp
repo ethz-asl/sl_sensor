@@ -36,7 +36,7 @@ void StructuredLightOdometry::LoopOnce()
   // Attempt to get latest frame
   // std::cout << "Get latest frame start" << std::endl;
   auto curr_frame_ptr = std::make_unique<single_frame>();
-  bool successful_frame_acquisition = GetLatestFrame(*curr_frame_ptr);
+  bool successful_frame_acquisition = FrameProcessing(*curr_frame_ptr);
   // std::cout << "Get latest frame end" << std::endl;
 
   // If successful frame acquisition
@@ -55,8 +55,7 @@ void StructuredLightOdometry::LoopOnce()
 
       // If latest frame acquired successfully, we attempt to perform odometry
 
-      successful_odometry =
-          PerformOdometrySingleFrame(*prev_frame_ptr_, *curr_frame_ptr, relative_pose, correspondences);
+      successful_odometry = FrameMatching(*prev_frame_ptr_, *curr_frame_ptr, relative_pose, correspondences);
 
       // std::cout << "Odometry done" << std::endl;
 
@@ -139,7 +138,7 @@ void StructuredLightOdometry::LoopOnce()
   // std::cout << "Loop end" << std::endl;
 }
 
-bool StructuredLightOdometry::GetLatestFrame(single_frame& frame)
+bool StructuredLightOdometry::FrameProcessing(single_frame& frame)
 {
   // Try to get images, if unsuccessful, stop and return false
   bool successful_image_acquisition = false;
@@ -245,9 +244,8 @@ bool StructuredLightOdometry::GetLatestFrame(single_frame& frame)
   return true;
 }
 
-bool StructuredLightOdometry::PerformOdometrySingleFrame(single_frame& prev_frame, single_frame& curr_frame,
-                                                         Eigen::Matrix4f& output_transform,
-                                                         pcl::Correspondences& correspondences)
+bool StructuredLightOdometry::FrameMatching(single_frame& prev_frame, single_frame& curr_frame,
+                                            Eigen::Matrix4f& output_transform, pcl::Correspondences& correspondences)
 {
   // Clear correspondences just in case it is not empty
   correspondences.clear();
@@ -723,18 +721,12 @@ void StructuredLightOdometry::ImageCb(const sensor_msgs::ImageConstPtr& image_pt
 {
   boost::mutex::scoped_lock lock(mutex_);
   image_ptr_buffer_.push_back(image_ptr);
-  // std::cout << "Entries in image buffer: " << image_ptr_buffer_.size() << std::endl;
-  // images_received_++;
-  // std::cout << "Images received so far: " << images_received_ << std::endl;
 }
 
 void StructuredLightOdometry::ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr)
 {
   boost::mutex::scoped_lock lock(mutex_);
   projector_time_buffer_.push_back(time_numbered_ptr->time);
-  // std::cout << "Entries in projector buffer: " << projector_time_buffer_.size() << std::endl;
-  // projector_timings_received_++;
-  // std::cout << "Projector timings received so far: " << projector_timings_received_ << std::endl;
 }
 
 void StructuredLightOdometry::InitCsvOutput()
