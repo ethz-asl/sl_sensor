@@ -8,20 +8,40 @@ namespace sl_sensor
 {
 namespace slstudio
 {
-class Image_undistorter
+/**
+ * @brief Class object that undistorts images
+ *
+ */
+class ImageUndistorter
 {
 public:
-  Image_undistorter(const CalibrationData& calib_data);
+  /**
+   * @brief Construct a new Image Undistorter object
+   *
+   * @param calib_data - CalibrationData from SLStudio
+   */
+  ImageUndistorter(const CalibrationData& calib_data);
 
-  void undistort_image(cv::Mat& input_image, cv::Mat& output_image);
+  /**
+   * @brief Undistorts a single image
+   *
+   * @param input_image
+   * @param output_image
+   */
+  void UndistortImage(cv::Mat& input_image, cv::Mat& output_image);
 
-  void undistort_image_sequence(std::vector<cv::Mat>& input_image_sequence,
-                                std::vector<cv::Mat>& output_image_sequence);
+  /**
+   * @brief Undistorts an entire image sequence
+   *
+   * @param input_image_sequence
+   * @param output_image_sequence
+   */
+  void UndistortImageSequence(std::vector<cv::Mat>& input_image_sequence, std::vector<cv::Mat>& output_image_sequence);
 
 private:
-  CalibrationData m_calib_data;
-  cv::Mat m_lens_map_1;
-  cv::Mat m_lens_map_2;
+  CalibrationData calib_data_;
+  cv::Mat lens_map_1_;
+  cv::Mat lens_map_2_;
 };
 
 }  // namespace slstudio
