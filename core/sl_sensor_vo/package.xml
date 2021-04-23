@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor</name>
+  <name>sl_sensor_vo</name>
   <version>0.0.0</version>
-  <description>Package that runs with the SL sensor</description>
+  <description>Package that for the SL sensor to perform VO</description>
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
@@ -10,14 +10,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
-  
-  <depend>sl_sensor_conversions</depend>
-  <depend>sl_sensor_csv</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_registration</depend>
-  <depend>sl_sensor_visualise</depend>
-  <depend>sl_sensor_slstudio</depend>
-  <depend>sl_sensor_vo</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
