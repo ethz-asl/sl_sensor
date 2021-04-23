@@ -17,7 +17,7 @@
   <depend>eigen_catkin</depend>
   <depend>pcl_ros</depend>
   <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_csv</depend>
+  <depend>sl_sensor_io</depend>
   <depend>sl_sensor_conversions</depend>
 
   <build_depend>libpointmatcher</build_depend>

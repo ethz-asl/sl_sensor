@@ -1,8 +1,8 @@
-#include "sl_sensor_csv/frame_timings_csv_writer.hpp"
+#include "sl_sensor_io/frame_timings_csv_writer.hpp"
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 FrameTimingsCsvWriter::FrameTimingsCsvWriter(const std::string& filename)
 {
@@ -19,5 +19,5 @@ void FrameTimingsCsvWriter::WriteNextRow(const std::vector<uint64_t>& timestamp_
     stream_ << std::to_string(timestamp_vec[i]) << ((i != (N - 1)) ? delimiter_ : '\n');
   }
 }
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor

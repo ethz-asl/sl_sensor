@@ -7,11 +7,11 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include "sl_sensor_csv/tum_pose.hpp"
+#include "sl_sensor_io/tum_pose.hpp"
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 /**
  * @brief Class objects that writes a sequence of poses in TUM format
@@ -40,5 +40,5 @@ private:
   std::fstream stream_;
 };
 
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor

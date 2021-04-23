@@ -31,15 +31,15 @@
 #include <thread>
 
 #include <sl_sensor_conversions/conversions.hpp>
-#include <sl_sensor_csv/tum_csv_reader.hpp>
-#include <sl_sensor_csv/tum_csv_writer.hpp>
+#include <sl_sensor_io/tum_csv_reader.hpp>
+#include <sl_sensor_io/tum_csv_writer.hpp>
 #include <sl_sensor_timer/timer.hpp>
 #include "sl_sensor_registration/pc_utils.hpp"
 #include "sl_sensor_registration/point_cloud_registration_algorithm.hpp"
 #include "sl_sensor_registration/point_cloud_registration_algorithm_factory.hpp"
 
 using namespace sl_sensor::registration;
-using namespace sl_sensor::csv;
+using namespace sl_sensor::io;
 using namespace sl_sensor::conversions;
 using namespace sl_sensor::timer;
 

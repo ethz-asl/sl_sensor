@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor_csv</name>
+  <name>sl_sensor_io</name>
   <version>0.0.0</version>
-  <description>Package that writes some required csv file for the SL sensor</description>
+  <description>Package required for data input and output for the SL sensor</description>
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 

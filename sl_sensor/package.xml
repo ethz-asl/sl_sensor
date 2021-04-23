@@ -12,7 +12,7 @@
   <buildtool_depend>catkin_simple</buildtool_depend>
   
   <depend>sl_sensor_conversions</depend>
-  <depend>sl_sensor_csv</depend>
+  <depend>sl_sensor_io</depend>
   <depend>sl_sensor_timer</depend>
   <depend>sl_sensor_registration</depend>
   <depend>sl_sensor_visualise</depend>

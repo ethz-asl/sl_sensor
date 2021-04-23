@@ -13,7 +13,10 @@ add_definitions(-std=c++17 -Wall -Wextra -fPIC)
 #############
 cs_add_library(${PROJECT_NAME}
         src/visual_odometry_frame.cpp
+
   )
+
+#	src/structured_light_odometry.cpp
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} ${OpenCV_LIBS} )

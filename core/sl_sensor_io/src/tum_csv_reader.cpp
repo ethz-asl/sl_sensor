@@ -1,8 +1,8 @@
-#include "sl_sensor_csv/tum_csv_reader.hpp"
+#include "sl_sensor_io/tum_csv_reader.hpp"
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 TumCsvReader::TumCsvReader(const std::string& filename)
 {
@@ -58,5 +58,5 @@ bool TumCsvReader::GetNextRow(TumPose& pose)
   }
 }
 
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor

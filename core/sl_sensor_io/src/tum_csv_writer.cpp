@@ -1,8 +1,8 @@
-#include "sl_sensor_csv/tum_csv_writer.hpp"
+#include "sl_sensor_io/tum_csv_writer.hpp"
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 TumCsvWriter::TumCsvWriter(const std::string& filename)
 {
@@ -22,5 +22,5 @@ void TumCsvWriter::WriteNextRow(const TumPose& pose)
   stream_ << std::to_string(pose.qw) << '\n';
 }
 
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor

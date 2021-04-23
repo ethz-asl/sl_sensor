@@ -11,7 +11,7 @@
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 /**
  * @brief Writes a csv file were each row is a series of timestamps that correspond to a single pattern sequence
@@ -39,5 +39,5 @@ private:
   std::fstream stream_;
 };
 
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor

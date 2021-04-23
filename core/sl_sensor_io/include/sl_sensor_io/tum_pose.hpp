@@ -5,7 +5,7 @@
 
 namespace sl_sensor
 {
-namespace csv
+namespace io
 {
 /**
  * @brief Struct used to encapsulate a pose in TUM format
@@ -118,5 +118,5 @@ struct TumPose
   }
 };
 
-}  // namespace csv
+}  // namespace io
 }  // namespace sl_sensor
