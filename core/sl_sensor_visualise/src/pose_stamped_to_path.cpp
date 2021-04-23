@@ -9,9 +9,6 @@ PoseStampedToPath::PoseStampedToPath(ros::NodeHandle nh_public, ros::NodeHandle 
   nh_private.param<std::string>("subscribe_topic", subscribe_topic_, subscribe_topic_);
   nh_private.param<std::string>("publish_topic", publish_topic_, publish_topic_);
 
-  std::cout << subscribe_topic_ << std::endl;
-  std::cout << publish_topic_ << std::endl;
-
   pub_ = nh_public.advertise<nav_msgs::Path>(publish_topic_, 5);
   sub_ = nh_public.subscribe(subscribe_topic_, 5, &PoseStampedToPath::Callback, this);
 }

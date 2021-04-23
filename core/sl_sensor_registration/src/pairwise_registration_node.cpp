@@ -43,21 +43,6 @@ using namespace sl_sensor::csv;
 using namespace sl_sensor::conversions;
 using namespace sl_sensor::timer;
 
-// Hue and RGB values are between 0.0-1.0
-std::array<double, 3> HueToRGB(double hue)
-{
-  // Red -> Yellow -> Green -> ... We need to reverse the direction
-  double adjusted_hue = hue * -1.0f;
-
-  std::array<double, 3> rgb;
-  for (unsigned i = 0; i < 3; ++i)
-  {
-    const double h = adjusted_hue + i / 3.0;
-    rgb[i] = std::clamp(6.0 * std::fabs(h - std::floor(h) - 0.5f) - 1.0, 0.0, 1.0);
-  }
-  return rgb;
-}
-
 inline bool FileExists(const std::string& name)
 {
   struct stat buffer;
@@ -67,10 +52,11 @@ inline bool FileExists(const std::string& name)
 int main(int argc, char** argv)
 {
   // Init ros node
-  ros::init(argc, argv, "site_registration_node");
+  ros::init(argc, argv, "pairwise_registration_node");
   ros::NodeHandle nh;
 
   // Get file information
+  std::cout << "Loading params from ROS node ..." << std::endl;
   std::string registration_pc_directory;
   nh.param<std::string>("registration_pc_directory", registration_pc_directory, "");
 
@@ -95,9 +81,6 @@ int main(int argc, char** argv)
   bool save_registered_pc;
   nh.param<bool>("save_registered_pc", save_registered_pc, false);
 
-  bool register_with_z_axis_as_vertical;
-  nh.param<bool>("register_with_z_axis_as_vertical", register_with_z_axis_as_vertical, false);
-
   int row_min;
   nh.param<int>("row_min", row_min, -1);
 
@@ -105,6 +88,8 @@ int main(int argc, char** argv)
   nh.param<int>("row_max", row_max, 100000);
 
   // Publisher topics
+  std::cout << "Setting up ROS publishers ..." << std::endl;
+
   std::string pc_topic = "/registered_pc";
   std::string pose_topic = "/registered_pose";
   std::string frame = "/map";
@@ -123,6 +108,8 @@ int main(int argc, char** argv)
   ros::Publisher vo_pub = nh.advertise<geometry_msgs::PoseStamped>(vo_topic, 1);
 
   // Setup PC registration algo
+  std::cout << "Setting up point cloud registration algorithm ..." << std::endl;
+
   std::string algo_name;
   nh.param<std::string>("pc_algo", algo_name, "");
   auto pc_registration_ptr = PointCloudRegistrationAlgorithmFactory::GetInstance(algo_name);
@@ -148,6 +135,8 @@ int main(int argc, char** argv)
   Eigen::Matrix4f vo_pose = Eigen::Matrix4f::Identity();
 
   Eigen::Matrix4f initial_guess_transform = Eigen::Matrix4f::Identity();
+
+  std::cout << "Start point cloud registration" << std::endl;
 
   while (csv_reader.GetNextRow(initial_pose_guess))
   {

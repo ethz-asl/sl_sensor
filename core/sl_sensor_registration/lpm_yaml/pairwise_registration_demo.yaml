@@ -1,0 +1,57 @@
+readingDataPointsFilters:
+  - RandomSamplingDataPointsFilter:
+      prob: 1.0
+
+#referenceDataPointsFilters:
+#  - RandomSamplingDataPointsFilter:
+#      prob: 1.0
+#  - SamplingSurfaceNormalDataPointsFilter:
+#      knn: 20
+
+referenceDataPointsFilters:
+  - RandomSamplingDataPointsFilter:
+      prob: 1.0
+  - SamplingSurfaceNormalDataPointsFilter:
+      knn: 50
+
+matcher:
+  KDTreeMatcher:
+    knn: 1
+    epsilon: 0 
+
+outlierFilters:
+  - TrimmedDistOutlierFilter:
+      ratio: 0.88
+  - MaxDistOutlierFilter:
+      maxDist: 0.005
+
+errorMinimizer:
+  PointToPlaneErrorMinimizer
+#  PointToPlaneErrorMinimizer:
+#    force4DOF: 1
+
+transformationCheckers:
+  - CounterTransformationChecker:
+      maxIterationCount: 100
+  - DifferentialTransformationChecker:
+      minDiffRotErr: 0.0000000000001
+      minDiffTransErr: 0.0000000000001
+      smoothLength: 4   
+
+#inspector:
+#  NullInspector
+
+inspector:
+ VTKFileInspector:
+     baseFileName: pointmatcher-run1
+     dumpPerfOnExit: 0
+     dumpStats: 0
+     dumpIterationInfo: 1 
+     dumpDataLinks: 0 
+     dumpReading: 0 
+     dumpReference: 0 
+
+
+logger:
+  NullLogger
+#  FileLogger
