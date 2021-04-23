@@ -1,5 +1,17 @@
 #include "sl_sensor_vo/visual_odometry_frame.hpp"
 
+#include <geometry_msgs/PoseStamped.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <tf/transform_datatypes.h>
+#include <chrono>
+#include <cstdint>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
+
 namespace sl_sensor
 {
 namespace vo
@@ -7,10 +19,10 @@ namespace vo
 void VisualOdometryFrame::RemoverUnreliableDepthKeypoints(double x_min, double x_max, double y_min, double y_max,
                                                           double z_min, double z_max)
 {
-  int num_kps_3d = kps_pc_ptr->size();
+  size_t num_kps_3d = kps_pc_ptr->size();
 
   size_t j = 0;
-  for (size_t i = 0; i < num_kps_3d; ++i)
+  for (size_t i = 0; i < (size_t)num_kps_3d; ++i)
   {
     double x = kps_pc_ptr->points[i].x;
     double y = kps_pc_ptr->points[i].y;
@@ -44,7 +56,7 @@ void VisualOdometryFrame::Get3DPointsCV(std::vector<cv::Point3d>& output_vec)
 {
   output_vec.clear();
 
-  for (int i = 0; i < kps_pc_ptr->size(); i++)
+  for (int i = 0; i < (int)kps_pc_ptr->size(); i++)
   {
     output_vec.push_back(cv::Point3d{ kps_pc_ptr->points[i].x, kps_pc_ptr->points[i].y, kps_pc_ptr->points[i].z });
   }
