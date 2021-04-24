@@ -1,0 +1,50 @@
+imageRegistration:
+  subsampleFactor: 0.5
+
+pcFilter:
+  boundingBox:
+    xMin: -0.500
+    xMax: 0.500
+    yMin: -0.500
+    yMax: 0.500
+    zMin: 0.300
+    zMax: 0.75
+
+featureDetector:
+  name: mser
+  mser:
+    delta: 0
+    minArea: 10
+    maxArea: 500
+    maxVariation: 0.25
+
+featureDescriptor:
+  name: surf
+  surf: 
+    hessianThreshold: 100
+    nOctaves: 1
+    nOctaveLayers: 1
+    extended: false
+    upright: true
+
+featureMatcher:
+  ratioThreshold: 0.90
+  keepOnlySymmetricMatches: false
+
+correspondenceFiltering:
+  2D:
+    verticalShiftDeviation: 5
+  3D:
+    l2DistanceDeviation: 0.005
+    yDistanceDeviation: 0.002
+    zDistanceDeviation: 0.002
+    ransac:
+      enable: false
+      threshold: 1
+
+poseEstimator:
+  name: 2d # svd, dq, 2d
+
+poseRejector:
+  minInliers: 10
+  maxVerticalShift: 1
