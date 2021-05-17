@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor</name>
+  <name>sl_sensor_projector</name>
   <version>0.0.0</version>
-  <description>Package that runs with the SL sensor</description>
+  <description>ROS Interface for projectors</description>
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
@@ -11,14 +11,10 @@
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
   
-  <depend>sl_sensor_conversions</depend>
-  <depend>sl_sensor_io</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_registration</depend>
-  <depend>sl_sensor_visualise</depend>
-  <depend>sl_sensor_slstudio</depend>
-  <depend>sl_sensor_vo</depend>
-  <depend>sl_sensor_projector</depend>	
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+  <depend>roscpp</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
