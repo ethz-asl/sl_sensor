@@ -207,13 +207,85 @@ bool Lightcrafter4500::ProjectSinglePattern(const std::string& pattern_name, int
 
 bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
 {
-  return false;
+  if (!PatternExists(pattern_name))
+  {
+    return false;
+  }
+
+  SetLed(pattern_name);
+
+  std::vector<LightcrafterSinglePattern> pattern_vec = GetPatternSequence(pattern_name);
+
+  /**
+  for (const auto& pattern : pattern_vec)
+  {
+    std::cout << pattern << std::endl;
+  }
+  **/
+
+  unsigned int exposure_period, frame_period;
+  exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?
+                                       proj_config_["patterns"][pattern_name]["exposureUs"].as<unsigned int>() :
+                                       backup_exposure_period_us_;
+
+  int status = projector_.PlayPatternSequence(pattern_vec, exposure_period, frame_period);
+
+  return (status < 0) ? false : true;
 }
 
 std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(const std::string& pattern_name)
 {
-  std::vector<LightcrafterSinglePattern> temp;
-  return temp;
+  std::vector<LightcrafterSinglePattern> pattern_vec = {};
+
+  int prev_image_indice = -1;
+  int number_projections = static_cast<int>(proj_config_["patterns"][pattern_name]["channelNumbers"].size());
+
+  for (int i = 0; i < number_projections; i++)
+  {
+    int image_indice = proj_config_["patterns"][pattern_name]["imageIndices"][i] ?
+                           proj_config_["patterns"][pattern_name]["imageIndices"][i].as<int>() :
+                           backup_single_pattern_.image_indice;
+
+    int bit_depth = proj_config_["patterns"][pattern_name]["bitDepth"] ?
+                        proj_config_["patterns"][pattern_name]["bitDepth"].as<int>() :
+                        backup_single_pattern_.bit_depth;
+
+    int pattern_number = proj_config_["patterns"][pattern_name]["channelNumbers"][i] ?
+                             proj_config_["patterns"][pattern_name]["channelNumbers"][i].as<int>() :
+                             backup_single_pattern_.pattern_number;
+
+    int led_select = proj_config_["patterns"][pattern_name]["displayColour"] ?
+                         proj_config_["patterns"][pattern_name]["displayColour"].as<int>() :
+                         backup_single_pattern_.led_select;
+
+    LightcrafterSinglePattern temp1;
+    temp1.trigger_type = GetTriggerType();
+    temp1.pattern_number = pattern_number;
+    temp1.bit_depth = bit_depth;
+    temp1.led_select = led_select;
+    temp1.image_indice = image_indice;
+    temp1.invert_pattern = false;
+    temp1.insert_black_frame = false;
+    temp1.buffer_swap = (prev_image_indice != image_indice) ? true : false;
+    temp1.trigger_out_prev = false;
+    pattern_vec.push_back(temp1);
+
+    LightcrafterSinglePattern temp2;
+    temp2.trigger_type = 3;
+    temp2.pattern_number = pattern_number;
+    temp2.bit_depth = bit_depth;
+    temp2.led_select = led_select;
+    temp2.image_indice = image_indice;
+    temp2.invert_pattern = false;
+    temp2.insert_black_frame = false;
+    temp2.buffer_swap = false;
+    temp2.trigger_out_prev = false;
+    pattern_vec.push_back(temp2);
+
+    prev_image_indice = image_indice;
+  }
+
+  return pattern_vec;
 }
 
 LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& pattern_name, int pattern_indice)

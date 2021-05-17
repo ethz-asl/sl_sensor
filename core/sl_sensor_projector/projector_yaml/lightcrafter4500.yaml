@@ -16,3 +16,10 @@ patterns:
     displayColour: *defaultDisplayColour
     imageIndices: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
     channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+  pspTpuHorizontal:
+    bitDepth: 8
+    rgb: *defaultRgb
+    exposureUs: *defaultExposureUs
+    displayColour: *defaultDisplayColour
+    imageIndices: [9, 9, 9, 10, 10, 10]
+    channelNumbers: [0, 1, 2, 0, 1, 2]
