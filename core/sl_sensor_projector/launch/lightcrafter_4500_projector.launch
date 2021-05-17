@@ -1,0 +1,4 @@
+<launch>
+  <param name="projector_yaml_directory" type="string" value= "$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" /> 
+  <node pkg="sl_sensor_projector" type="lightcrafter_4500_node" name="lightcrafter_4500_node" output="screen"/>
+</launch>

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 namespace sl_sensor
 {
@@ -27,10 +28,11 @@ struct LightcrafterSinglePattern
     , invert_pattern(invert_pattern_)
     , insert_black_frame(insert_black_frame_)
     , buffer_swap(buffer_swap_)
-    , trigger_out_prev(trigger_out_prev_)
-  {
-  }
+    , trigger_out_prev(trigger_out_prev_){};
 };
+
+std::ostream& operator<<(std::ostream& out, const LightcrafterSinglePattern& single_pattern);
+
 }  // namespace projector
 
 }  // namespace sl_sensor

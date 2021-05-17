@@ -46,7 +46,7 @@ public:
 private:
   Lightcrafter4500Api projector_;
   YAML::Node proj_config_;
-  unsigned int backup_exposure_period_us_ = 1000;
+  unsigned int backup_exposure_period_us_ = 1000000;
   LightcrafterSinglePattern backup_single_pattern_ =
       LightcrafterSinglePattern(0, 0, 8, 7, 0, false, false, true, false);
   unsigned char backup_rgb_[3] = { 104, 135, 130 };

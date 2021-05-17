@@ -1,12 +1,12 @@
 properties:
-  triggerType: 1 # 0 - Projector internal timer # 1 - Hardware trigger
-  diamondPixel: 1
-  resolution: [912, 1140]
+    triggerType: 0 # 0 - Projector internal timer # 1 - Hardware trigger
+    diamondPixel: 1
+    resolution: [912, 1140]
 
 defaultSettings:
-  &defaultRgb: [0, 60, 0]
-  &defaultDisplayColour: 7
-  &defaultExposureUs: 16667
+  - &defaultRgb [0, 60, 0]
+  - &defaultDisplayColour 7
+  - &defaultExposureUs 16667
 
 patterns:
   calibrationPattern:
@@ -16,5 +16,3 @@ patterns:
     displayColour: *defaultDisplayColour
     imageIndices: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
     channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
-
-

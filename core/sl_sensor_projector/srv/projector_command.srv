@@ -1,4 +1,0 @@
-string command
-int64 pattern_no
----
-bool success

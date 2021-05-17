@@ -34,7 +34,7 @@ ${HEADER_LIST})
 # We need this directory, and users of our library will need it too
 target_include_directories(lc4500api PUBLIC "${lc4500api_SOURCE_DIR}/include")
 target_include_directories(lc4500api PUBLIC ${LIBUSB_INCLUDE_DIR})
-#target_link_libraries(lc4500api PUBLIC libusb)
-#target_link_libraries(lc4500api PUBLIC libudev)
+target_link_libraries(lc4500api PUBLIC usb-1.0)
+target_link_libraries(lc4500api PUBLIC udev)
 
 

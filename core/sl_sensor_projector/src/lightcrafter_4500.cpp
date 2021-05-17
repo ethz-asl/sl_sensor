@@ -20,6 +20,10 @@ Lightcrafter4500::~Lightcrafter4500()
 void Lightcrafter4500::LoadYaml(const std::string& yaml_directory)
 {
   proj_config_ = YAML::LoadFile(yaml_directory);
+
+  std::cout << "YAML file loaded successfully." << std::endl;
+  std::cout << "Values:" << std::endl;
+  std::cout << proj_config_ << std::endl;
 }
 
 bool Lightcrafter4500::Init()
@@ -117,7 +121,7 @@ bool Lightcrafter4500::DisplayBlack()
 
 bool Lightcrafter4500::PatternExists(const std::string& pattern_name)
 {
-  if (proj_config_["patterns"])
+  if (!proj_config_["patterns"])
   {
     std::cout << "The 'patterns' field does not exist in the projector YAML file. Cannot search for pattern "
               << pattern_name << "." << std::endl;
@@ -178,6 +182,11 @@ bool Lightcrafter4500::SetLed(const std::string& pattern_name)
 
 bool Lightcrafter4500::ProjectSinglePattern(const std::string& pattern_name, int pattern_indice)
 {
+  if (!PatternExists(pattern_name))
+  {
+    return false;
+  }
+
   SetLed(pattern_name);
 
   std::vector<LightcrafterSinglePattern> pattern_vec = {};
@@ -188,6 +197,9 @@ bool Lightcrafter4500::ProjectSinglePattern(const std::string& pattern_name, int
   exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?
                                        proj_config_["patterns"][pattern_name]["exposureUs"].as<unsigned int>() :
                                        backup_exposure_period_us_;
+
+  // std::cout << "Exposure: " << exposure_period << std::endl;
+
   int status = projector_.PlayPatternSequence(pattern_vec, exposure_period, frame_period);
 
   return (status < 0) ? false : true;
@@ -200,6 +212,8 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
 
 std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(const std::string& pattern_name)
 {
+  std::vector<LightcrafterSinglePattern> temp;
+  return temp;
 }
 
 LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& pattern_name, int pattern_indice)
@@ -224,6 +238,8 @@ LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& 
   single_pattern.insert_black_frame = backup_single_pattern_.insert_black_frame;
   single_pattern.buffer_swap = backup_single_pattern_.buffer_swap;
   single_pattern.trigger_out_prev = backup_single_pattern_.trigger_out_prev;
+
+  // std::cout << single_pattern << std::endl;
 
   return single_pattern;
 }
