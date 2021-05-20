@@ -11,8 +11,8 @@ Lightcrafter4500 projector;
 bool SendProjectorCommand(sl_sensor_projector::SendProjectorCommand::Request &req,
                           sl_sensor_projector::SendProjectorCommand::Response &res)
 {
-  auto command_const_char(req.command.c_str());
-  std::string command(command_const_char);
+  // auto command_const_char(req.command.c_str());
+  std::string command(req.command);
   int pattern_no = req.pattern_no;
 
   if (command == "white")
