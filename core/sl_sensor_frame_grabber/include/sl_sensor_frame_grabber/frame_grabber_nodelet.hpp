@@ -71,6 +71,7 @@ private:
   void Update();
 };
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::frame_grabber::FrameGrabberNodelet, nodelet::Nodelet);
 }  // namespace frame_grabber
 }  // namespace sl_sensor
+
+PLUGINLIB_EXPORT_CLASS(sl_sensor::frame_grabber::FrameGrabberNodelet, nodelet::Nodelet);

@@ -15,10 +15,9 @@ cs_add_library(${PROJECT_NAME}
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
-#target_link_libraries(${PROJECT_NAME} lc4500api yaml-cpp)
 
 ##########
 # EXPORT #
 ##########
-#cs_install()
-#cs_export()
+cs_install()
+cs_export()

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "sl_sensor_frame_grabber/frame_grabber_nodelet.hpp"
 
 namespace sl_sensor
@@ -19,6 +20,7 @@ void FrameGrabberNodelet::onInit()
 
   private_nh_.param<std::string>("image_topic", image_sub_topic_, image_sub_topic_);
   private_nh_.param<std::string>("projector_topic", projector_timing_sub_topic_, projector_timing_sub_topic_);
+  private_nh_.param<std::string>("output_topic", image_array_pub_topic_, image_array_pub_topic_);
   private_nh_.param<std::string>("frame_id", frame_id_, frame_id_);
 
   image_array_pub_ = nh_.advertise<sl_sensor_frame_grabber::ImageArray>(image_array_pub_topic_, 10);
