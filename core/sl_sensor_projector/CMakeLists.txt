@@ -3,6 +3,7 @@ project(sl_sensor_projector)
 
 find_package(catkin_simple REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(OpenCV REQUIRED)
 
 catkin_simple(ALL_DEPS_REQUIRED)
 

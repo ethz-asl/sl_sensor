@@ -6,7 +6,6 @@
 #include <sensor_msgs/Image.h>
 #include <versavis/TimeNumbered.h>
 #include <boost/thread/thread.hpp>
-#include <iterator>
 #include <string>
 #include <vector>
 
