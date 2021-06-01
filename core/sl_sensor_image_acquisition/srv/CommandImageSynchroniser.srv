@@ -1,0 +1,7 @@
+string command
+string pattern_name
+bool is_hardware_trigger
+int64 number_scans
+int64 delay_ms
+---
+bool success

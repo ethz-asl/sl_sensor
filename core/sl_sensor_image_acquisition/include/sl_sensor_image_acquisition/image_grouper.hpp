@@ -29,7 +29,7 @@ public:
 
   void SetImageTriggerPeriod(double trigger_period);
 
-  bool RetrieveImageGroup(const ros::Time& projector_time, std::vector<sensor_msgs::Image>& result_image_vec);
+  bool RetrieveImageGroup(const ros::Time& projector_time, std::vector<sensor_msgs::ImageConstPtr>& result_image_vec);
 
 private:
   ros::NodeHandle nh_;

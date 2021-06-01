@@ -59,7 +59,7 @@ void ImageGrouper::SetImageTriggerPeriod(double trigger_period)
 };
 
 bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
-                                      std::vector<sensor_msgs::Image>& result_image_vec)
+                                      std::vector<sensor_msgs::ImageConstPtr>& result_image_vec)
 {
   bool success = false;
 
@@ -104,16 +104,12 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
     success = true;
   }
 
-  // Fill in result image vector
+  // If successful
   if (success)
   {
-    // Populate output vector
+    // Fill in result image vector
     result_image_vec.clear();
-    for (const auto img_ptr : temp_img_ptr_vec)
-    {
-      auto& img = *img_ptr;
-      result_image_vec.emplace_back(std::move(img));
-    }
+    result_image_vec.swap(temp_img_ptr_vec);
 
     // Clear all images before and including this frame
     ClearAllImagesFromBufferBeforeTiming(temp_img_ptr_vec.back()->header.stamp);

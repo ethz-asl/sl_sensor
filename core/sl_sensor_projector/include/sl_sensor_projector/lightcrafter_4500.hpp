@@ -43,6 +43,10 @@ public:
 
   bool SetLed(const std::string& pattern_name = "");
 
+  static bool PatternExists(const YAML::Node& config, const std::string& pattern_name);
+
+  static int GetNumberProjections(const YAML::Node& config, const std::string& pattern_name);
+
 private:
   Lightcrafter4500Api projector_;
   YAML::Node proj_config_;

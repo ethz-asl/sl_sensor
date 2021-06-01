@@ -119,9 +119,9 @@ bool Lightcrafter4500::DisplayBlack()
   return (status < 0) ? false : true;
 }
 
-bool Lightcrafter4500::PatternExists(const std::string& pattern_name)
+bool Lightcrafter4500::PatternExists(const YAML::Node& config, const std::string& pattern_name)
 {
-  if (!proj_config_["patterns"])
+  if (!config["patterns"])
   {
     std::cout << "The 'patterns' field does not exist in the projector YAML file. Cannot search for pattern "
               << pattern_name << "." << std::endl;
@@ -130,7 +130,7 @@ bool Lightcrafter4500::PatternExists(const std::string& pattern_name)
 
   bool pattern_exists = false;
 
-  for (YAML::const_iterator it = proj_config_["patterns"].begin(); it != proj_config_["patterns"].end(); ++it)
+  for (YAML::const_iterator it = config["patterns"].begin(); it != config["patterns"].end(); ++it)
   {
     if (it->first.as<std::string>() == it->first.as<std::string>())
     {
@@ -140,6 +140,11 @@ bool Lightcrafter4500::PatternExists(const std::string& pattern_name)
   }
 
   return pattern_exists;
+}
+
+bool Lightcrafter4500::PatternExists(const std::string& pattern_name)
+{
+  return PatternExists(proj_config_, pattern_name);
 }
 
 bool Lightcrafter4500::SetLed(const std::string& pattern_name)
@@ -233,12 +238,19 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
   return (status < 0) ? false : true;
 }
 
+int Lightcrafter4500::GetNumberProjections(const YAML::Node& config, const std::string& pattern_name)
+{
+  return (PatternExists(config, pattern_name)) ?
+             static_cast<int>(config["patterns"][pattern_name]["channelNumbers"].size()) :
+             -1;
+}
+
 std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(const std::string& pattern_name)
 {
   std::vector<LightcrafterSinglePattern> pattern_vec = {};
 
   int prev_image_indice = -1;
-  int number_projections = static_cast<int>(proj_config_["patterns"][pattern_name]["channelNumbers"].size());
+  int number_projections = GetNumberProjections(proj_config_, pattern_name);
 
   for (int i = 0; i < number_projections; i++)
   {
