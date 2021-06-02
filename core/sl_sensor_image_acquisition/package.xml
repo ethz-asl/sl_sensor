@@ -23,6 +23,7 @@
   <depend>sensor_msgs</depend>
   <depend>versavis</depend>
   <depend>cv_bridge</depend>
+  <depend>sl_sensor_projector</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

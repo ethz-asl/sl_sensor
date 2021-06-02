@@ -3,7 +3,7 @@ project(sl_sensor_image_acquisition)
 find_package(OpenCV REQUIRED)
 
 find_package(catkin_simple REQUIRED)
-
+find_package(yaml-cpp REQUIRED)
 
 catkin_simple(ALL_DEPS_REQUIRED)
 
@@ -15,10 +15,11 @@ add_definitions(-std=c++17 -Wall -Wextra)
 cs_add_library(${PROJECT_NAME}
   src/image_grouper.cpp
   src/image_array_logger_nodelet.cpp
+  src/image_synchroniser_nodelet.cpp
   )
 
-target_include_directories(${PROJECT_NAME} PUBLIC "/include")
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${YAML_CPP_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} yaml-cpp ${OpenCV_LIBS})
 
 ##########
 # EXPORT #

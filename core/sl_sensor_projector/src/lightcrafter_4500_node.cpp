@@ -1,4 +1,4 @@
-#include "sl_sensor_projector/SendProjectorCommand.h"
+#include "sl_sensor_projector/CommandProjector.h"
 #include "sl_sensor_projector/lightcrafter_4500.hpp"
 
 #include <ros/ros.h>
@@ -8,8 +8,8 @@ using namespace sl_sensor::projector;
 
 Lightcrafter4500 projector;
 
-bool SendProjectorCommand(sl_sensor_projector::SendProjectorCommand::Request &req,
-                          sl_sensor_projector::SendProjectorCommand::Response &res)
+bool CommandProjector(sl_sensor_projector::CommandProjector::Request &req,
+                      sl_sensor_projector::CommandProjector::Response &res)
 {
   // auto command_const_char(req.command.c_str());
   std::string command(req.command);
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   std::string projector_yaml_directory;
   nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
 
-  ros::ServiceServer service = nh.advertiseService("send_projector_command", SendProjectorCommand);
+  ros::ServiceServer service = nh.advertiseService("command_projector", CommandProjector);
 
   projector.LoadYaml(projector_yaml_directory);
   bool init_success = projector.Init();
