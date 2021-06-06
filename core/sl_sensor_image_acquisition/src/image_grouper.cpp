@@ -59,7 +59,8 @@ void ImageGrouper::SetImageTriggerPeriod(double trigger_period)
 };
 
 bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
-                                      std::vector<sensor_msgs::ImageConstPtr>& result_image_vec)
+                                      std::vector<sensor_msgs::ImageConstPtr>& result_image_vec,
+                                      bool clear_image_buffer_if_successful)
 {
   bool success = false;
 
@@ -112,13 +113,22 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
     result_image_vec.swap(temp_img_ptr_vec);
 
     // Clear all images before and including this frame
-    ClearAllImagesFromBufferBeforeTiming(temp_img_ptr_vec.back()->header.stamp);
+    if (clear_image_buffer_if_successful)
+    {
+      ClearAllImagesFromBufferBeforeTimingNoLock(temp_img_ptr_vec.back()->header.stamp);
+    }
   }
 
   return success;
 }
 
 void ImageGrouper::ClearAllImagesFromBufferBeforeTiming(const ros::Time& target_time)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+  ClearAllImagesFromBufferBeforeTimingNoLock(target_time);
+}
+
+void ImageGrouper::ClearAllImagesFromBufferBeforeTimingNoLock(const ros::Time& target_time)
 {
   int counter = 0;
 
@@ -159,6 +169,11 @@ bool ImageGrouper::GetImagePtrFromBuffer(const ros::Time& target_time, sensor_ms
   }
 
   return result;
+}
+
+sensor_msgs::ImageConstPtr ImageGrouper::GetLatestImage()
+{
+  return (image_ptr_buffer_.empty()) ? nullptr : image_ptr_buffer_.back();
 }
 
 }  // namespace image_acquisition

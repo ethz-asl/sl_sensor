@@ -6,8 +6,9 @@
 #include <sensor_msgs/Image.h>
 #include <versavis/TimeNumbered.h>
 #include <yaml-cpp/yaml.h>
+#include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
-#include <string>
+#include <memory>
 #include <vector>
 
 #include "sl_sensor_image_acquisition/CommandImageSynchroniser.h"
@@ -28,21 +29,20 @@ private:
   ros::Subscriber projector_timing_sub_;
   ros::ServiceServer synchroniser_service_;
 
-  std::string image_array_pub_topic_ = "";
-  std::string projector_timing_sub_topic_ = "";
+  std::string image_array_pub_topic_ = "/image_synchroniser_output";
+  std::string projector_timing_sub_topic_ = "/projector_timing";
   std::string frame_id_ = "";
 
   std::string projector_yaml_directory_ = "";
 
   boost::mutex mutex_;
 
-  ros::Time latest_projector_time_;
+  std::vector<ros::Time> projector_time_buffer_;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  ImageGrouper image_grouper_1_;
-  ImageGrouper image_grouper_2_;
+  std::vector<std::unique_ptr<ImageGrouper>> image_grouper_ptrs_ = {};
 
   YAML::Node projector_config_;
   std::string projector_service_name_;
@@ -51,6 +51,8 @@ private:
   double lower_bound_tol_ = 0.0f;
   double upper_bound_tol_ = 0.0f;
   double image_trigger_period_ = 0.0f;
+
+  boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
 
   virtual void onInit();
 
@@ -61,9 +63,9 @@ private:
 
   void PublishImageArray(const std::vector<sensor_msgs::ImageConstPtr>& image_ptr_vec);
 
-  void ExecuteCommandHardwareTrigger();
+  bool ExecuteCommandHardwareTrigger();
 
-  void ExecuteCommandSoftwareTrigger();
+  bool ExecuteCommandSoftwareTrigger();
 
   void SendProjectorCommand(const std::string& command, int pattern_no);
 
@@ -78,9 +80,40 @@ private:
     int number_images_per_scan = 0;
 
     SynchroniserState(){};
+
+    void Reset()
+    {
+      pattern_name = "";
+      is_running = false;
+      is_hardware_trigger = false;
+      delay = 0.0f;
+      target_number_scans = 0;
+      current_number_scans = 0;
+      number_images_per_scan = 0;
+    };
   };
 
   SynchroniserState synchroniser_state_;
+
+  void MainLoop();
+
+  void Cleanup();
+
+  template <typename T>
+  void MergeNestedVectors(std::vector<std::vector<T>>& input, std::vector<T>& output)
+  {
+    output.clear();
+
+    for (int i = 0; i < (int)input.size(); i++)
+    {
+      std::move(input[i].begin(), input[i].end(), std::back_inserter(output));
+      input[i].erase(input[i].begin(), input[i].end());  // TODO Need to test if clear() does the same job
+    }
+  };
+
+  void ClearAllProjectorTimingsFromBufferBeforeTiming(const ros::Time& target_time);
+
+  std::vector<std::string> SplitString(const std::string& s, const std::string& delimiter);
 };
 
 }  // namespace image_acquisition
