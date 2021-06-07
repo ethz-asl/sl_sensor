@@ -52,13 +52,6 @@ unsigned int Lightcrafter4500::GetExposurePeriod()
                                                                        backup_exposure_period_us_);
 }
 
-int Lightcrafter4500::GetTriggerType()
-{
-  return static_cast<int>(proj_config_["properties"]["triggerType"] ?
-                              proj_config_["properties"]["triggerType"].as<int>() :
-                              backup_single_pattern_.trigger_type);
-}
-
 bool Lightcrafter4500::DisplayWhite()
 {
   SetLed();
@@ -67,9 +60,7 @@ bool Lightcrafter4500::DisplayWhite()
 
   // Settings for white pattern (pattern number 24, bit depth 1, invert pattern)
   LightcrafterSinglePattern white_pattern;
-  white_pattern.trigger_type = proj_config_["properties"]["triggerType"] ?
-                                   proj_config_["properties"]["triggerType"].as<int>() :
-                                   backup_single_pattern_.trigger_type;
+  white_pattern.trigger_type = 0;
   white_pattern.pattern_number = 24;
   white_pattern.bit_depth = 1;
   white_pattern.led_select = 7;
@@ -97,9 +88,7 @@ bool Lightcrafter4500::DisplayBlack()
 
   // Settings for black pattern (pattern number 24, bit depth 1)
   LightcrafterSinglePattern black_pattern;
-  black_pattern.trigger_type = proj_config_["properties"]["triggerType"] ?
-                                   proj_config_["properties"]["triggerType"].as<int>() :
-                                   backup_single_pattern_.trigger_type;
+  black_pattern.trigger_type = 0;
   black_pattern.pattern_number = 24;
   black_pattern.bit_depth = 1;
   black_pattern.led_select = 7;
@@ -221,12 +210,14 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
 
   std::vector<LightcrafterSinglePattern> pattern_vec = GetPatternSequence(pattern_name);
 
-  /**
+  int counter = 0;
   for (const auto& pattern : pattern_vec)
   {
+    counter++;
+
+    std::cout << counter << ")" << std::endl;
     std::cout << pattern << std::endl;
   }
-  **/
 
   unsigned int exposure_period, frame_period;
   exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?
@@ -271,7 +262,7 @@ std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(cons
                          backup_single_pattern_.led_select;
 
     LightcrafterSinglePattern temp1;
-    temp1.trigger_type = GetTriggerType();
+    temp1.trigger_type = (i == 0) ? 1 : 3;  // First pattern is hardware triggered, the rest are internal timer based
     temp1.pattern_number = pattern_number;
     temp1.bit_depth = bit_depth;
     temp1.led_select = led_select;
@@ -304,7 +295,7 @@ LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& 
 {
   LightcrafterSinglePattern single_pattern;
 
-  single_pattern.trigger_type = GetTriggerType();
+  single_pattern.trigger_type = 0;
   single_pattern.pattern_number =
       proj_config_["patterns"][pattern_name]["channelNumbers"][pattern_indice] ?
           proj_config_["patterns"][pattern_name]["channelNumbers"][pattern_indice].as<int>() :

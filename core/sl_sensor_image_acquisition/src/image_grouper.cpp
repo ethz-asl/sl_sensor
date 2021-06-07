@@ -1,5 +1,8 @@
 #include "sl_sensor_image_acquisition/image_grouper.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
+
 namespace sl_sensor
 {
 namespace image_acquisition
@@ -23,9 +26,17 @@ void ImageGrouper::Init(ros::NodeHandle nh)
 void ImageGrouper::ImageCb(const sensor_msgs::ImageConstPtr& image_ptr)
 {
   boost::mutex::scoped_lock lock(mutex_);
+
   if (is_running_)
   {
-    image_ptr_buffer_.emplace_back(image_ptr);
+    image_ptr_buffer_.push_back(image_ptr);
+    std::cout << "Camera: " << std::to_string(image_ptr->header.stamp.toSec()) << std::endl;
+
+    // auto cv_img_ptr = cv_bridge::toCvShare(image_ptr);
+
+    // std::string filename =
+    //    "/home/ltf/Desktop/logged_data/debug_" + std::to_string(image_ptr->header.stamp.toNSec()) + ".bmp";
+    // cv::imwrite(filename, cv_img_ptr->image);
   }
 }
 
@@ -80,22 +91,27 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
   // We check if we can retrieve all images that make up a frame for the current projector time
   for (int i = 0; i < number_images_per_group_; i++)
   {
-    auto target_time = projector_time + ros::Duration(i * image_trigger_period_);
+    auto target_time = projector_time + ros::Duration((double)i * image_trigger_period_);
 
     sensor_msgs::ImageConstPtr temp_ptr;
 
     bool image_acquisition_successful = GetImagePtrFromBuffer(target_time, temp_ptr);
 
+    // std::cout << image_acquisition_successful << " " << i << " " << temp_ptr->header.stamp.toSec() -
+    // target_time.toSec()
+    //         << std::endl;
+
     if (image_acquisition_successful)
     {
       // Successful frame acquisition, store the image pointer in temp_img_ptr_vec
       temp_img_ptr_vec.push_back(temp_ptr);
-      continue;
+      // std::cout << "Successful at the " << i + 1 << "th image" << std::endl;
     }
     else
     {
       // If not successful, we stop the looking for next image
       // std::cout << "Unsuccessful at the " << i + 1 << "th image" << std::endl;
+      break;
     }
   }
 
@@ -109,13 +125,14 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
   if (success)
   {
     // Fill in result image vector
+    ros::Time last_image_time = temp_img_ptr_vec.back()->header.stamp;
     result_image_vec.clear();
     result_image_vec.swap(temp_img_ptr_vec);
 
     // Clear all images before and including this frame
     if (clear_image_buffer_if_successful)
     {
-      ClearAllImagesFromBufferBeforeTimingNoLock(temp_img_ptr_vec.back()->header.stamp);
+      ClearAllImagesFromBufferBeforeTimingNoLock(last_image_time);
     }
   }
 
@@ -171,9 +188,23 @@ bool ImageGrouper::GetImagePtrFromBuffer(const ros::Time& target_time, sensor_ms
   return result;
 }
 
-sensor_msgs::ImageConstPtr ImageGrouper::GetLatestImage()
+sensor_msgs::ImageConstPtr ImageGrouper::GetLatestImageAndClearBuffer()
 {
-  return (image_ptr_buffer_.empty()) ? nullptr : image_ptr_buffer_.back();
+  boost::mutex::scoped_lock lock(mutex_);
+
+  // We make a copy of the latest image pointer (not just get the reference) in the buffer
+  auto pointer = sensor_msgs::ImageConstPtr((image_ptr_buffer_.empty()) ? nullptr : image_ptr_buffer_.back());
+
+  // Clear buffer
+  ClearBuffer();
+
+  return pointer;
+}
+
+void ImageGrouper::ClearBuffer()
+{
+  // Clear buffer
+  image_ptr_buffer_.clear();
 }
 
 }  // namespace image_acquisition

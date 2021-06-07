@@ -1,5 +1,4 @@
 properties:
-    triggerType: 0 # 0 - Projector internal timer # 1 - Hardware trigger
     diamondPixel: 1
     resolution: [912, 1140]
 

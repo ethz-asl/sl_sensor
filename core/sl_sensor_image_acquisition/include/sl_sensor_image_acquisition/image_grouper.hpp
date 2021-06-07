@@ -34,7 +34,9 @@ public:
 
   void ClearAllImagesFromBufferBeforeTiming(const ros::Time& target_time);
 
-  sensor_msgs::ImageConstPtr GetLatestImage();
+  void ClearBuffer();
+
+  sensor_msgs::ImageConstPtr GetLatestImageAndClearBuffer();
 
 private:
   void ClearAllImagesFromBufferBeforeTimingNoLock(const ros::Time& target_time);
