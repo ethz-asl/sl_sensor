@@ -210,6 +210,7 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
 
   std::vector<LightcrafterSinglePattern> pattern_vec = GetPatternSequence(pattern_name);
 
+  /**
   int counter = 0;
   for (const auto& pattern : pattern_vec)
   {
@@ -218,6 +219,7 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
     std::cout << counter << ")" << std::endl;
     std::cout << pattern << std::endl;
   }
+  **/
 
   unsigned int exposure_period, frame_period;
   exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?

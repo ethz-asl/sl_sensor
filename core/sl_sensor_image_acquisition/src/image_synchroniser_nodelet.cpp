@@ -83,7 +83,7 @@ void ImageSynchroniserNodelet::ProjectorTimeCb(const versavis::TimeNumberedConst
   if (synchroniser_state_.is_running && synchroniser_state_.is_hardware_trigger)
   {
     projector_time_buffer_.push_back(time_numbered_ptr->time);
-    std::cout << "Projector: " << std::to_string(time_numbered_ptr->time.toSec()) << std::endl;
+    // std::cout << "Projector: " << std::to_string(time_numbered_ptr->time.toSec()) << std::endl;
   }
 }
 
@@ -95,8 +95,16 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 
   boost::mutex::scoped_lock lock(mutex_);
 
+  res.success = true;
+
   if (command == "start")
   {
+    // If already running, we clean up the sychronizer first
+    if (synchroniser_state_.is_running)
+    {
+      Cleanup();
+    }
+
     std::string pattern_name(req.pattern_name);
     bool pattern_exists = projector::Lightcrafter4500::PatternExists(projector_config_, pattern_name);
 
@@ -119,10 +127,6 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
         ros::Duration(synchroniser_state_.delay).sleep();
         projector_time_buffer_.clear();
       }
-      else
-      {
-        ROS_INFO("[ImageSynchroniserNodelet] Cannot execute command, pattern does not exist");
-      }
 
       // Configure ImageGrabbers to start collecting images
       for (const auto& grouper_ptr : image_grouper_ptrs_)
@@ -131,6 +135,11 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
             (synchroniser_state_.is_hardware_trigger) ? synchroniser_state_.number_images_per_scan : 1);
         grouper_ptr->Start();
       }
+    }
+    else
+    {
+      ROS_INFO("[ImageSynchroniserNodelet] Cannot execute command, pattern does not exist");
+      res.success = false;
     }
   }
   else if (command == "stop")
@@ -291,7 +300,7 @@ void ImageSynchroniserNodelet::MainLoop()
       // If successful, we update the number of scans retrieved
       if (success_this_iteration)
       {
-        std::cout << "Success this iteration" << std::endl;
+        // std::cout << "Success this iteration" << std::endl;
         synchroniser_state_.current_number_scans++;
 
         // If we have met the target number, we reset cleanup
@@ -302,6 +311,8 @@ void ImageSynchroniserNodelet::MainLoop()
         }
       }
     }
+
+    ros::Duration(0.001f).sleep();  // Need this sleep or else nodelet will not respond to service calls
   }
 }
 

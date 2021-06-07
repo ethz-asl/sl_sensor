@@ -30,7 +30,7 @@ void ImageGrouper::ImageCb(const sensor_msgs::ImageConstPtr& image_ptr)
   if (is_running_)
   {
     image_ptr_buffer_.push_back(image_ptr);
-    std::cout << "Camera: " << std::to_string(image_ptr->header.stamp.toSec()) << std::endl;
+    // std::cout << "Camera: " << std::to_string(image_ptr->header.stamp.toSec()) << std::endl;
 
     // auto cv_img_ptr = cv_bridge::toCvShare(image_ptr);
 
