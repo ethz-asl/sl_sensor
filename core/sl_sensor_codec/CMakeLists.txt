@@ -14,6 +14,7 @@ add_definitions(-std=c++17 -Wall -Wextra)
 #############
 cs_add_library(${PROJECT_NAME}
   src/phase_shift_utilities.cpp
+  src/codec.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ros/ros.h>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
@@ -12,60 +13,59 @@ enum class CodecDirection
   kNone = 0,
   kHorizontal = 1 << 0,
   kVertical = 1 << 1,
-  kBoth = CodecDirHorizontal | CodecDirVertical
-}
+  kBoth = kHorizontal | kVertical
+};
 
 class Encoder
 {
 public:
-  Encoder(unsigned int screen_cols, unsigned int screen_rows,
-          CodecDirection direction_ = CodecDirection::CodecDirHorizontal)
-    : number_patterns_(0), screen_cols_(screen_cols), screen_rows_(screen_rows), direction_(direction_)
-  {
-  }
-  unsigned int GetNumberPatterns()
-  {
-    return number_patterns_;
-  }
-  CodecDirection GetDirection()
-  {
-    return direction_;
-  }
+  Encoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection direction_ = CodecDirection::kHorizontal);
+
+  Encoder(ros::NodeHandle nh);
+
+  unsigned int GetNumberPatterns();
+
+  CodecDirection GetDirection();
+
   virtual cv::Mat GetEncodingPattern(unsigned int depth) = 0;
+
+  std::vector<cv::Mat> GetEncodingPatterns();
+
   virtual ~Encoder(){};
 
 protected:
-  unsigned int number_patterns_;
+  unsigned int number_patterns_ = 0;
   unsigned int screen_cols_, screen_rows_;
   CodecDirection direction_;
+
+  virtual void InitFromRosNodeHandle(ros::NodeHandle nh);
 };
 
 class Decoder
 {
 public:
-  Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir = CodecDirection::CodecDirHorizontal)
-    : number_patterns_(0), screen_cols_(screen_cols), screen_rows_(screen_rows), direction_(dir)
-  {
-  }
-  unsigned int GetNumberPatterns()
-  {
-    return number_patterns_;
-  }
-  CodecDirection GetPatternDirection()
-  {
-    return direction_;
-  }
-  // Decoding
-  virtual void SetFrame(unsigned int depth, const cv::Mat frame) = 0;
+  Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir = CodecDirection::kHorizontal);
+
+  Decoder(ros::NodeHandle nh);
+
+  unsigned int GetNumberPatterns();
+
+  CodecDirection GetPatternDirection();
+
+  void SetFrames(std::vector<cv::Mat> &&frames);
+
   virtual void DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading) = 0;
+
   virtual ~Decoder(){};
 
 protected:
-  unsigned int number_patterns_;
+  unsigned int number_patterns_ = 0;
   unsigned int screen_cols_, screen_rows_;
+  std::vector<cv::Mat> frames_;
   CodecDirection direction_;
+
+  virtual void InitFromRosNodeHandle(ros::NodeHandle nh);
 };
 
 }  // namespace codec
-
 }  // namespace sl_sensor
