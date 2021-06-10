@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor_image_codec</name>
+  <name>sl_sensor_codec</name>
   <version>0.0.0</version>
   <description>Codec for different structured light patterns</description>
 
