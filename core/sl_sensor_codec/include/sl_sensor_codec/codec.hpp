@@ -37,8 +37,7 @@ protected:
   unsigned int number_patterns_ = 0;
   unsigned int screen_cols_, screen_rows_;
   CodecDirection direction_;
-
-  virtual void InitFromRosNodeHandle(ros::NodeHandle nh);
+  void InitFromRosNodeHandle(ros::NodeHandle nh);
 };
 
 class Decoder
@@ -64,7 +63,7 @@ protected:
   std::vector<cv::Mat> frames_;
   CodecDirection direction_;
 
-  virtual void InitFromRosNodeHandle(ros::NodeHandle nh);
+  void InitFromRosNodeHandle(ros::NodeHandle nh);
 };
 
 }  // namespace codec

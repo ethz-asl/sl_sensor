@@ -7,23 +7,29 @@ namespace sl_sensor
 {
 namespace codec
 {
-class PhaseShiftWithTPUEncoder : public Encoder
+class PhaseShiftWithTpuEncoder : public Encoder
 {
 public:
-  PhaseShiftWithTPUEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDir dir);
+  PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
+                           unsigned int number_phases);
+  PhaseShiftWithTpuEncoder(ros::NodeHandle nh);
   virtual cv::Mat GetEncodingPattern(unsigned int depth) override;
 
 private:
   std::vector<cv::Mat> patterns_;
+  int number_phases_ = 1;
+  void GeneratePatterns();
 };
 
-class PhaseShiftWithTPUDecoder : public Decoder
+class PhaseShiftWithTpuDecoder : public Decoder
 {
 public:
-  PhaseShiftWithTPUDecoder(unsigned int screen_cols, unsigned int screen_rows, CodecDir dir);
-  virtual void SetFrame(unsigned int depth, cv::Mat frame) override;
-  vritual void DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading);
+  PhaseShiftWithTpuDecoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
+                           unsigned int number_phases);
+  PhaseShiftWithTpuDecoder(ros::NodeHandle nh);
+  virtual void DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading) override;
 
 private:
-  std::vector<cv::Mat> frames_;
+  int number_phases_ = 1;
+  int shading_threshold_ = 55;
 };
