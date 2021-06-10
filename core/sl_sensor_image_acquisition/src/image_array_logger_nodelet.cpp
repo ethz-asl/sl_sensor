@@ -2,7 +2,6 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <cstdint>
-#include <iostream>
 #include <opencv2/opencv.hpp>
 
 namespace sl_sensor

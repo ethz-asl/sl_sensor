@@ -68,7 +68,7 @@ CodecDirection Decoder::GetPatternDirection()
   return direction_;
 }
 
-void Decoder::SetFrames(std::vector<cv::Mat> &&frames)
+void Decoder::SetFrames(std::vector<cv::Mat>&& frames)
 {
   frames_ = frames;
 }
@@ -111,6 +111,11 @@ std::tuple<int, int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros:
   }
 
   return std::make_tuple(screen_rows, screen_cols, direction);
+}
+
+void Decoder::SetFrame(const cv::Mat& frame, unsigned int number)
+{
+  frames_[number] = frame;
 }
 
 }  // namespace codec

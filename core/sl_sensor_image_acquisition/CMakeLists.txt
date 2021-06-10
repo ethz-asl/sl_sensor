@@ -16,6 +16,7 @@ cs_add_library(${PROJECT_NAME}
   src/image_grouper.cpp
   src/image_array_logger_nodelet.cpp
   src/image_synchroniser_nodelet.cpp
+  src/image_array_utilities.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${YAML_CPP_INCLUDE_DIR})

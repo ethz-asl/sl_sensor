@@ -61,8 +61,6 @@ private:
   bool ProcessImageSynchroniserCommand(sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
                                        sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
 
-  void PublishImageArray(const std::vector<sensor_msgs::ImageConstPtr>& image_ptr_vec, const ros::Time& timestamp);
-
   bool ExecuteCommandHardwareTrigger();
 
   bool ExecuteCommandSoftwareTrigger();

@@ -1,8 +1,9 @@
-#pramga once
+#pragma once
 
 #include <ros/ros.h>
 #include <memory>
 
+#include "sl_sensor_codec/codec.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_codec.hpp"
 
 namespace sl_sensor
@@ -28,7 +29,7 @@ public:
     return std::move(output_ptr);
   };
 
-  static std::unique_ptr<Decoder> GetInstanceEncoder(const std::string& decoder_name, ros::NodeHandle nh)
+  static std::unique_ptr<Decoder> GetInstanceDecoder(const std::string& decoder_name, ros::NodeHandle nh)
   {
     std::unique_ptr<Decoder> output_ptr;
 

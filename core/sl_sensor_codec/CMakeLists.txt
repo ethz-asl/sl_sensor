@@ -15,7 +15,9 @@ add_definitions(-std=c++17 -Wall -Wextra)
 cs_add_library(${PROJECT_NAME}
   src/phase_shift_utilities.cpp
   src/codec.cpp
+  src/decoder_nodelet.cpp
   )
+
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})

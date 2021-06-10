@@ -1,4 +1,5 @@
 #include <iostream>
+#include "sl_sensor_image_acquisition/image_array_utilities.hpp"
 #include "sl_sensor_image_acquisition/image_synchroniser_nodelet.hpp"
 
 #include <sl_sensor_projector/CommandProjector.h>
@@ -150,23 +151,6 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
   return true;
 }
 
-void ImageSynchroniserNodelet::PublishImageArray(const std::vector<sensor_msgs::ImageConstPtr>& image_vec,
-                                                 const ros::Time& timestamp)
-{
-  sl_sensor_image_acquisition::ImageArray img_arr;
-
-  img_arr.header.stamp = timestamp;
-  img_arr.header.frame_id = frame_id_;
-
-  for (const auto img_ptr : image_vec)
-  {
-    auto& img = *img_ptr;
-    img_arr.data.emplace_back(std::move(img));
-  }
-
-  image_array_pub_.publish(img_arr);
-}
-
 bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
 {
   ros::Time successful_projector_time;
@@ -219,7 +203,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     // Process and publish image array
     std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
     MergeNestedVectors(nested_img_ptr_vec, imgs_to_publish);
-    PublishImageArray(imgs_to_publish, successful_projector_time);
+    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_);
   }
 
   return success;
@@ -274,7 +258,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
 
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
-  PublishImageArray(imgs_to_publish, ros::Time::now());
+  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_);
 
   return true;
 }

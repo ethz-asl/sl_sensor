@@ -53,6 +53,8 @@ public:
 
   void SetFrames(std::vector<cv::Mat> &&frames);
 
+  void SetFrame(const cv::Mat &frame, unsigned int number);
+
   virtual void DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading) = 0;
 
   virtual ~Decoder(){};

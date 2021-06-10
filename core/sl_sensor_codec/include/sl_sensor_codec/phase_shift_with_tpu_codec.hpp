@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "sl_sensor_codec/codec.h"
+#include "sl_sensor_codec/codec.hpp"
 
 namespace sl_sensor
 {
@@ -33,3 +33,5 @@ private:
   int number_phases_ = 1;
   int shading_threshold_ = 55;
 };
+}  // namespace codec
+}  // namespace sl_sensor
