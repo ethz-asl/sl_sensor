@@ -16,7 +16,6 @@ ImageSynchroniserNodelet::ImageSynchroniserNodelet()
 
 void ImageSynchroniserNodelet::onInit()
 {
-  // nh_ = getNodeHandle();
   nh_ = getMTNodeHandle();  // Need to use multi threaded node so callbacks still work while nodelet is grouping images
   private_nh_ = getPrivateNodeHandle();
 
