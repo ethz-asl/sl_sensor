@@ -23,7 +23,7 @@ cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double
 }
 
 // Absolute phase from 3 frames
-cv::Mat GetPhase(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
+cv::Mat GetPhase(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
 {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
@@ -37,7 +37,7 @@ cv::Mat GetPhase(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
 }
 
 // Absolute magnitude from 3 frames
-cv::Mat GetMagnitude(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
+cv::Mat GetMagnitude(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
 {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
@@ -53,7 +53,7 @@ cv::Mat GetMagnitude(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
 }
 
 // Phase unwrapping by means of a phase cue
-cv::Mat UnwrapWithCue(const cv::Mat up, const cv::Mat up_cue, unsigned int n_phases)
+cv::Mat UnwrapWithCue(const cv::Mat& up, const cv::Mat& up_cue, unsigned int n_phases)
 {
   // Determine number of jumps
   cv::Mat P = (up_cue * n_phases - up) / (2 * M_PI);

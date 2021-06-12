@@ -15,16 +15,15 @@ unsigned int GetNumberPatternsPhaseShiftWithTpu(CodecDirection dir)
 // Encoder
 PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows,
                                                    CodecDirection dir, unsigned int number_phases)
-  : Encoder(screen_cols, screen_rows, dir)
-  , number_patterns_(GetNumberPatternsPhaseShiftWithTpu(dir))
-  , number_phases_(number_phases)
+  : Encoder(screen_cols, screen_rows, dir), number_phases_(number_phases)
 {
+  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(direction_);
   GeneratePatterns();
 }
 
 PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(ros::NodeHandle nh) : Encoder(nh)
 {
-  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(dir);
+  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(direction_);
 
   nh.param<int>("number_phases", number_phases_, number_phases_);
 
@@ -33,13 +32,13 @@ PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(ros::NodeHandle nh) : Encoder
 
 void PhaseShiftWithTpuEncoder::GeneratePatterns()
 {
-  if (dir & CodecDirection::kHorizontal)
+  if (direction_ == CodecDirection::kHorizontal || direction_ == CodecDirection::kBoth)
   {
     // Horizontally encoding patterns_
     for (unsigned int i = 0; i < 3; i++)
     {
       float phase = 2.0 * M_PI / 3.0 * i;
-      float pitch = (float)screen_cols_ / (float)number_phases;
+      float pitch = (float)screen_cols_ / (float)number_phases_;
       cv::Mat pattern(1, 1, CV_8U);
       pattern = ComputePhaseVector(screen_cols_, phase, pitch);
       pattern = pattern.t();
@@ -50,14 +49,15 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
     for (unsigned int i = 0; i < 3; i++)
     {
       float phase = 2.0 * M_PI / 3.0 * i;
-      float pitch = screen_cols;
+      float pitch = screen_cols_;
       cv::Mat pattern;
       pattern = ComputePhaseVector(screen_cols_, phase, pitch);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
   }
-  if (dir & CodecDirection::kVertical)
+
+  if (direction_ == CodecDirection::kVertical || direction_ == CodecDirection::kBoth)
   {
     // Precompute vertically encoding patterns_
     for (unsigned int i = 0; i < 3; i++)
@@ -81,18 +81,17 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
   }
 }
 
-cv::Mat PhaseShiftWithTpuEncoder::getEncodingPattern(unsigned int depth)
+cv::Mat PhaseShiftWithTpuEncoder::GetEncodingPattern(unsigned int depth)
 {
   return patterns_[depth];
 }
 
 // Decoder
 PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(unsigned int screen_cols, unsigned int screen_rows,
-                                                   CodecDirection dir, unsignded int number_phases)
-  : Decoder(screen_cols, screen_rows, dir)
-  , number_patterns_(GetNumberPatternsPhaseShiftWithTpu(dir))
-  , number_phases_(number_phases)
+                                                   CodecDirection dir, unsigned int number_phases)
+  : Decoder(screen_cols, screen_rows, dir), number_phases_(number_phases)
 {
+  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(dir);
 }
 
 PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(ros::NodeHandle nh) : Decoder(nh)
@@ -100,15 +99,13 @@ PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(ros::NodeHandle nh) : Decoder
   nh.param<int>("number_phases", number_phases_, number_phases_);
   nh.param<int>("shading_threshold", shading_threshold_, shading_threshold_);
 
-  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(dir);
+  number_patterns_ = GetNumberPatternsPhaseShiftWithTpu(direction_);
 }
 
 void PhaseShiftWithTpuDecoder::DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading)
 {
-  if (dir & CodecDirection::kHorizontal)
+  if (direction_ == CodecDirection::kHorizontal || direction_ == CodecDirection::kBoth)
   {
-    std::vector<cv::Mat> framesHorz(frames.begin(), frames.begin() + 6);
-
     // Horizontal decoding
     up = GetPhase(frames_[0], frames_[1], frames_[2]);
 
@@ -118,7 +115,7 @@ void PhaseShiftWithTpuDecoder::DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &m
 
     up *= screen_cols_ / (2 * M_PI);
   }
-  if (dir & CodecDirection::kVertical)
+  if (direction_ == CodecDirection::kVertical || direction_ == CodecDirection::kBoth)
   {
     // Vertical decoding
     vp = GetPhase(frames_[6], frames_[7], frames_[8]);
@@ -128,7 +125,7 @@ void PhaseShiftWithTpuDecoder::DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &m
   }
 
   // Calculate modulation
-  shading = GetMagnitude(frames[0], frames[1], frames[2]);
+  shading = GetMagnitude(frames_[0], frames_[1], frames_[2]);
 
   // Generate shading
   mask = shading > shading_threshold_;

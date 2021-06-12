@@ -23,9 +23,4 @@
   <depend>sl_sensor_image_acquisition</depend>
   <depend>sensor_msgs</depend>
 
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-      <nodelet plugin="${prefix}/nodelet_plugins.xml"/>
-  </export>
-
 </package>

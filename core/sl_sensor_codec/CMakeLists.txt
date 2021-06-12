@@ -16,6 +16,7 @@ cs_add_library(${PROJECT_NAME}
   src/phase_shift_utilities.cpp
   src/codec.cpp
   src/decoder_nodelet.cpp
+  src/phase_shift_with_tpu_codec.cpp
   )
 
 
