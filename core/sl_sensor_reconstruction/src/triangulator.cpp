@@ -86,8 +86,8 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
   vc_.reshape(0, 1).copyTo(proj_points_cam_.row(1));
 }
 
-void Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading,
-                               cv::Mat &point_cloud)
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp,
+                                                                 const cv::Mat &mask, const cv::Mat &shading)
 {
   cv::Mat up_to_triangulate;
   cv::Mat vp_to_triangulate;
@@ -117,8 +117,37 @@ void Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::M
     TriangulateFromUpVp(up_to_triangulate, vp_to_triangulate, xyz);
 
   // Mask
-  point_cloud = cv::Mat(up.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
-  xyz.copyTo(point_cloud, mask);
+  cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
+  xyz.copyTo(masked_xyz, mask);
+
+  // Convert to pcl dense point cloud
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>());
+
+  pcl_pc_ptr->width = masked_xyz.cols;
+  pcl_pc_ptr->height = masked_xyz.rows;
+  pcl_pc_ptr->is_dense = true;
+
+  pcl_pc_ptr->points.resize(masked_xyz.rows * masked_xyz.cols);
+
+  for (int row = 0; row < masked_xyz.rows; row++)
+  {
+    int offset = row * pcl_pc_ptr->width;
+    for (int col = 0; col < masked_xyz.cols; col++)
+    {
+      const cv::Vec3f point_coords = masked_xyz.at<cv::Vec3f>(row, col);
+      unsigned char shade = shading.at<unsigned char>(row, col);
+      pcl::PointXYZRGB point;
+      point.x = point_coords[0];
+      point.y = point_coords[1];
+      point.z = point_coords[2];
+      point.r = shade;
+      point.g = shade;
+      point.b = shade;
+      pcl_pc_ptr->points[offset + col] = point;
+    }
+  }
+
+  return pcl_pc_ptr;
 }
 
 void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)

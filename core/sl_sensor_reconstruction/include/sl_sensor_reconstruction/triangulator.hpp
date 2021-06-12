@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <opencv2/opencv.hpp>
 #include <sl_sensor_calibration/calibration_data.hpp>
 #include <vector>
@@ -13,8 +15,8 @@ class Triangulator
 public:
   Triangulator(calibration::CalibrationData calibration);
   calibration::CalibrationData GetCalibrationData();
-  void Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading,
-                   cv::Mat &point_cloud);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+                                                     const cv::Mat &shading);
 
 private:
   void TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz);
