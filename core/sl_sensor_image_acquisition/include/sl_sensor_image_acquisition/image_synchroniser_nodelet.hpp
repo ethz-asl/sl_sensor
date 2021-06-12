@@ -105,7 +105,7 @@ private:
     for (int i = 0; i < (int)input.size(); i++)
     {
       std::move(input[i].begin(), input[i].end(), std::back_inserter(output));
-      input[i].erase(input[i].begin(), input[i].end());  // TODO Need to test if clear() does the same job
+      input[i].clear();  // TODO Need to test if clear() does the same job
     }
   };
 

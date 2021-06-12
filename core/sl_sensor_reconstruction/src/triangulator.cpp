@@ -64,7 +64,7 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
 
   // Precompute lens correction maps
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
-  cv::initUndistortRectifyMap(calibration_data_.Kc_, calibration_data_.Kc_, eye, calibration_data_.Kc_,
+  cv::initUndistortRectifyMap(calibration_data_.Kc_, calibration_data_.kc_, eye, calibration_data_.Kc_,
                               cv::Size(calibration_data_.frame_width_, calibration_data_.frame_height_), CV_16SC2,
                               lens_map_1_, lens_map_2_);
 
@@ -79,9 +79,10 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
                                  C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vc_;
   }
 
-  // For UpVpTriangulate
-  int number_pixels_ = uc_.rows * uc_.cols;
+  // Precompute camera coordinates matrix in UpVpTriangulate
+  int number_pixels_ = calibration_data_.frame_height_ * calibration_data_.frame_width_;
   proj_points_cam_ = cv::Mat(2, number_pixels_, CV_32F);
+
   uc_.reshape(0, 1).copyTo(proj_points_cam_.row(0));
   vc_.reshape(0, 1).copyTo(proj_points_cam_.row(1));
 }
@@ -89,36 +90,54 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp,
                                                                  const cv::Mat &mask, const cv::Mat &shading)
 {
-  cv::Mat up_to_triangulate;
-  cv::Mat vp_to_triangulate;
-  cv::Mat mask_to_triangulate;
-  cv::Mat shading_to_triangulate;
+  cv::Mat up_undistorted;
+  cv::Mat vp_undistorted;
+  cv::Mat mask_undistorted;
+  cv::Mat shading_undistorted;
 
   // Undistort up, mask and shading
   if (!up.empty())
   {
-    cv::remap(up, up_to_triangulate, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+    cv::remap(up, up_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   }
   if (!vp.empty())
   {
-    cv::remap(vp, vp_to_triangulate, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+    cv::remap(vp, vp_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   }
 
-  cv::remap(mask, mask_to_triangulate, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
-  cv::remap(shading, shading_to_triangulate, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+
+  std::cout << "Triangulating" << std::endl;
+
+  std::cout << "up " << up.size() << std::endl;
+  std::cout << "vp " << vp.size() << std::endl;
+  std::cout << "mask " << mask.size() << std::endl;
+  std::cout << "shading " << shading.size() << std::endl;
 
   // Triangulate
   cv::Mat xyz;
   if (!up.empty() && vp.empty())
-    TriangulateFromUp(up_to_triangulate, xyz);
+  {
+    std::cout << "Good" << std::endl;
+    TriangulateFromUp(up_undistorted, xyz);
+  }
   else if (!vp.empty() && up.empty())
-    TriangulateFromVp(vp_to_triangulate, xyz);
+  {
+    TriangulateFromVp(vp_undistorted, xyz);
+  }
   else if (!up.empty() && !vp.empty())
-    TriangulateFromUpVp(up_to_triangulate, vp_to_triangulate, xyz);
+  {
+    TriangulateFromUpVp(up_undistorted, vp_undistorted, xyz);
+  }
+
+  std::cout << "Masking" << std::endl;
 
   // Mask
   cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
-  xyz.copyTo(masked_xyz, mask);
+  xyz.copyTo(masked_xyz, mask_undistorted);
+
+  std::cout << "Converting" << std::endl;
 
   // Convert to pcl dense point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -135,7 +154,7 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &
     for (int col = 0; col < masked_xyz.cols; col++)
     {
       const cv::Vec3f point_coords = masked_xyz.at<cv::Vec3f>(row, col);
-      unsigned char shade = shading.at<unsigned char>(row, col);
+      unsigned char shade = shading_undistorted.at<unsigned char>(row, col);
       pcl::PointXYZRGB point;
       point.x = point_coords[0];
       point.y = point_coords[1];

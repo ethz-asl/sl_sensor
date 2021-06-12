@@ -63,7 +63,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
 
   // Publish results
   image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array->header.frame_id,
-                                     image_array->header.stamp, ros::Time::now());
+                                     image_array->header.stamp, ros::Time::now(), { "32FC1", "32FC1", "8UC1", "8UC1" });
 };
 
 }  // namespace codec

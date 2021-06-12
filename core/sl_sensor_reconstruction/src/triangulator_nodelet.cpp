@@ -48,6 +48,8 @@ void TriangulatorNodelet::onInit()
 
 void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr &image_array_ptr)
 {
+  std::cout << "Triangulator Received" << std::endl;
+
   // Do not continue if image array does not contain the expected number of images
   if (image_array_ptr->data.size() != (unsigned int)(number_cameras_ * 4))
   {
@@ -61,16 +63,22 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
   ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
+  std::cout << "Converted" << std::endl;
+
   // Triangulate (currently only supports one camera for now)
   auto pc_ptr = triangulator_ptr_->Triangulate(cv_img_ptr_vec[0]->image, cv_img_ptr_vec[1]->image,
                                                cv_img_ptr_vec[2]->image, cv_img_ptr_vec[3]->image);
 
+  std::cout << "triangulated" << std::endl;
+
   // Publish point cloud
-  sensor_msgs::PointCloud2Ptr pc_msg_ptr;
+  sensor_msgs::PointCloud2Ptr pc_msg_ptr = boost::make_shared<sensor_msgs::PointCloud2>();
   pcl::toROSMsg(*pc_ptr, *pc_msg_ptr);
   pc_msg_ptr->header.frame_id = image_array_ptr->header.frame_id;
   pc_msg_ptr->header.stamp = image_array_ptr->header.stamp;
   pc_pub_.publish(pc_msg_ptr);
+
+  std::cout << "published" << std::endl;
 };
 
 }  // namespace reconstruction

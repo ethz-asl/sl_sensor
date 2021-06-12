@@ -7,7 +7,8 @@ namespace image_acquisition
 void PublishImageArray(ros::Publisher& publisher, const std::vector<sensor_msgs::ImageConstPtr>& image_vec,
                        const ros::Time& timestamp, const std::string& frame_id)
 {
-  sl_sensor_image_acquisition::ImageArrayPtr img_arr_ptr;
+  sl_sensor_image_acquisition::ImageArrayPtr img_arr_ptr =
+      boost::make_shared<sl_sensor_image_acquisition::ImageArray>();
 
   img_arr_ptr->header.stamp = timestamp;
   img_arr_ptr->header.frame_id = frame_id;
@@ -26,16 +27,18 @@ void ConvertImgArrToCvPtrVec(const sl_sensor_image_acquisition::ImageArrayConstP
 {
   cv_ptr_vec.clear();
 
-  for (const auto& img_ptr : image_array_ptr->data)
+  for (const auto& img : image_array_ptr->data)
   {
-    cv_ptr_vec.push_back(cv_bridge::toCvShare(img_ptr, nullptr));
+    cv_ptr_vec.push_back(cv_bridge::toCvShare(img, nullptr));
   }
 }
 
 void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_mat_vec, const std::string& frame_id,
-                     const ros::Time& array_timestamp, const ros::Time& image_timestamp)
+                     const ros::Time& array_timestamp, const ros::Time& image_timestamp,
+                     const std::vector<std::string>& encodings_vec)
 {
-  sl_sensor_image_acquisition::ImageArrayPtr output_message_ptr;
+  sl_sensor_image_acquisition::ImageArrayPtr output_message_ptr =
+      boost::make_shared<sl_sensor_image_acquisition::ImageArray>();
 
   output_message_ptr->header.stamp = array_timestamp;
   output_message_ptr->header.frame_id = frame_id;
@@ -47,7 +50,7 @@ void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_m
 
   for (unsigned int i = 0; i < cv_mat_vec.size(); i++)
   {
-    cv_bridge::CvImage(image_header, "", cv_mat_vec[i]).toImageMsg(output_message_ptr->data[i]);
+    cv_bridge::CvImage(image_header, encodings_vec[i], cv_mat_vec[i]).toImageMsg(output_message_ptr->data[i]);
   }
 
   publisher.publish(output_message_ptr);

@@ -45,8 +45,8 @@
 <cam_error>1.0470532892729212e-01</cam_error>
 <proj_error>2.8798399419313675e-01</proj_error>
 <stereo_error>2.4725644009481756e-01</stereo_error>
-<frameWidth>720</frameWidth>
-<frameHeight>540</frameHeight>
-<screenResX>912</screenResX>
-<screenResY>1140</screenResY>
+<frame_width>720</frame_width>
+<frame_height>540</frame_height>
+<screen_res_x>912</screen_res_x>
+<screen_res_y>1140</screen_res_y>
 </opencv_storage>

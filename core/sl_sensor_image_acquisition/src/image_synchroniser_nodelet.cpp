@@ -254,7 +254,6 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
   }
 
   // Merge all vectors together and publish
-
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
   PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_);

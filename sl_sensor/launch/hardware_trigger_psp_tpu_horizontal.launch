@@ -26,7 +26,7 @@
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="screen_rows" type="int" value="540" />
   <param name="screen_cols" type="int" value="720" />
-  <param name="direction" type="string" value="vertical" />
+  <param name="direction" type="string" value="horizontal" />
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
   <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   <param name="number_phases" type="int" value="12" />
@@ -34,13 +34,11 @@
 
 </node>		  
 
-<!--
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <param name="input_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="output_topic" type="string" value="/triangulator/point_cloud" />
   <param name="calibration_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/bf3_mono.xml" />
   <param name="number_cameras" type="int" value="$(arg number_cameras)" />
 </node>		  
--->
 
 </launch>

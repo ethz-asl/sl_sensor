@@ -18,7 +18,8 @@ void ConvertImgArrToCvPtrVec(const sl_sensor_image_acquisition::ImageArrayConstP
                              std::vector<cv_bridge::CvImageConstPtr>& cv_ptr_vec);
 
 void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_mat_vec, const std::string& frame_id,
-                     const ros::Time& array_timestamp, const ros::Time& image_timestamp);
+                     const ros::Time& array_timestamp, const ros::Time& image_timestamp,
+                     const std::vector<std::string>& encodings_vec);
 
 }  // namespace image_acquisition
 
