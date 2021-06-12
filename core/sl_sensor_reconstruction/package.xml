@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sl_sensor_reconstruction</name>
+  <version>0.0.0</version>
+  <description>Conversion of decoded images to 3D point cloud</description>
+
+  <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>catkin_simple</buildtool_depend>
+  
+
+  <build_depend>pluginlib</build_depend>
+  <build_depend>nodelet</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+
+  <depend>roscpp</depend>
+  <depend>cv_bridge</depend>
+  <depend>sl_sensor_image_acquisition</depend>
+  <depend>sl_sensor_calibration</depend>
+  <depend>sensor_msgs</depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+      <nodelet plugin="${prefix}/nodelet_plugins.xml"/>
+  </export>
+
+</package>
