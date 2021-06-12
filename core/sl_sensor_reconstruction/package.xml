@@ -23,6 +23,7 @@
   <depend>cv_bridge</depend>
   <depend>sl_sensor_image_acquisition</depend>
   <depend>sl_sensor_calibration</depend>
+  <depend>pcl_conversions</depend>
   <depend>sensor_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->

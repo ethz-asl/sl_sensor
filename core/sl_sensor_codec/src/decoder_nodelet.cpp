@@ -42,7 +42,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
     return;
   }
 
-  // Convert image msg to cv img msg
+  // Convert image msg to cv img
   std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
   image_acquisition::ConvertImgArrToCvPtrVec(image_array, cv_img_ptr_vec);
 

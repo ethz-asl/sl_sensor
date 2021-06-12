@@ -14,6 +14,7 @@ add_definitions(-std=c++17 -Wall -Wextra)
 #############
 cs_add_library(${PROJECT_NAME}
   src/triangulator.cpp
+  src/triangulator_nodelet.cpp
 )
 
 

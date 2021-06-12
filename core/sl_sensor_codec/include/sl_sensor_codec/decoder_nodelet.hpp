@@ -28,8 +28,8 @@ private:
   ros::Publisher decoded_pub_;
   ros::Subscriber image_array_sub_;
 
-  std::string image_array_sub_topic_ = "/image_synchroniser_output";
-  std::string decoded_pub_topic_ = "/projector_timing";
+  std::string image_array_sub_topic_ = "/grouped_images_input";
+  std::string decoded_pub_topic_ = "/decoded_images_output";
   std::string decoder_name_ = "";
 
   std::unique_ptr<Decoder> decoder_ptr_;
