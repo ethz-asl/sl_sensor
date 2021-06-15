@@ -108,18 +108,18 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &
   cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
 
-  std::cout << "Triangulating" << std::endl;
+  // std::cout << "Triangulating" << std::endl;
 
-  std::cout << "up " << up.size() << std::endl;
-  std::cout << "vp " << vp.size() << std::endl;
-  std::cout << "mask " << mask.size() << std::endl;
-  std::cout << "shading " << shading.size() << std::endl;
+  // std::cout << "up " << up.size() << std::endl;
+  // std::cout << "vp " << vp.size() << std::endl;
+  // std::cout << "mask " << mask.size() << std::endl;
+  // std::cout << "shading " << shading.size() << std::endl;
 
   // Triangulate
   cv::Mat xyz;
   if (!up.empty() && vp.empty())
   {
-    std::cout << "Good" << std::endl;
+    // std::cout << "Good" << std::endl;
     TriangulateFromUp(up_undistorted, xyz);
   }
   else if (!vp.empty() && up.empty())
@@ -131,13 +131,13 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &
     TriangulateFromUpVp(up_undistorted, vp_undistorted, xyz);
   }
 
-  std::cout << "Masking" << std::endl;
+  // std::cout << "Masking" << std::endl;
 
   // Mask
   cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
   xyz.copyTo(masked_xyz, mask_undistorted);
 
-  std::cout << "Converting" << std::endl;
+  // std::cout << "Converting" << std::endl;
 
   // Convert to pcl dense point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -184,7 +184,9 @@ void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
   cv::Mat winv;
   cv::divide(1.0, xyzw[3], winv);
   for (unsigned int i = 0; i < 3; i++)
+  {
     xyzw[i] = xyzw[i].mul(winv);
+  }
 
   // Merge
   cv::merge(std::vector<cv::Mat>(xyzw.begin(), xyzw.begin() + 3), xyz);

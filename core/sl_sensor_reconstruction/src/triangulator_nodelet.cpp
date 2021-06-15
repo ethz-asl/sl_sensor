@@ -1,8 +1,11 @@
 #include "sl_sensor_reconstruction/triangulator_nodelet.hpp"
 
 #include <cv_bridge/cv_bridge.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <algorithm>
 #include <sl_sensor_calibration/calibration_data.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
@@ -13,6 +16,18 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
+void ImageSc(const cv::Mat& mydata, const std::string& title)
+{
+  cv::Mat display;
+  float Amin = *std::min_element(mydata.begin<float>(), mydata.end<float>());
+  float Amax = *std::max_element(mydata.begin<float>(), mydata.end<float>());
+  cv::Mat A_scaled = (mydata - Amin) / (Amax - Amin);
+  A_scaled.convertTo(display, CV_8UC1, 255.0, 0);
+  cv::applyColorMap(display, display, cv::COLORMAP_JET);
+  cv::imshow(title, display);
+  cv::waitKey(0);
+}
+
 TriangulatorNodelet::TriangulatorNodelet(){};
 
 void TriangulatorNodelet::onInit()
@@ -26,6 +41,13 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<std::string>("output_topic", pc_pub_topic_, pc_pub_topic_);
   private_nh_.param<std::string>("calibration_file", calibration_filename_, calibration_filename_);
   private_nh_.param<int>("number_cameras", number_cameras_, number_cameras_);
+  private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
+  private_nh_.param<float>("crop_box_x_min", crop_box_x_min_, crop_box_x_min_);
+  private_nh_.param<float>("crop_box_y_min", crop_box_y_min_, crop_box_y_min_);
+  private_nh_.param<float>("crop_box_z_min", crop_box_z_min_, crop_box_z_min_);
+  private_nh_.param<float>("crop_box_x_max", crop_box_x_max_, crop_box_x_max_);
+  private_nh_.param<float>("crop_box_y_max", crop_box_y_max_, crop_box_y_max_);
+  private_nh_.param<float>("crop_box_z_max", crop_box_z_max_, crop_box_z_max_);
 
   // Load Calibration Data
   CalibrationData calibration_data;
@@ -38,6 +60,8 @@ void TriangulatorNodelet::onInit()
     ROS_ERROR("[TriangulatorNodelet] Failed to load calibration data!");
   }
 
+  std::cout << calibration_data << std::endl;
+
   // Setup Triangulator
   triangulator_ptr_ = std::make_unique<Triangulator>(calibration_data);
 
@@ -46,10 +70,8 @@ void TriangulatorNodelet::onInit()
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &TriangulatorNodelet::ImageArrayCb, this);
 };
 
-void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr &image_array_ptr)
+void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
 {
-  std::cout << "Triangulator Received" << std::endl;
-
   // Do not continue if image array does not contain the expected number of images
   if (image_array_ptr->data.size() != (unsigned int)(number_cameras_ * 4))
   {
@@ -63,13 +85,26 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
   ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
-  std::cout << "Converted" << std::endl;
+  // ImageSc(cv_img_ptr_vec[0]->image, "up");
+  // ImageSc(cv_img_ptr_vec[1]->image, "vp");
+  // ImageSc(cv_img_ptr_vec[2]->image, "mask");
+  // ImageSc(cv_img_ptr_vec[3]->image, "shading");
 
   // Triangulate (currently only supports one camera for now)
   auto pc_ptr = triangulator_ptr_->Triangulate(cv_img_ptr_vec[0]->image, cv_img_ptr_vec[1]->image,
                                                cv_img_ptr_vec[2]->image, cv_img_ptr_vec[3]->image);
 
-  std::cout << "triangulated" << std::endl;
+  // Apply box filter if specified (point cloud will no longer be organised!)
+  if (apply_crop_box_)
+  {
+    pcl::CropBox<pcl::PointXYZRGB> crop_box;
+    crop_box.setMin(Eigen::Vector4f(crop_box_x_min_, crop_box_y_min_, crop_box_z_min_, 1.0));
+    crop_box.setMax(Eigen::Vector4f(crop_box_x_max_, crop_box_y_max_, crop_box_z_max_, 1.0));
+    crop_box.setInputCloud(pc_ptr);
+    crop_box.filter(*pc_ptr);
+  }
+
+  // pcl::io::savePCDFileASCII("/home/ltf/Desktop/debug.pcd", *pc_ptr);
 
   // Publish point cloud
   sensor_msgs::PointCloud2Ptr pc_msg_ptr = boost::make_shared<sensor_msgs::PointCloud2>();
@@ -77,8 +112,6 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   pc_msg_ptr->header.frame_id = image_array_ptr->header.frame_id;
   pc_msg_ptr->header.stamp = image_array_ptr->header.stamp;
   pc_pub_.publish(pc_msg_ptr);
-
-  std::cout << "published" << std::endl;
 };
 
 }  // namespace reconstruction

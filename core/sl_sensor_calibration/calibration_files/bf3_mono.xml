@@ -5,46 +5,45 @@
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    1.17453613e+03 0. 3.72650238e+02 0. 1.17453613e+03 2.90268036e+02 0.
-    0. 1.</data></Kc>
+    9.91977783e+02 0. 360. 0. 9.91977783e+02 270. 0. 0. 1.</data></Kc>
 <kc type_id="opencv-matrix">
   <rows>5</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    -2.85857558e-01 -3.82164061e-01 -1.40800630e-03 2.33440055e-03
-    2.02422762e+00</data></kc>
+    -2.83137530e-01 -5.20223737e-01 -2.20861635e-03 3.08987405e-03
+    2.37214613e+00</data></kc>
 <Kp type_id="opencv-matrix">
   <rows>3</rows>
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    2.25599609e+03 0. 8.48076904e+02 0. 2.25599609e+03 1.15564575e+03 0.
+    2.27553125e+03 0. 8.50349426e+02 0. 2.27553125e+03 1.14146313e+03 0.
     0. 1.</data></Kp>
 <kp type_id="opencv-matrix">
   <rows>5</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    7.62482733e-02 -2.06917405e-01 -1.82408886e-03 -1.05248590e-03
-    1.12996854e-01</data></kp>
+    9.08654556e-02 -2.63714582e-01 -4.51020570e-03 -2.13742605e-03
+    2.24388972e-01</data></kp>
 <Rp type_id="opencv-matrix">
   <rows>3</rows>
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    9.99830902e-01 -1.29286945e-02 1.30750928e-02 1.29861431e-02
-    9.99906361e-01 -4.31845058e-03 -1.30180372e-02 4.48751543e-03
-    9.99905169e-01</data></Rp>
+    9.71605957e-01 5.27984165e-02 2.30638534e-01 -3.94437416e-03
+    9.78263021e-01 -2.07330316e-01 -2.36571878e-01 2.00533643e-01
+    9.50694501e-01</data></Rp>
 <Tp type_id="opencv-matrix">
   <rows>3</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    1.22650976e+01 -9.81340714e+01 -1.28261459e+02</data></Tp>
-<cam_error>1.0470532892729212e-01</cam_error>
-<proj_error>2.8798399419313675e-01</proj_error>
-<stereo_error>2.4725644009481756e-01</stereo_error>
+    -1.36432831e+02 -2.67260170e+01 -1.27655792e+01</data></Tp>
+<cam_error>1.0931238366256663e-01</cam_error>
+<proj_error>2.8725707850903509e-01</proj_error>
+<stereo_error>3.7889728577905463e-01</stereo_error>
 <frame_width>720</frame_width>
 <frame_height>540</frame_height>
 <screen_res_x>912</screen_res_x>

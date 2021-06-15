@@ -35,6 +35,14 @@ private:
   std::unique_ptr<Triangulator> triangulator_ptr_;
 
   int number_cameras_;
+
+  bool apply_crop_box_ = false;
+  float crop_box_x_min_ = -1.0e8;
+  float crop_box_y_min_ = -1.0e8;
+  float crop_box_z_min_ = -1.0e8;
+  float crop_box_x_max_ = 1.0e8;
+  float crop_box_y_max_ = 1.0e8;
+  float crop_box_z_max_ = 1.0e8;
 };
 
 }  // namespace reconstruction
