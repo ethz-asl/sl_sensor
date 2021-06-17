@@ -63,14 +63,9 @@ unsigned int Decoder::GetNumberPatterns()
   return number_patterns_;
 }
 
-CodecDirection Decoder::GetPatternDirection()
+CodecDirection Decoder::GetDirection()
 {
   return direction_;
-}
-
-void Decoder::SetFrames(std::vector<cv::Mat>&& frames)
-{
-  frames_ = frames;
 }
 
 void Decoder::InitFromRosNodeHandle(ros::NodeHandle nh)

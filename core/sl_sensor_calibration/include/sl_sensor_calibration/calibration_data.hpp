@@ -7,6 +7,10 @@ namespace sl_sensor
 {
 namespace calibration
 {
+/**
+ * @brief Class object that stores the calibration data of a SL system
+ *
+ */
 class CalibrationData
 {
 public:

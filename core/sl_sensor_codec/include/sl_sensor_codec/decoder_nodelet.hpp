@@ -12,6 +12,10 @@ namespace sl_sensor
 {
 namespace codec
 {
+/**
+ * @brief Nodelet that decodes an image sequence with structured light patterns
+ *
+ */
 class DecoderNodelet : public nodelet::Nodelet
 {
 public:

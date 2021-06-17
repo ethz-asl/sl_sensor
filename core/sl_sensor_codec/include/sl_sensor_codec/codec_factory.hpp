@@ -10,6 +10,10 @@ namespace sl_sensor
 {
 namespace codec
 {
+/**
+ * @brief Factory class that generates Encoders and Decoders
+ *
+ */
 class CodecFactory
 {
 public:

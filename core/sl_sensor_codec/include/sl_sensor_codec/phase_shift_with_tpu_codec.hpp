@@ -7,6 +7,10 @@ namespace sl_sensor
 {
 namespace codec
 {
+/**
+ * @brief Encoder for PSP with TPU pattern
+ *
+ */
 class PhaseShiftWithTpuEncoder : public Encoder
 {
 public:
@@ -21,6 +25,10 @@ private:
   void GeneratePatterns();
 };
 
+/**
+ * @brief Decoder for PSP with TPU pattern
+ *
+ */
 class PhaseShiftWithTpuDecoder : public Decoder
 {
 public:

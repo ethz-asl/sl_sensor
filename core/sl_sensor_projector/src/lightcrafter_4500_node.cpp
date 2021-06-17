@@ -11,8 +11,8 @@ Lightcrafter4500 projector;
 /**
  * @brief Process command projector service call
  * Usage:
- * command - "white", "black" or a pattern name.
- *
+ * command - "white", "black" or a pattern name. White and black will display a bright and dark projection respecitvely.
+ * pattern_no - Indice of the projection in the pattern sequenc to be displayed.
  *
  * @param req
  * @param res

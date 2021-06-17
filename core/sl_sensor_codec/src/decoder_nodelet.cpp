@@ -50,9 +50,9 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   std::vector<cv::Mat> decoder_results;
   decoder_results.resize(number_cameras_ * 4, cv::Mat(0, 0, CV_8UC1));
 
-  for (unsigned int i = 0; i < number_cameras_; i++)
+  for (int i = 0; i < number_cameras_; i++)
   {
-    for (unsigned int j = 0; j < number_patterns; j++)
+    for (int j = 0; j < (int)number_patterns; j++)
     {
       decoder_ptr_->SetFrame(cv_img_ptr_vec[i * number_patterns + j]->image, j);
     }
