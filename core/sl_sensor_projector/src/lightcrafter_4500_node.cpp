@@ -8,6 +8,17 @@ using namespace sl_sensor::projector;
 
 Lightcrafter4500 projector;
 
+/**
+ * @brief Process command projector service call
+ * Usage:
+ * command - "white", "black" or a pattern name.
+ *
+ *
+ * @param req
+ * @param res
+ * @return true
+ * @return false
+ */
 bool CommandProjector(sl_sensor_projector::CommandProjector::Request &req,
                       sl_sensor_projector::CommandProjector::Response &res)
 {

@@ -5,6 +5,10 @@ namespace sl_sensor
 {
 namespace projector
 {
+/**
+ * @brief Struct that contains the relevant information to project a pattern on the projector
+ *
+ */
 struct LightcrafterSinglePattern
 {
   int trigger_type = 0;

@@ -43,7 +43,7 @@ int Lightcrafter4500Api::Init()
     return -1;
   }
 
-  // Make sure LC is not in standby
+  // Make sure LC is not in standby, if it is, wait for 5 seconds
   bool is_standby;
   DLPC350_GetPowerMode(&is_standby);
   if (is_standby)
@@ -53,6 +53,7 @@ int Lightcrafter4500Api::Init()
     std::cout << "Lightcrafter is in Standby Mode, will take ~5 second to power up" << std::endl;
   }
 
+  // Continue checking for max_entries_ times if LC has existed standby mode, at 3 second intervals
   for (int i = 0; i < max_entries_; i++)
   {
     DLPC350_GetPowerMode(&is_standby);
@@ -118,14 +119,14 @@ int Lightcrafter4500Api::SendPatternSequence(unsigned int exposure_period_us, un
   int trig_mode = 0;
 
   // Pattern store cannot be empty
-  if (m_pattern_store.size() == 0)
+  if (pattern_store_.size() == 0)
   {
     ShowError("Pattern sequence is empty, cannnot send to Lightcrafter");
     return -1;
   }
 
   // Fix Buffer Swaps
-  check_and_fix_buffer_swaps();
+  CheckAndFixBufferSwaps();
 
   // Make sure the Pattern Exposure and Pattern Period timings are within the
   // spec
@@ -152,9 +153,9 @@ int Lightcrafter4500Api::SendPatternSequence(unsigned int exposure_period_us, un
 
   // Go through all patterns, check exposure timings for patterns that share the
   // same exposure period
-  for (i = 0; i < (int)m_pattern_store.size(); i++)
+  for (i = 0; i < (int)pattern_store_.size(); i++)
   {
-    auto curr_pattern = m_pattern_store[i];
+    auto curr_pattern = pattern_store_[i];
 
     // If first pattern, it is an invalid pattern sequence if it has no trigger
     if (i == 0 && curr_pattern.trigger_type == 3)
@@ -304,7 +305,7 @@ int Lightcrafter4500Api::SendPatternSequence(unsigned int exposure_period_us, un
     return -1;
   }
 
-  return validate_pattern();
+  return ValidatePattern();
 }
 
 void Lightcrafter4500Api::PrintProjectorInfo()
@@ -433,17 +434,17 @@ int Lightcrafter4500Api::SetVideoMode()
 
 int Lightcrafter4500Api::SetPatternSequenceStart()
 {
-  return set_pat_seq_mode(2);
+  return SetPatternSequenceMode(2);
 }
 
 int Lightcrafter4500Api::SetPatternSequencePause()
 {
-  return set_pat_seq_mode(1);
+  return SetPatternSequenceMode(1);
 }
 
 int Lightcrafter4500Api::SetPatternSequenceStop()
 {
-  return set_pat_seq_mode(0);
+  return SetPatternSequenceMode(0);
 }
 
 void Lightcrafter4500Api::SleepMs(int ms)
@@ -451,7 +452,7 @@ void Lightcrafter4500Api::SleepMs(int ms)
   std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-int Lightcrafter4500Api::set_pat_seq_mode(unsigned int desired_mode)
+int Lightcrafter4500Api::SetPatternSequenceMode(unsigned int desired_mode)
 {
   int result = -1;
 
@@ -495,27 +496,27 @@ int Lightcrafter4500Api::set_pat_seq_mode(unsigned int desired_mode)
 
 int Lightcrafter4500Api::AppendPatternSequence(const LightcrafterSinglePattern& pattern)
 {
-  m_pattern_store.push_back(pattern);
+  pattern_store_.push_back(pattern);
   return 0;
 }
 
 int Lightcrafter4500Api::ClearPatternSequence()
 {
-  m_pattern_store.clear();
+  pattern_store_.clear();
   return 0;
 }
 
-void Lightcrafter4500Api::check_and_fix_buffer_swaps()
+void Lightcrafter4500Api::CheckAndFixBufferSwaps()
 {
   int prev_img_indice = -1;  // Negative to ensure that first image indice is always differnt
 
-  for (int i = 0; i < (int)m_pattern_store.size(); i++)
+  for (int i = 0; i < (int)pattern_store_.size(); i++)
   {
-    int curr_img_indice = m_pattern_store[i].image_indice;
+    int curr_img_indice = pattern_store_[i].image_indice;
     // If image indice has changed, we make sure that buffer swap is enabled
-    if (prev_img_indice != curr_img_indice && !m_pattern_store[i].buffer_swap)
+    if (prev_img_indice != curr_img_indice && !pattern_store_[i].buffer_swap)
     {
-      m_pattern_store[i].buffer_swap = true;
+      pattern_store_[i].buffer_swap = true;
       std::cout << "Pattern with indice " << i << ": Change Buffer Swap to true since image indice " << curr_img_indice
                 << " is different from the previous indice " << prev_img_indice << std::endl;
     }
@@ -524,7 +525,7 @@ void Lightcrafter4500Api::check_and_fix_buffer_swaps()
   }
 }
 
-int Lightcrafter4500Api::validate_pattern()
+int Lightcrafter4500Api::ValidatePattern()
 {
   int i = 0;
   unsigned int status;
@@ -635,8 +636,8 @@ int Lightcrafter4500Api::GetLedCurrents(unsigned char& r, unsigned char& g, unsi
 
 int Lightcrafter4500Api::SetPatternSequence(const std::vector<LightcrafterSinglePattern>& pattern_vec)
 {
-  m_pattern_store.clear();
-  m_pattern_store = pattern_vec;
+  pattern_store_.clear();
+  pattern_store_ = pattern_vec;
   return 0;
 }
 

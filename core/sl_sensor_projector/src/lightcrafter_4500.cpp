@@ -46,7 +46,7 @@ bool Lightcrafter4500::Close()
   return (projector_.Close() < 0) ? false : true;
 }
 
-unsigned int Lightcrafter4500::GetExposurePeriod()
+unsigned int Lightcrafter4500::GetDefaultExposurePeriod()
 {
   return static_cast<unsigned int>(proj_config_["defaultExposureUs"] ? proj_config_["defaultExposureUs"].as<int>() :
                                                                        backup_exposure_period_us_);
@@ -71,7 +71,7 @@ bool Lightcrafter4500::DisplayWhite()
   white_pattern.trigger_out_prev = false;
 
   unsigned int exposure_period, frame_period;
-  exposure_period = frame_period = GetExposurePeriod();
+  exposure_period = frame_period = GetDefaultExposurePeriod();
 
   pattern_vec.push_back(white_pattern);
 
@@ -99,7 +99,7 @@ bool Lightcrafter4500::DisplayBlack()
   black_pattern.trigger_out_prev = false;
 
   unsigned int exposure_period, frame_period;
-  exposure_period = frame_period = GetExposurePeriod();
+  exposure_period = frame_period = GetDefaultExposurePeriod();
 
   pattern_vec.push_back(black_pattern);
 
