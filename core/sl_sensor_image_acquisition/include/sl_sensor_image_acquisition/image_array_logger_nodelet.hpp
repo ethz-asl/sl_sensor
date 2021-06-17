@@ -11,6 +11,10 @@ namespace sl_sensor
 {
 namespace image_acquisition
 {
+/**
+ * @brief Nodelet that saves the images in the image array that it receives
+ *
+ */
 class ImageArrayLoggerNodelet : public nodelet::Nodelet
 {
 public:
