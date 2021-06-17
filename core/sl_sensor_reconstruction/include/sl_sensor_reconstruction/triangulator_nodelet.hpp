@@ -12,6 +12,10 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
+/**
+ * @brief Nodelet that generates point clouds from decoded images
+ *
+ */
 class TriangulatorNodelet : public nodelet::Nodelet
 {
 public:

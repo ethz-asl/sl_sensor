@@ -16,18 +16,6 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
-void ImageSc(const cv::Mat& mydata, const std::string& title)
-{
-  cv::Mat display;
-  float Amin = *std::min_element(mydata.begin<float>(), mydata.end<float>());
-  float Amax = *std::max_element(mydata.begin<float>(), mydata.end<float>());
-  cv::Mat A_scaled = (mydata - Amin) / (Amax - Amin);
-  A_scaled.convertTo(display, CV_8UC1, 255.0, 0);
-  cv::applyColorMap(display, display, cv::COLORMAP_JET);
-  cv::imshow(title, display);
-  cv::waitKey(0);
-}
-
 TriangulatorNodelet::TriangulatorNodelet(){};
 
 void TriangulatorNodelet::onInit()
@@ -85,11 +73,6 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
   ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
-  // ImageSc(cv_img_ptr_vec[0]->image, "up");
-  // ImageSc(cv_img_ptr_vec[1]->image, "vp");
-  // ImageSc(cv_img_ptr_vec[2]->image, "mask");
-  // ImageSc(cv_img_ptr_vec[3]->image, "shading");
-
   // Triangulate (currently only supports one camera for now)
   auto pc_ptr = triangulator_ptr_->Triangulate(cv_img_ptr_vec[0]->image, cv_img_ptr_vec[1]->image,
                                                cv_img_ptr_vec[2]->image, cv_img_ptr_vec[3]->image);
@@ -103,8 +86,6 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     crop_box.setInputCloud(pc_ptr);
     crop_box.filter(*pc_ptr);
   }
-
-  // pcl::io::savePCDFileASCII("/home/ltf/Desktop/debug.pcd", *pc_ptr);
 
   // Publish point cloud
   sensor_msgs::PointCloud2Ptr pc_msg_ptr = boost::make_shared<sensor_msgs::PointCloud2>();

@@ -108,18 +108,10 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &
   cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
 
-  // std::cout << "Triangulating" << std::endl;
-
-  // std::cout << "up " << up.size() << std::endl;
-  // std::cout << "vp " << vp.size() << std::endl;
-  // std::cout << "mask " << mask.size() << std::endl;
-  // std::cout << "shading " << shading.size() << std::endl;
-
   // Triangulate
   cv::Mat xyz;
   if (!up.empty() && vp.empty())
   {
-    // std::cout << "Good" << std::endl;
     TriangulateFromUp(up_undistorted, xyz);
   }
   else if (!vp.empty() && up.empty())
@@ -131,13 +123,9 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::Triangulate(const cv::Mat &
     TriangulateFromUpVp(up_undistorted, vp_undistorted, xyz);
   }
 
-  // std::cout << "Masking" << std::endl;
-
-  // Mask
+  // Apply Mask
   cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
   xyz.copyTo(masked_xyz, mask_undistorted);
-
-  // std::cout << "Converting" << std::endl;
 
   // Convert to pcl dense point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -176,7 +164,6 @@ void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    //        xyzw[i].create(up.size(), CV_32F);
     xyzw[i] = xyzw_precompute_offset_[i] + xyzw_precompute_factor_[i].mul(up);
   }
 
@@ -199,7 +186,6 @@ void Triangulator::TriangulateFromVp(const cv::Mat &vp, cv::Mat &xyz)
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    //        xyzw[i].create(vp.size(), CV_32F);
     xyzw[i] = C.at<float>(cv::Vec4i(i, 0, 1, 1)) - C.at<float>(cv::Vec4i(i, 2, 1, 1)) * uc_ -
               C.at<float>(cv::Vec4i(i, 0, 2, 1)) * vc_ - C.at<float>(cv::Vec4i(i, 0, 1, 2)) * vp +
               C.at<float>(cv::Vec4i(i, 2, 1, 2)) * vp.mul(uc_) + C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vp.mul(vc_);
