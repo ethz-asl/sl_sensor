@@ -278,6 +278,7 @@ void ImageSynchroniserNodelet::MainLoop()
   while (ros::ok())
   {
     bool is_running;
+
     {
       boost::mutex::scoped_lock lock(mutex_);
       is_running = synchroniser_state_.is_running;
@@ -287,20 +288,33 @@ void ImageSynchroniserNodelet::MainLoop()
     {
       boost::mutex::scoped_lock lock(mutex_);
 
-      // If running, we try to retrieve an image sequence
-      bool success_this_iteration =
-          (synchroniser_state_.is_hardware_trigger) ? ExecuteCommandHardwareTrigger() : ExecuteCommandSoftwareTrigger();
-
-      // If successful, we update the number of scans retrieved
-      if (success_this_iteration)
+      if (!bad_data_)
       {
-        synchroniser_state_.current_number_scans++;
+        // If running and data is good, we try to retrieve an image sequence
+        bool success_this_iteration = (synchroniser_state_.is_hardware_trigger) ? ExecuteCommandHardwareTrigger() :
+                                                                                  ExecuteCommandSoftwareTrigger();
 
-        // If we have met the target number, we reset and cleanup
-        if (synchroniser_state_.target_number_scans > 0 &&
-            synchroniser_state_.current_number_scans >= synchroniser_state_.target_number_scans)
+        // If successful, we update the number of scans retrieved
+        if (success_this_iteration)
         {
-          Cleanup();
+          synchroniser_state_.current_number_scans++;
+
+          // If we have met the target number, we reset and cleanup
+          if (synchroniser_state_.target_number_scans > 0 &&
+              synchroniser_state_.current_number_scans >= synchroniser_state_.target_number_scans)
+          {
+            Cleanup();
+          }
+        }
+      }
+      else
+      {
+        // If bad data, we clear all projector time / image buffers since we assume all incoming data will be bad
+        projector_time_buffer_.clear();
+
+        for (const auto& grouper_ptr : image_grouper_ptrs_)
+        {
+          grouper_ptr->ClearBuffer();
         }
       }
     }
@@ -339,6 +353,14 @@ std::vector<std::string> ImageSynchroniserNodelet::SplitString(const std::string
 
   res.push_back(s.substr(pos_start));
   return res;
+}
+
+bool ImageSynchroniserNodelet::ProcessNotifyBadData(sl_sensor_image_acquisition::NotifyBadData::Request& req,
+                                                    sl_sensor_image_acquisition::NotifyBadData::Response& res)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+  bad_data_ = req.bad_data;
+  res.success = true;
 }
 
 }  // namespace image_acquisition

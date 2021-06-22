@@ -13,6 +13,7 @@
 
 #include "sl_sensor_image_acquisition/CommandImageSynchroniser.h"
 #include "sl_sensor_image_acquisition/ImageArray.h"
+#include "sl_sensor_image_acquisition/NotifyBadData.h"
 #include "sl_sensor_image_acquisition/image_grouper.hpp"
 
 namespace sl_sensor
@@ -59,12 +60,14 @@ private:
 
   boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
 
+  bool bad_data_ = false;
+
   virtual void onInit();
 
   void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
 
   /**
-   * @brief Function that will be called upon a service call
+   * @brief Function that will be called upon a service call to start/stop operation of image synchroniser
    *
    * @param req
    * @param res
@@ -73,6 +76,17 @@ private:
    */
   bool ProcessImageSynchroniserCommand(sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
                                        sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
+
+  /**
+   * @brief Function that will be called upon to freeze image synchroniser temporarily due to bad quality images
+   *
+   * @param req
+   * @param res
+   * @return true
+   * @return false
+   */
+  bool ProcessNotifyBadData(sl_sensor_image_acquisition::NotifyBadData::Request& req,
+                            sl_sensor_image_acquisition::NotifyBadData::Response& res);
 
   /**
    * @brief Attempt to obtain and publish an image group based when in projector is in hardware trigger mode
