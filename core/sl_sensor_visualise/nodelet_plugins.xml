@@ -1,0 +1,9 @@
+<library path="lib/libsl_sensor_visualise">
+  <class name="sl_sensor_visualise/ShowImageArrayNodelet"
+         type="sl_sensor::visualise::ShowImageArrayNodelet"
+         base_class_type="nodelet::Nodelet">
+  </class>
+  <description>
+  Show Image Array nodelet.
+  </description>
+</library>
