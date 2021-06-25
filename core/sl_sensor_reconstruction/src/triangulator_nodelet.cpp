@@ -80,7 +80,7 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   // Apply box filter if specified (point cloud will no longer be organised!)
   if (apply_crop_box_)
   {
-    pcl::CropBox<pcl::PointXYZRGB> crop_box;
+    pcl::CropBox<pcl::PointXYZI> crop_box;
     crop_box.setMin(Eigen::Vector4f(crop_box_x_min_, crop_box_y_min_, crop_box_z_min_, 1.0));
     crop_box.setMax(Eigen::Vector4f(crop_box_x_max_, crop_box_y_max_, crop_box_z_max_, 1.0));
     crop_box.setInputCloud(pc_ptr);

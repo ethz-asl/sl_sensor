@@ -38,10 +38,10 @@ public:
    * @param vp - Vertical projector coordinates . If not applicable, provide an empty vector
    * @param mask - Masking layer
    * @param shading - Shading information
-   * @return pcl::PointCloud<pcl::PointXYZRGB>::Ptr - Pointer to triangulated point cloud
+   * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud
    */
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
-                                                     const cv::Mat &shading);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+                                                   const cv::Mat &shading);
 
 private:
   /**
