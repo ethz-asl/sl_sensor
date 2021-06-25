@@ -11,13 +11,10 @@
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
   
-  <build_depend>pluginlib</build_depend>
-  <build_depend>nodelet</build_depend>
-
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>pluginlib</exec_depend>
-  <exec_depend>nodelet</exec_depend>
 
+  <depend>pluginlib</depend>
+  <depend>nodelet</depend>
   <depend>roscpp</depend>
   <depend>cv_bridge</depend>
   <depend>sl_sensor_image_acquisition</depend>
