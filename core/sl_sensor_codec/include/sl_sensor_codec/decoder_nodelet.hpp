@@ -6,7 +6,7 @@
 #include <sl_sensor_image_acquisition/ImageArray.h>
 #include <memory>
 
-#include "sl_sensor_codec/codec.hpp"
+#include "sl_sensor_codec/decoder.hpp"
 
 namespace sl_sensor
 {

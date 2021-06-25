@@ -3,8 +3,10 @@
 #include <ros/ros.h>
 #include <memory>
 
-#include "sl_sensor_codec/codec.hpp"
-#include "sl_sensor_codec/phase_shift_with_tpu_codec.hpp"
+#include "sl_sensor_codec/decoder.hpp"
+#include "sl_sensor_codec/encoder.hpp"
+#include "sl_sensor_codec/phase_shift_with_tpu_decoder.hpp"
+#include "sl_sensor_codec/phase_shift_with_tpu_encoder.hpp"
 
 namespace sl_sensor
 {

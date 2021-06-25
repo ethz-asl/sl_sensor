@@ -15,9 +15,12 @@ set (CMAKE_CXX_STANDARD 17)
 #############
 cs_add_library(${PROJECT_NAME}
   src/phase_shift_utilities.cpp
-  src/codec.cpp
+  src/codec_common.cpp
+  src/encoder.cpp
+  src/decoder.cpp
   src/decoder_nodelet.cpp
-  src/phase_shift_with_tpu_codec.cpp
+  src/phase_shift_with_tpu_encoder.cpp
+  src/phase_shift_with_tpu_decoder.cpp
   )
 
 

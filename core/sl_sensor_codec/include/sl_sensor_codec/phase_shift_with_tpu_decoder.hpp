@@ -1,30 +1,12 @@
 #pragma once
 
 #include <vector>
-#include "sl_sensor_codec/codec.hpp"
+#include "sl_sensor_codec/decoder.hpp"
 
 namespace sl_sensor
 {
 namespace codec
 {
-/**
- * @brief Encoder for PSP with TPU pattern
- *
- */
-class PhaseShiftWithTpuEncoder : public Encoder
-{
-public:
-  PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
-                           unsigned int number_phases);
-  PhaseShiftWithTpuEncoder(ros::NodeHandle nh);
-  virtual cv::Mat GetEncodingPattern(unsigned int depth) override;
-
-private:
-  std::vector<cv::Mat> patterns_;
-  int number_phases_ = 1;
-  void GeneratePatterns();
-};
-
 /**
  * @brief Decoder for PSP with TPU pattern
  *
