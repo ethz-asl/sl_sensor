@@ -3,7 +3,7 @@
 #include "sl_sensor_image_acquisition/image_synchroniser_nodelet.hpp"
 
 #include <sl_sensor_projector/CommandProjector.h>
-#include <boost/range/adaptor/reversed.hpp>
+#include <iterator>
 #include <sl_sensor_projector/lightcrafter_4500.hpp>
 
 namespace sl_sensor
@@ -163,7 +163,8 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
   std::vector<std::vector<sensor_msgs::ImageConstPtr>> nested_img_ptr_vec = {};
 
   // We iterate over all stored projector times, starting with the latest one
-  for (const auto& projector_time : boost::adaptors::reverse(projector_time_buffer_))
+  for (auto projector_time_it = std::rbegin(projector_time_buffer_);
+       projector_time_it != std::rend(projector_time_buffer_); ++projector_time_it)
   {
     nested_img_ptr_vec.clear();
 
@@ -171,9 +172,9 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     for (const auto& grouper_ptr : image_grouper_ptrs_)
     {
       std::vector<sensor_msgs::ImageConstPtr> temp_vec = {};
-      // Note, last argument is false because we do not want to clear the image buffer of the ImageGrouper prematurely.
-      // We need to make sure the other cameras are successful before clearing
-      grouper_ptr->RetrieveImageGroup(projector_time, temp_vec, false);
+      // Note, last argument is false because we do not want to clear the image buffer of the ImageGrouper
+      // prematurely. We need to make sure the other cameras are successful before clearing
+      grouper_ptr->RetrieveImageGroup(*projector_time_it, temp_vec, false);
 
       // If image grouper is successful, add to nested_img_ptr_vec
       if (!temp_vec.empty())
@@ -187,11 +188,12 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
       }
     }
 
-    // If all image groupers are successful for this projector time, we break the loop and start processing the results
+    // If all image groupers are successful for this projector time, we break the loop and start processing the
+    // results
     if (nested_img_ptr_vec.size() == image_grouper_ptrs_.size())
     {
       success = true;
-      successful_projector_time = projector_time;
+      successful_projector_time = *projector_time_it;
       break;
     }
   }
