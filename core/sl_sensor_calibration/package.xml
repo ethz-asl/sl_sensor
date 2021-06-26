@@ -12,12 +12,17 @@
   <buildtool_depend>catkin_simple</buildtool_depend>
   
   <exec_depend>message_runtime</exec_depend>
-
   <depend>pluginlib</depend>
   <depend>nodelet</depend>
   <depend>roscpp</depend>
   <depend>cv_bridge</depend>
   <depend>sl_sensor_image_acquisition</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+      <nodelet plugin="${prefix}/nodelet_plugins.xml"/>
+  </export>
 
 </package>

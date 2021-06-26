@@ -15,6 +15,7 @@ set (CMAKE_CXX_STANDARD 17)
 #############
 cs_add_library(${PROJECT_NAME}
   src/calibration_data.cpp
+  src/calibration_data_acquisition_nodelet.cpp
   )
 
 
