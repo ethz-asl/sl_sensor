@@ -4,6 +4,7 @@ find_package(OpenCV REQUIRED)
 
 find_package(catkin_simple REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 catkin_simple(ALL_DEPS_REQUIRED)
 
@@ -17,12 +18,18 @@ set(CMAKE_CXX_FLAGS "-lstdc++fs" )
 cs_add_library(${PROJECT_NAME}
   src/calibration_data.cpp
   src/calibration_data_acquisition_nodelet.cpp
-  src/calibrator.cpp
+  src/calibrator.cpp 
   )
-
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs)
+
+##############
+# EXECUTABLES #
+##############
+
+cs_add_executable(calibrator_node src/calibrator_node.cpp)
+target_link_libraries(calibrator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
 
 ##########
 # EXPORT #

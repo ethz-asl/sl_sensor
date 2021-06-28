@@ -174,13 +174,13 @@ void CalibrationDataAcquisitionNodelet::ImageArrayCb(
 
       // up
       std::string up_directory =
-          save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "up" + "/" + counter + ".yaml";
+          save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "up" + "/" + counter + ".xml";
       cv::FileStorage up_file(up_directory, cv::FileStorage::WRITE);
       up_file << "up" << cv_img_ptr_vec[i * 4]->image;
 
       // vp
       std::string vp_directory =
-          save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "vp" + "/" + counter + ".yaml";
+          save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "vp" + "/" + counter + ".xml";
       cv::FileStorage vp_file(up_directory, cv::FileStorage::WRITE);
       up_file << "vp" << cv_img_ptr_vec[i * 4 + 1]->image;
 
