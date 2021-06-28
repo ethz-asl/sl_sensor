@@ -9,6 +9,7 @@ catkin_simple(ALL_DEPS_REQUIRED)
 
 add_definitions(-Wall -Wextra)
 set (CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-lstdc++fs" )
 
 #############
 # LIBRARIES #
@@ -21,7 +22,7 @@ cs_add_library(${PROJECT_NAME}
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs)
 
 ##########
 # EXPORT #

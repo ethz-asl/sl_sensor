@@ -310,5 +310,4 @@ CalibrationData Calibrator::Calibrate()
 }
 
 }  // namespace calibration
-
 }  // namespace sl_sensor
