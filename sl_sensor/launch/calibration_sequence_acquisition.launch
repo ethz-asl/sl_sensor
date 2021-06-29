@@ -1,7 +1,9 @@
 <launch>
 
   <arg name="number_cameras" doc="Number Cameras" default="1" />
-  <arg name="image_array_topic" doc="/image_synchroniser/grouped_images" default="/image_synchroniser/grouped_images" />
+  <arg name="grouped_image_topic" doc="/image_synchroniser/grouped_images" default="/image_synchroniser/grouped_images" />
+  <arg name="decoded_image_topic" doc="/decoder/decoded_images" default="/decoder/decoded_images" />
+
 
   <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
 
@@ -11,7 +13,7 @@
 
   <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
     <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
-    <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="output_topic" type="string" value="$(arg grouped_image_topic)" />
     <param name="frame_id" type="string" value="sl_sensor" />
     <param name="lower_bound_tol" type="double" value="0.0166667" />
     <param name="upper_bound_tol" type="double" value="0.0166667" />
@@ -21,15 +23,30 @@
     <param name="image_topics" type="string" value="/versavis/cam1/image_raw" />
   </node>		  
 
+  <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
+    <param name="input_topic" type="string" value="$(arg grouped_image_topic)" />
+    <param name="output_topic" type="string" value="$(arg decoded_image_topic)" />
+    <param name="screen_rows" type="int" value="540" />
+    <param name="screen_cols" type="int" value="720" />
+    <param name="direction" type="string" value="both" />
+    <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
+    <param name="number_cameras" type="int" value="$(arg number_cameras)" />
+    <param name="number_phases" type="int" value="16" />
+    <param name="shading_threshold" type="int" value="10" />
+  </node>	
+
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
-    <param name="image_array_sub_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="image_array_sub_topic" type="string" value="$(arg decoded_image_topic)" />
     <param name="save_directory" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/" />
     <param name="save_filename" type="string" value="session_1" />
-    <param name="image_synchroniser_service_name" type="string" value="/versavis/projector/image_time" />
+    <param name="image_synchroniser_service_name" type="string" value="/command_image_synchroniser" />
     <!--Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)-->
     <param name="checkerboard_num_rows" type="int" value="14" /> 
     <param name="checkerboard_num_cols" type="int" value="12" />
     <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   </node>		  
+
+  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/calibration_single_display.rviz" />
+
 
 </launch>
