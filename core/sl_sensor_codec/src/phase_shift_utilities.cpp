@@ -1,6 +1,7 @@
 #include "sl_sensor_codec/phase_shift_utilities.hpp"
 
 #include <math.h>
+#include <algorithm>
 
 namespace sl_sensor
 {
@@ -15,7 +16,8 @@ cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double
   // Loop through vector
   for (int i = 0; i < phase_vector.rows; i++)
   {
-    float amp = average_value + modulation_intensity * cos(2 * M_PI * i / pitch - phase);
+    float amp =
+        std::clamp((float)(average_value + modulation_intensity * cos(2 * M_PI * i / pitch - phase)), 0.0f, 1.0f);
     phase_vector.at<cv::Vec3b>(i, 0) = cv::Vec3b(255.0 * amp, 255.0 * amp, 255.0 * amp);
   }
 
