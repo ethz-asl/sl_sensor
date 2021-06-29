@@ -1,0 +1,35 @@
+<launch>
+
+  <arg name="number_cameras" doc="Number Cameras" default="1" />
+  <arg name="image_array_topic" doc="/image_synchroniser/grouped_images" default="/image_synchroniser/grouped_images" />
+
+  <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
+
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
+    <param name="num_worker_threads" value="10" />
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
+    <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
+    <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="frame_id" type="string" value="sl_sensor" />
+    <param name="lower_bound_tol" type="double" value="0.0166667" />
+    <param name="upper_bound_tol" type="double" value="0.0166667" />
+    <param name="image_trigger_period" type="double" value="0.03333333" />
+    <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
+    <param name="projector_service_name" type="string" value="/command_projector"/>    
+    <param name="image_topics" type="string" value="/versavis/cam1/image_raw" />
+  </node>		  
+
+  <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
+    <param name="image_array_sub_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="save_directory" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/" />
+    <param name="save_filename" type="string" value="session_1" />
+    <param name="image_synchroniser_service_name" type="string" value="/versavis/projector/image_time" />
+    <!--Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)-->
+    <param name="checkerboard_num_rows" type="int" value="14" /> 
+    <param name="checkerboard_num_cols" type="int" value="12" />
+    <param name="number_cameras" type="int" value="$(arg number_cameras)" />
+  </node>		  
+
+</launch>

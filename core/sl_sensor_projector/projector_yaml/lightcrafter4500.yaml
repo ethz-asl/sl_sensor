@@ -29,4 +29,3 @@ patterns:
     displayColour: *defaultDisplayColour
     imageIndices: [9, 9, 9, 10, 10, 10]
     channelNumbers: [0, 1, 2, 0, 1, 2]
-

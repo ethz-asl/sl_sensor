@@ -1,6 +1,6 @@
 <library path="lib/libsl_sensor_calibration">
-  <class name="sl_sensor_calibration/CalibrationDataAcquisitionNodelet"
-         type="sl_sensor::calibration::CalibrationDataAcquisitionNodelet"
+  <class name="sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet"
+         type="sl_sensor::calibration::CalibrationSequenceAcquisitionNodelet"
          base_class_type="nodelet::Nodelet">
   </class>
   <description>

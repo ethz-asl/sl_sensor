@@ -154,8 +154,9 @@ bool Lightcrafter4500::SetLed(const std::string& pattern_name)
     // If pattern node has the rgb field we set those values, set as fail otherwise
     if (proj_config_["patterns"][pattern_name]["rgb"] && proj_config_["patterns"][pattern_name]["rgb"].size() == 3)
     {
-      auto rgb_vec = proj_config_["patterns"][pattern_name]["rgb"].as<std::vector<unsigned char>>();
-      std::copy(rgb_vec.begin(), rgb_vec.end(), std::begin(rgb));
+      rgb[0] = (unsigned char)proj_config_["patterns"][pattern_name]["rgb"][0].as<int>();
+      rgb[1] = (unsigned char)proj_config_["patterns"][pattern_name]["rgb"][1].as<int>();
+      rgb[2] = (unsigned char)proj_config_["patterns"][pattern_name]["rgb"][2].as<int>();
     }
     else
     {
@@ -165,8 +166,9 @@ bool Lightcrafter4500::SetLed(const std::string& pattern_name)
   // Case where empty pattern name is entered, try searching yaml for default rgb
   else if (proj_config_["defaultSettings"]["defaultRgb"] && proj_config_["defaultSettings"]["defaultRgb"].size() == 3)
   {
-    auto rgb_vec = proj_config_["defaultSettings"]["defaultRgb"].as<std::vector<unsigned char>>();
-    std::copy(rgb_vec.begin(), rgb_vec.end(), std::begin(rgb));
+    rgb[0] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][0].as<int>();
+    rgb[1] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][1].as<int>();
+    rgb[2] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][2].as<int>();
   }
 
   int status = projector_.SetLedCurrents(rgb[0], rgb[1], rgb[2]);

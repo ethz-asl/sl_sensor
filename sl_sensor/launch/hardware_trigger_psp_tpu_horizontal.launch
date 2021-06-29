@@ -28,7 +28,6 @@
   <param name="image_topics" type="string" value="/versavis/cam1/image_raw" />
 </node>		  
 
-
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <param name="input_topic" type="string" value="/image_synchroniser/grouped_images" />
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
