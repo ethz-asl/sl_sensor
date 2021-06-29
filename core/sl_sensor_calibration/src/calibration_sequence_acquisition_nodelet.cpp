@@ -1,4 +1,4 @@
-#include "sl_sensor_calibration/calibration_data_acquisition_nodelet.hpp"
+#include "sl_sensor_calibration/calibration_sequence_acquisition_nodelet.hpp"
 
 #include <iostream>
 #include <string>
@@ -19,11 +19,11 @@ namespace sl_sensor
 {
 namespace calibration
 {
-CalibrationDataAcquisitionNodelet::CalibrationDataAcquisitionNodelet()
+CalibrationSequenceAcquisitionNodelet::CalibrationSequenceAcquisitionNodelet()
 {
 }
 
-void CalibrationDataAcquisitionNodelet::onInit()
+void CalibrationSequenceAcquisitionNodelet::onInit()
 {
   // Get Node handles
   nh_ = getNodeHandle();
@@ -42,7 +42,8 @@ void CalibrationDataAcquisitionNodelet::onInit()
   checkerboard_size_ = cv::Size(checkerboard_num_cols_, checkerboard_num_rows_);
 
   // Setup subscribers
-  image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &CalibrationDataAcquisitionNodelet::ImageArrayCb, this);
+  image_array_sub_ =
+      nh_.subscribe(image_array_sub_topic_, 10, &CalibrationSequenceAcquisitionNodelet::ImageArrayCb, this);
 
   // Setup publishers
   for (int i = 0; i < number_cameras_; i++)
@@ -72,11 +73,11 @@ void CalibrationDataAcquisitionNodelet::onInit()
   GenerateDataFolders();
 
   // Start thread to handle first command to image synchroniser
-  initialisation_thread_ptr_ =
-      boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CalibrationDataAcquisitionNodelet::Init, this)));
+  initialisation_thread_ptr_ = boost::shared_ptr<boost::thread>(
+      new boost::thread(boost::bind(&CalibrationSequenceAcquisitionNodelet::Init, this)));
 }
 
-void CalibrationDataAcquisitionNodelet::Init()
+void CalibrationSequenceAcquisitionNodelet::Init()
 {
   // Sleep for a few seconds to make sure other nodelets are initialised properly
   ros::Duration(3.0).sleep();
@@ -86,13 +87,13 @@ void CalibrationDataAcquisitionNodelet::Init()
   SendCommandForNextCalibrationSequence();
 }
 
-void CalibrationDataAcquisitionNodelet::ImageArrayCb(
+void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
     const sl_sensor_image_acquisition::ImageArrayConstPtr image_arr_ptr)
 {
   // Check number of images are correct
   if ((int)(image_arr_ptr->data.size()) != (int)(number_cameras_ * 4))
   {
-    ROS_INFO("[CalibrationDataAcquisitionNodelet] Number of images in image array does not correspond to ("
+    ROS_INFO("[CalibrationSequenceAcquisitionNodelet] Number of images in image array does not correspond to ("
              "4 * number cameras). Ignoring this image array message");
     return;
   }
@@ -114,7 +115,7 @@ void CalibrationDataAcquisitionNodelet::ImageArrayCb(
     if (!success)
     {
       std::string info_string =
-          "[CalibrationDataAcquisitionNodelet] Failed to extract checkerboard from camera " + std::to_string(i + 1);
+          "[CalibrationSequenceAcquisitionNodelet] Failed to extract checkerboard from camera " + std::to_string(i + 1);
       ROS_INFO("%s", info_string.c_str());
     }
 
@@ -203,8 +204,8 @@ void CalibrationDataAcquisitionNodelet::ImageArrayCb(
   SendCommandForNextCalibrationSequence();
 }
 
-bool CalibrationDataAcquisitionNodelet::GetInputAndCheckIfItIsExpectedChar(const std::string& message,
-                                                                           char expected_char)
+bool CalibrationSequenceAcquisitionNodelet::GetInputAndCheckIfItIsExpectedChar(const std::string& message,
+                                                                               char expected_char)
 {
   std::string input;
   std::cout << message;
@@ -212,7 +213,7 @@ bool CalibrationDataAcquisitionNodelet::GetInputAndCheckIfItIsExpectedChar(const
   return (!input.empty() && input.length() == 1 && (input.c_str())[0] == expected_char) ? true : false;
 }
 
-bool CalibrationDataAcquisitionNodelet::GenerateDataFolders()
+bool CalibrationSequenceAcquisitionNodelet::GenerateDataFolders()
 {
   bool success = true;
 
@@ -240,14 +241,14 @@ bool CalibrationDataAcquisitionNodelet::GenerateDataFolders()
   return success;
 }
 
-void CalibrationDataAcquisitionNodelet::ProcessFloatImage(const cv::Mat& input_image, cv::Mat& output_image)
+void CalibrationSequenceAcquisitionNodelet::ProcessFloatImage(const cv::Mat& input_image, cv::Mat& output_image)
 {
   output_image = input_image.clone();
   cv::normalize(output_image, output_image, 0, 255, cv::NORM_MINMAX);
   output_image.convertTo(output_image, CV_8UC1);
 }
 
-void CalibrationDataAcquisitionNodelet::SendCommandForNextCalibrationSequence()
+void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequence()
 {
   sl_sensor_image_acquisition::CommandImageSynchroniser srv;
 

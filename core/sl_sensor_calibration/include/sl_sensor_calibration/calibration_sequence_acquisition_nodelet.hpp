@@ -14,10 +14,10 @@ namespace sl_sensor
 {
 namespace calibration
 {
-class CalibrationDataAcquisitionNodelet : public nodelet::Nodelet
+class CalibrationSequenceAcquisitionNodelet : public nodelet::Nodelet
 {
 public:
-  CalibrationDataAcquisitionNodelet();
+  CalibrationSequenceAcquisitionNodelet();
 
 private:
   ros::Subscriber image_array_sub_;
@@ -57,4 +57,4 @@ private:
 }  // namespace calibration
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::calibration::CalibrationDataAcquisitionNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::calibration::CalibrationSequenceAcquisitionNodelet, nodelet::Nodelet);

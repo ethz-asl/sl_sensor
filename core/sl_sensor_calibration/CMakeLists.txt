@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "-lstdc++fs" )
 #############
 cs_add_library(${PROJECT_NAME}
   src/calibration_data.cpp
-  src/calibration_data_acquisition_nodelet.cpp
+  src/calibration_sequence_acquisition_nodelet.cpp
   src/calibrator.cpp 
   )
 
