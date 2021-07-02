@@ -64,6 +64,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
                                                          cv::CALIB_CB_ADAPTIVE_THRESH);
   if (!checkerboard_detected)
   {
+    std::cout << "No checkerboard detected" << std::endl;
     return false;
   }
 
@@ -72,9 +73,9 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
 
   // If checkerboard detected successfully, we proceed to populating the storage variables
   std::vector<cv::Point3f> all_checkerboard_3d_corners;
-  for (unsigned int h = 0; h < checkerboard_cols_; h++)
+  for (unsigned int h = 0; h < checkerboard_rows_; h++)
   {
-    for (unsigned int w = 0; w < checkerboard_rows_; w++)
+    for (unsigned int w = 0; w < checkerboard_cols_; w++)
     {
       all_checkerboard_3d_corners.push_back(cv::Point3f(checkerboard_size_mm_ * w, checkerboard_size_mm_ * h, 0.0));
     }
@@ -94,11 +95,11 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
   std::vector<cv::Point2f> current_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
 
-  unsigned int image_width_ = camera_shading.cols;
-  unsigned int image_height_ = camera_shading.rows;
+  image_width_ = camera_shading.cols;
+  image_height_ = camera_shading.rows;
 
   // Loop through checkerboard corners
-  for (unsigned int j = 0; j < current_camera_corners.size(); j++)
+  for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
   {
     const cv::Point2f& processed_camera_corner = camera_checkerboard_corners[j];
 
@@ -115,7 +116,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
     {
       for (unsigned int w = start_w; w <= stop_w; w++)
       {
-        // Only consider neighbourhood pixels that are within the bask
+        // Only consider neighbourhood pixels that are within the mask
         if (camera_mask.at<bool>(h, w))
         {
           neighbourhood_camera_coordinates.push_back(cv::Point2f(w, h));
@@ -135,7 +136,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
                                      homography_ransac_threshold_);
       if (!H.empty())
       {
-        // Compute corresponding projector cornder coordinate
+        // Compute corresponding projector corner coordinate
         cv::Point3d Q =
             cv::Point3d(cv::Mat(H * cv::Mat(cv::Point3d(processed_camera_corner.x, processed_camera_corner.y, 1.0))));
         cv::Point2f processed_projector_corner = cv::Point2f(Q.x / Q.z, Q.y / Q.z);
@@ -144,6 +145,10 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
         current_projector_corners.push_back(processed_projector_corner);
         current_camera_corners.push_back(processed_camera_corner);
         current_3d_corners.push_back(all_checkerboard_3d_corners[j]);
+      }
+      else
+      {
+        std::cout << "Homography failed for " << j << "th corner" << std::endl;
       }
     }
   }
@@ -172,6 +177,11 @@ CalibrationData Calibrator::Calibrate()
 {
   CalibrationData calibration_data;
 
+  calibration_data.frame_width_ = image_width_;
+  calibration_data.frame_height_ = image_height_;
+  calibration_data.screen_res_x_ = projector_cols_;
+  calibration_data.screen_res_y_ = projector_rows_;
+
   int number_calibration_sequences = corner_3d_coordinates_storage_.size();
 
   // If no calibration sequences, we return default calibration data
@@ -182,14 +192,14 @@ CalibrationData Calibrator::Calibrate()
   }
 
   // Calibrate camera
-  cv::Mat Kc = camera_calibration_option_.intrinsics_init;
-  cv::Mat kc = camera_calibration_option_.lens_distortion_init;
+  auto Kc = camera_calibration_option_.intrinsics_init;
+  auto kc = camera_calibration_option_.lens_distortion_init;
   std::vector<cv::Mat> cam_rvecs, cam_tvecs;
+
   cv::Size image_size(image_width_, image_height_);
   double cam_error = 0.0f;
 
   if (!camera_calibration_option_.fix_values)
-
   {
     cam_error = cv::calibrateCamera(corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, image_size, Kc,
                                     kc, cam_rvecs, cam_tvecs, camera_calibration_option_.GetCalibrationFlags(),
@@ -212,8 +222,8 @@ CalibrationData Calibrator::Calibrate()
   }
 
   // Calibrate projector
-  cv::Mat Kp = projector_calibration_option_.intrinsics_init;
-  cv::Mat kp = projector_calibration_option_.lens_distortion_init;
+  auto Kp = projector_calibration_option_.intrinsics_init;
+  auto kp = projector_calibration_option_.lens_distortion_init;
   std::vector<cv::Mat> proj_rvecs, proj_tvecs;
   cv::Size projector_size(projector_rows_, projector_cols_);
   double proj_error = 0.0f;

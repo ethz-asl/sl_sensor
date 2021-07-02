@@ -32,7 +32,7 @@
     <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
     <param name="number_cameras" type="int" value="$(arg number_cameras)" />
     <param name="number_phases" type="int" value="16" />
-    <param name="shading_threshold" type="int" value="10" />
+    <param name="shading_threshold" type="int" value="5" />
   </node>	
 
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
@@ -40,6 +40,7 @@
     <param name="save_directory" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/" />
     <param name="save_filename" type="string" value="session_1" />
     <param name="image_synchroniser_service_name" type="string" value="/command_image_synchroniser" />
+    <param name="projector_service_name" type="string" value="/command_projector" />
     <!--Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)-->
     <param name="checkerboard_num_rows" type="int" value="14" /> 
     <param name="checkerboard_num_cols" type="int" value="12" />

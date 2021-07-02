@@ -30,9 +30,9 @@ bool DirectoryExists(const char* path)
 
 std::vector<std::string> SplitString(const std::string& s, const std::string& delimiter)
 {
+  std::vector<std::string> res;
   size_t pos_start = 0, pos_end, delim_len = delimiter.length();
   std::string token;
-  std::vector<std::string> res;
 
   while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
   {
@@ -42,6 +42,7 @@ std::vector<std::string> SplitString(const std::string& s, const std::string& de
   }
 
   res.push_back(s.substr(pos_start));
+
   return res;
 };
 
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
 
   private_nh.param<std::string>("camera_folder_name", camera_folder_name, camera_folder_name);
   private_nh.param<std::string>("projector_folder_name", projector_folder_name, projector_folder_name);
-  private_nh.param<std::string>("directories", directories);
+  private_nh.param<std::string>("directories", directories, directories);
   private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
 
   private_nh.param<bool>("camera_fix_principle_point", camera_calibration_option.fix_prinicple_point,
@@ -134,6 +135,25 @@ int main(int argc, char** argv)
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
   private_nh.param<double>("homography_ransac_threshold", homography_ransac_threshold, homography_ransac_threshold);
+
+  private_nh.param<std::string>("output_calibration_filename", output_calibration_filename,
+                                output_calibration_filename);
+
+  CalibrationData camera_calibration_data_init;
+
+  if (camera_calibration_data_init.LoadXML(camera_calibration_init_yaml))
+  {
+    camera_calibration_option.intrinsics_init = camera_calibration_data_init.Kc_;
+    camera_calibration_option.lens_distortion_init = camera_calibration_data_init.kc_;
+  }
+
+  CalibrationData projector_calibration_data_init;
+
+  if (projector_calibration_data_init.LoadXML(projector_calibration_init_yaml))
+  {
+    projector_calibration_option.intrinsics_init = projector_calibration_data_init.Kp_;
+    projector_calibration_option.lens_distortion_init = projector_calibration_data_init.kp_;
+  }
 
   std::string delimiter = " ";
   directories_vec = SplitString(directories, delimiter);
@@ -194,7 +214,7 @@ int main(int argc, char** argv)
     std::string up_directory = directory + projector_folder_name + "/up";
     std::string vp_directory = directory + projector_folder_name + "/vp";
 
-    if (DirectoryExists(shading_directory.c_str()))
+    if (!DirectoryExists(shading_directory.c_str()))
     {
       std::string status_message =
           "[CalibratorNode] Shading Directory " + shading_directory + " does not exist, skipping this folder";
@@ -202,7 +222,7 @@ int main(int argc, char** argv)
       continue;
     }
 
-    if (DirectoryExists(mask_directory.c_str()))
+    if (!DirectoryExists(mask_directory.c_str()))
     {
       std::string status_message =
           "[CalibratorNode] Mask Directory " + mask_directory + " does not exist, skipping this folder";
@@ -210,7 +230,7 @@ int main(int argc, char** argv)
       continue;
     }
 
-    if (DirectoryExists(up_directory.c_str()))
+    if (!DirectoryExists(up_directory.c_str()))
     {
       std::string status_message =
           "[CalibratorNode] Up Directory " + up_directory + " does not exist, skipping this folder";
@@ -218,7 +238,7 @@ int main(int argc, char** argv)
       continue;
     }
 
-    if (DirectoryExists(vp_directory.c_str()))
+    if (!DirectoryExists(vp_directory.c_str()))
     {
       std::string status_message =
           "[CalibratorNode] Vp Directory " + vp_directory + " does not exist, skipping this folder";
@@ -233,6 +253,7 @@ int main(int argc, char** argv)
       // If stem is in the list of filenames to ignore, skip to next entry
       if (files_to_ignore_vec[counter].find(stem) != files_to_ignore_vec[counter].end())
       {
+        std::cout << "Ignoring files named " << stem << std::endl;
         continue;
       }
 
@@ -243,7 +264,7 @@ int main(int argc, char** argv)
       cv::Mat vp;
 
       shading = cv::imread(entry.path().u8string(), CV_8UC1);
-      mask = cv::imread(mask_directory + "/" + stem + ".xml", CV_8UC1);
+      mask = cv::imread(mask_directory + "/" + stem + ".bmp", CV_8UC1);
 
       bool shading_success = !shading.empty();
       bool mask_success = !mask.empty();

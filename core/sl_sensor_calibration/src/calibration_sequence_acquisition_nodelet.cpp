@@ -15,6 +15,8 @@
 #include <sl_sensor_image_acquisition/CommandImageSynchroniser.h>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
+#include <sl_sensor_projector/CommandProjector.h>
+
 namespace sl_sensor
 {
 namespace calibration
@@ -35,6 +37,7 @@ void CalibrationSequenceAcquisitionNodelet::onInit()
   private_nh_.param<std::string>("save_filename", save_filename_, save_filename_);
   private_nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
                                  image_synchroniser_service_name_);
+  private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
   private_nh_.param<int>("checkerboard_num_rows", checkerboard_num_rows_, checkerboard_num_rows_);
   private_nh_.param<int>("checkerboard_num_cols", checkerboard_num_cols_, checkerboard_num_cols_);
   private_nh_.param<int>("number_cameras", number_cameras_, number_cameras_);
@@ -65,9 +68,10 @@ void CalibrationSequenceAcquisitionNodelet::onInit()
     image_pubs_[i].push_back(nh_.advertise<sensor_msgs::Image>(vp_topic_name, 10));
   }
 
-  // Set up service client
+  // Set up service clients
   image_synchroniser_client_ =
       nh_.serviceClient<sl_sensor_image_acquisition::CommandImageSynchroniser>(image_synchroniser_service_name_);
+  projector_client_ = nh_.serviceClient<sl_sensor_projector::CommandProjector>(projector_service_name_);
 
   // Setup folders
   GenerateDataFolders();
@@ -81,6 +85,9 @@ void CalibrationSequenceAcquisitionNodelet::Init()
 {
   // Sleep for a few seconds to make sure other nodelets are initialised properly
   ros::Duration(3.0).sleep();
+
+  // Fully illuminate projector
+  SendProjectorCommand("white", 0);
 
   // Wait for user to press enter before starting to project first set of calibration patterns
   GetInputAndCheckIfItIsExpectedChar("Press enter to start projecting first calibration sequence", '\0');
@@ -163,9 +170,12 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
   }
   std::cout << std::endl;
 
-  bool save_data = GetInputAndCheckIfItIsExpectedChar("Enter y to save data, other keys will ignore data: ", 'y');
+  // Fully illuminate projector
+  SendProjectorCommand("white", 0);
 
-  if (save_data)
+  bool ignore_data = GetInputAndCheckIfItIsExpectedChar("Enter r to reject data, other keys will save data: ", 'r');
+
+  if (!ignore_data)
   {
     std::cout << "Saving sequence " << counter_ << std::endl;
     for (int i = 0; i < number_cameras_; i++)
@@ -182,8 +192,8 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
       // vp
       std::string vp_directory =
           save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "vp" + "/" + counter + ".xml";
-      cv::FileStorage vp_file(up_directory, cv::FileStorage::WRITE);
-      up_file << "vp" << cv_img_ptr_vec[i * 4 + 1]->image;
+      cv::FileStorage vp_file(vp_directory, cv::FileStorage::WRITE);
+      vp_file << "vp" << cv_img_ptr_vec[i * 4 + 1]->image;
 
       // mask
       std::string mask_directory =
@@ -261,6 +271,17 @@ void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequenc
   if (!image_synchroniser_client_.call(srv))
   {
     ROS_INFO("[ImageSynchroniserNodelet] Projector command failed to execute");
+  }
+}
+
+void CalibrationSequenceAcquisitionNodelet::SendProjectorCommand(const std::string& command, int pattern_no)
+{
+  sl_sensor_projector::CommandProjector srv;
+  srv.request.command = command;
+  srv.request.pattern_no = pattern_no;
+  if (!projector_client_.call(srv))
+  {
+    ROS_INFO("[CalibrationSequenceAcquisitionNodelet] Projector command failed to execute");
   }
 }
 

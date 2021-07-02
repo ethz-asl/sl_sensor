@@ -1,5 +1,5 @@
 properties:
-    diamondPixel: 1
+    diamondPixel: true
     resolution: [912, 1140]
 
 defaultSettings:

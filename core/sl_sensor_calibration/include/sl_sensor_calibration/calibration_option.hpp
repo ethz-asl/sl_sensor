@@ -14,8 +14,8 @@ struct CalibrationOption
   bool zero_tangential_distortion = true;
   bool fix_values = false;
   bool use_initial_guess = false;
-  cv::Mat intrinsics_init = cv::Mat::zeros(3, 3, cv::DataType<double>::type);
-  cv::Mat lens_distortion_init = cv::Mat::zeros(5, 1, cv::DataType<double>::type);
+  cv::Matx33f intrinsics_init = cv::Matx33f::eye();
+  cv::Vec<float, 5> lens_distortion_init{ 0, 0, 0, 0, 0 };
 
   int GetCalibrationFlags()
   {

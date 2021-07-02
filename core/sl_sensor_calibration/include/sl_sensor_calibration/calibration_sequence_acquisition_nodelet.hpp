@@ -23,6 +23,7 @@ private:
   ros::Subscriber image_array_sub_;
   std::vector<std::vector<ros::Publisher>> image_pubs_;
   ros::ServiceClient image_synchroniser_client_;
+  ros::ServiceClient projector_client_;
 
   boost::shared_ptr<boost::thread> initialisation_thread_ptr_;
 
@@ -30,6 +31,7 @@ private:
   std::string save_directory_ = "/";
   std::string save_filename_ = "calibration_session";
   std::string image_synchroniser_service_name_;
+  std::string projector_service_name_;
   int checkerboard_num_rows_ = 10;
   int checkerboard_num_cols_ = 10;
   cv::Size checkerboard_size_;
@@ -52,6 +54,8 @@ private:
   void Init();
 
   void SendCommandForNextCalibrationSequence();
+
+  void SendProjectorCommand(const std::string& command, int pattern_no);
 };
 
 }  // namespace calibration
