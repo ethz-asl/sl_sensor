@@ -163,7 +163,6 @@ bool Lightcrafter4500::SetLed(const std::string& pattern_name)
       return false;
     }
   }
-  // Case where empty pattern name is entered, try searching yaml for default rgb
   else if (proj_config_["defaultSettings"]["defaultRgb"] && proj_config_["defaultSettings"]["defaultRgb"].size() == 3)
   {
     rgb[0] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][0].as<int>();

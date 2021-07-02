@@ -3,9 +3,9 @@ properties:
     resolution: [912, 1140]
 
 defaultSettings:
-  - &defaultRgb [0, 60, 0]
-  - &defaultDisplayColour 7
-  - &defaultExposureUs 16667
+  defaultRgb: &defaultRgb [0, 60, 0]
+  defaultDisplayColour: &defaultDisplayColour 7
+  defaultExposureUs: &defaultExposureUs 16667
 
 patterns:
   calibrationPattern:
