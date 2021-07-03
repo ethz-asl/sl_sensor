@@ -62,6 +62,28 @@ public:
    */
   std::vector<cv::Mat> GetEncodingPatterns();
 
+  /**
+   * @brief Downsample a pattern if they have a diamond pixel arrangement
+   *
+   * @param pattern
+   * @return cv::Mat
+   */
+  static cv::Mat DiamondDownsample(const cv::Mat &pattern);
+
+  /**
+   * @brief Forward distortion of points. The inverse of the undistortion in cv::initUndistortRectifyMap()
+   * @note Inspired by Pascal Thomet, http://code.opencv.org/issues/1387#note-11 Convention for distortion parameters:
+   * http://www.vision.caltech.edu/bouguetj/calib_doc/htmls/parameters.html
+   * @param instrinsic_matrix
+   * @param distortion_coefficients
+   * @param size
+   * @param map1
+   * @param map2
+   * @return cv::Mat
+   */
+  static void InitDistortMap(const cv::Matx33f instrinsic_matrix, const cv::Vec<float, 5> distortion_coefficients,
+                             const cv::Size size, cv::Mat &map1, cv::Mat &map2);
+
   virtual ~Encoder(){};
 
 protected:
@@ -70,7 +92,7 @@ protected:
   CodecDirection direction_;
 
   /**
-   * @brief Retrieves basic Encoder information using ROS node handls
+   * @brief Retrieves basic Encoder information using ROS node handles
    *
    * @param nh
    */

@@ -18,6 +18,7 @@
   <depend>roscpp</depend>
   <depend>cv_bridge</depend>
   <depend>sl_sensor_image_acquisition</depend>
+  <depend>sl_sensor_calibration</depend>
   <depend>sl_sensor_projector</depend>
   <depend>sensor_msgs</depend>
 

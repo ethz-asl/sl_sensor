@@ -21,6 +21,8 @@ PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(ros::NodeHandle nh) : Encoder
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 12 : 6;
 
   nh.param<int>("number_phases", number_phases_, number_phases_);
+  nh.param<double>("average_value", average_value_, average_value_);
+  nh.param<double>("modulation_intensity", modulation_intensity_, modulation_intensity_);
 
   GeneratePatterns();
 }
@@ -35,7 +37,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = (float)screen_cols_ / (float)number_phases_;
       cv::Mat pattern(1, 1, CV_8U);
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_value_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -46,7 +48,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = screen_cols_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_value_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -60,7 +62,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = (float)screen_rows_ / (float)number_phases_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_value_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
 
@@ -70,7 +72,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = screen_rows_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_value_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
   }

@@ -22,6 +22,8 @@ public:
 private:
   std::vector<cv::Mat> patterns_;
   int number_phases_ = 1;
+  double average_value_ = 0.5;
+  double modulation_intensity_ = 0.5;
   void GeneratePatterns();
 };
 }  // namespace codec

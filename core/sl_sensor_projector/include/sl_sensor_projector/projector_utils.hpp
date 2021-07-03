@@ -15,16 +15,17 @@ namespace projector
  * @return true
  * @return false
  */
-bool GetProjectorResolution(const std::string& yaml_directory, unsigned int& height, unsigned int& width)
+inline bool GetProjectorResolution(const std::string& yaml_directory, unsigned int& height, unsigned int& width)
 {
   bool success = true;
 
   // Get resolution of projector using YAML file
-  auto proj_config = YAML::LoadFile(yaml_directory);
+  YAML::Node proj_config = YAML::LoadFile(yaml_directory);
 
   if (proj_config["properties"]["resolution"] && proj_config["properties"]["diamondPixel"])
   {
     auto resolution = proj_config["properties"]["resolution"].as<std::vector<unsigned int>>();
+
     auto is_diamond_pixel = proj_config["properties"]["diamondPixel"].as<bool>();
 
     if (is_diamond_pixel)
@@ -44,6 +45,28 @@ bool GetProjectorResolution(const std::string& yaml_directory, unsigned int& hei
   }
 
   return success;
+}
+
+/**
+ * @brief Determine if projector has a diamond pixel arrangement
+ *
+ * @param yaml_directory
+ * @return true
+ * @return false
+ */
+inline bool GetIsDiamondPixel(const std::string& yaml_directory)
+{
+  bool result = false;
+
+  // Get resolution of projector using YAML file
+  YAML::Node proj_config = YAML::LoadFile(yaml_directory);
+
+  if (proj_config["properties"]["diamondPixel"])
+  {
+    result = proj_config["properties"]["diamondPixel"].as<bool>();
+  }
+
+  return result;
 }
 
 }  // namespace projector
