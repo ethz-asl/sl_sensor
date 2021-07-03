@@ -10,6 +10,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include <sl_sensor_projector/projector_utils.hpp>
+
 #include "sl_sensor_calibration/calibration_data.hpp"
 #include "sl_sensor_calibration/calibration_option.hpp"
 #include "sl_sensor_calibration/calibrator.hpp"
@@ -175,24 +177,7 @@ int main(int argc, char** argv)
   }
 
   // Get resolution of projector using YAML file
-  auto proj_config = YAML::LoadFile(projector_yaml_directory);
-
-  if (proj_config["properties"]["resolution"] && proj_config["properties"]["diamondPixel"])
-  {
-    auto resolution = proj_config["properties"]["resolution"].as<std::vector<unsigned int>>();
-    auto is_diamond_pixel = proj_config["properties"]["diamondPixel"].as<bool>();
-
-    if (is_diamond_pixel)
-    {
-      projector_cols = resolution[0] * 2;
-      projector_rows = resolution[1];
-    }
-    else
-    {
-      projector_cols = resolution[0];
-      projector_rows = resolution[1];
-    }
-  }
+  sl_sensor::projector::GetProjectorResolution(projector_yaml_directory, projector_rows, projector_cols);
 
   // Initialise calibrator
   Calibrator calibrator;

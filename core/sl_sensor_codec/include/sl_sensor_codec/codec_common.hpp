@@ -14,7 +14,7 @@ enum class CodecDirection
   kBoth = kHorizontal | kVertical
 };
 
-std::tuple<int, int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros::NodeHandle nh);
+std::tuple<unsigned int, unsigned int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros::NodeHandle nh);
 
 }  // namespace codec
 }  // namespace sl_sensor

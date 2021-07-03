@@ -40,7 +40,7 @@ std::vector<cv::Mat> Encoder::GetEncodingPatterns()
 
 void Encoder::InitFromRosNodeHandle(ros::NodeHandle nh)
 {
-  std::tuple<int, int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
+  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
   screen_rows_ = std::get<0>(result);
   screen_cols_ = std::get<1>(result);
   direction_ = std::get<2>(result);

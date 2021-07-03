@@ -3,7 +3,7 @@
   <arg name="number_cameras" doc="Number Cameras" default="2" />
   <arg name="grouped_image_topic" doc="/image_synchroniser/grouped_images" default="/image_synchroniser/grouped_images" />
   <arg name="decoded_image_topic" doc="/decoder/decoded_images" default="/decoder/decoded_images" />
-
+  <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 
   <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
 
@@ -19,15 +19,14 @@
     <param name="lower_bound_tol" type="double" value="0.0166667" />
     <param name="upper_bound_tol" type="double" value="0.0166667" />
     <param name="image_trigger_period" type="double" value="0.03333333" />
-    <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
+    <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
     <param name="projector_service_name" type="string" value="/command_projector"/>    
   </node>		  
 
   <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
     <param name="input_topic" type="string" value="$(arg grouped_image_topic)" />
     <param name="output_topic" type="string" value="$(arg decoded_image_topic)" />
-    <param name="screen_rows" type="int" value="1140" /> <!-- TODO: Screen rows and screen cols should be computed from projector yaml-->
-    <param name="screen_cols" type="int" value="1824" />
+    <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
     <param name="direction" type="string" value="both" />
     <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
     <param name="number_cameras" type="int" value="$(arg number_cameras)" />
