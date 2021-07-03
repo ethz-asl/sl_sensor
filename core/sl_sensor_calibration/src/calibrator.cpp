@@ -37,12 +37,10 @@ void Calibrator::SetProjectorCalibrationOption(const CalibrationOption& projecto
   projector_calibration_option_ = projector_calibration_option;
 }
 
-void Calibrator::SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels,
-                                            double homography_ransac_threshold)
+void Calibrator::SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels)
 {
   window_radius_ = window_radius;
   minimum_valid_pixels_ = minimum_valid_pixels;
-  homography_ransac_threshold_ = homography_ransac_threshold;
 }
 
 bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
@@ -132,8 +130,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
     // If there are enough legitimate points around the corner, we perform local homography
     if (neighbourhood_projector_coordinates.size() >= minimum_valid_pixels_)
     {
-      cv::Mat H = cv::findHomography(neighbourhood_camera_coordinates, neighbourhood_projector_coordinates, cv::LMEDS,
-                                     homography_ransac_threshold_);
+      cv::Mat H = cv::findHomography(neighbourhood_camera_coordinates, neighbourhood_projector_coordinates, cv::LMEDS);
       if (!H.empty())
       {
         // Compute corresponding projector corner coordinate
@@ -228,7 +225,7 @@ CalibrationData Calibrator::Calibrate()
   cv::Size projector_size(projector_rows_, projector_cols_);
   double proj_error = 0.0f;
 
-  if (!camera_calibration_option_.fix_values)
+  if (!projector_calibration_option_.fix_values)
   {
     proj_error =
         cv::calibrateCamera(corner_3d_coordinates_storage_, corner_projector_coordinates_storage_, projector_size, Kp,

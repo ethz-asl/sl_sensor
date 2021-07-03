@@ -48,7 +48,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
 
   // Decode pattern sequence for each camera, store results
   std::vector<cv::Mat> decoder_results;
-  decoder_results.resize(number_cameras_ * 4, cv::Mat(0, 0, CV_8UC1));
+  decoder_results.resize(number_cameras_ * 4, cv::Mat());
 
   for (int i = 0; i < number_cameras_; i++)
   {
@@ -57,13 +57,22 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
       decoder_ptr_->SetFrame(cv_img_ptr_vec[i * number_patterns + j]->image, j);
     }
 
-    decoder_ptr_->DecodeFrames(decoder_results[i * number_patterns], decoder_results[i * number_patterns + 1],
-                               decoder_results[i * number_patterns + 2], decoder_results[i * number_patterns + 3]);
+    decoder_ptr_->DecodeFrames(decoder_results[i * 4], decoder_results[i * 4 + 1], decoder_results[i * 4 + 2],
+                               decoder_results[i * 4 + 3]);
   }
 
   // Publish results
+  std::vector<std::string> format_vec = {};
+  for (int i = 0; i < number_cameras_; i++)
+  {
+    format_vec.push_back("32FC1");
+    format_vec.push_back("32FC1");
+    format_vec.push_back("8UC1");
+    format_vec.push_back("8UC1");
+  }
+
   image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array->header.frame_id,
-                                     image_array->header.stamp, ros::Time::now(), { "32FC1", "32FC1", "8UC1", "8UC1" });
+                                     image_array->header.stamp, ros::Time::now(), format_vec);
 };
 
 }  // namespace codec

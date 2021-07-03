@@ -2,12 +2,12 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen">
 
-    <param name="output_calibration_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/cam1.xml"/>
+    <param name="output_calibration_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed.xml"/>
 
     <param name="camera_folder_name" type="string" value="cam1" />
     <param name="projector_folder_name" type="string" value="proj1" />
     <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/session_3/" />
-    <param name="ignore_1" type="string" value="38 31 27 37 29 32" />
+    <param name="ignore_1" type="string" value="31 38 37 29 32" />
     <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
     <param name="camera_fix_principle_point" type="bool" value="1" />
@@ -24,9 +24,9 @@
     <param name="projector_fix_k2" type="bool" value="0" />
     <param name="projector_fix_k3" type="bool" value="0" />
     <param name="projector_zero_tangential_distortion" type="bool" value="0" />
-    <param name="projector_fix_values" type="bool" value="0" />
+    <param name="projector_fix_values" type="bool" value="1" />
     <param name="projector_use_initial_guess" type="bool" value="1" />
-    <param name="projector_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
+    <param name="projector_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/cam2.xml" />
 
     <param name="checkerboard_rows" type="int" value="14" />
     <param name="checkerboard_cols" type="int" value="12" />

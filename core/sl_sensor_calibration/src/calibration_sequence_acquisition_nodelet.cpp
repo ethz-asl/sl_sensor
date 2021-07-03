@@ -12,6 +12,10 @@
 
 #include <experimental/filesystem>
 
+#include <ros/ros.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <sl_sensor_image_acquisition/CommandImageSynchroniser.h>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
@@ -223,11 +227,30 @@ bool CalibrationSequenceAcquisitionNodelet::GetInputAndCheckIfItIsExpectedChar(c
   return (!input.empty() && input.length() == 1 && (input.c_str())[0] == expected_char) ? true : false;
 }
 
+bool DirectoryExists(const char* path)
+{
+  struct stat info;
+
+  if (stat(path, &info) != 0)
+    return false;
+  else if (info.st_mode & S_IFDIR)
+    return true;
+  else
+    return false;
+};
+
 bool CalibrationSequenceAcquisitionNodelet::GenerateDataFolders()
 {
   bool success = true;
 
-  success = success && std::experimental::filesystem::create_directory(save_directory_ + save_filename_);
+  std::string full_file = save_directory_ + save_filename_;
+
+  bool directory_exists = DirectoryExists(full_file.c_str());
+
+  if (!directory_exists)
+  {
+    success = success && std::experimental::filesystem::create_directory(full_file);
+  }
 
   if (success)
   {

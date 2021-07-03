@@ -90,7 +90,6 @@ int main(int argc, char** argv)
 
   int window_radius = 10;
   int minimum_valid_pixels = 50;
-  double homography_ransac_threshold = 3.0;
 
   private_nh.param<std::string>("camera_folder_name", camera_folder_name, camera_folder_name);
   private_nh.param<std::string>("projector_folder_name", projector_folder_name, projector_folder_name);
@@ -134,7 +133,6 @@ int main(int argc, char** argv)
 
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
-  private_nh.param<double>("homography_ransac_threshold", homography_ransac_threshold, homography_ransac_threshold);
 
   private_nh.param<std::string>("output_calibration_filename", output_calibration_filename,
                                 output_calibration_filename);
@@ -158,7 +156,7 @@ int main(int argc, char** argv)
   std::string delimiter = " ";
   directories_vec = SplitString(directories, delimiter);
 
-  for (unsigned int i = 0; i < directories_vec.size(); i++)
+  for (unsigned int i = 1; i <= directories_vec.size(); i++)
   {
     std::string ignore_param_name = "ignore_" + std::to_string(i);
     std::string temp_string = "";
@@ -202,7 +200,7 @@ int main(int argc, char** argv)
   calibrator.SetCheckerboardInformation(checkerboard_cols, checkerboard_rows, checkerboard_size_mm);
   calibrator.SetCameraCalibrationOption(camera_calibration_option);
   calibrator.SetProjectorCalibrationOption(projector_calibration_option);
-  calibrator.SetLocalHomographySettings(window_radius, minimum_valid_pixels, homography_ransac_threshold);
+  calibrator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
 
   // Add calibration sequences to calibrator
   int counter = 0;

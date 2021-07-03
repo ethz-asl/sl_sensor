@@ -19,8 +19,7 @@ public:
   void SetCalibrateCameraOnly(bool calibrate_camera_only);
   void SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option);
   void SetProjectorCalibrationOption(const CalibrationOption& projector_calibration_option);
-  void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels,
-                                  double homography_ransac_threshold);
+  void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
   bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
                                     const std::string& label = "", const cv::Mat& up = cv::Mat(),
                                     const cv::Mat& vp = cv::Mat());
@@ -33,7 +32,6 @@ private:
   unsigned int projector_rows_ = 0;
   unsigned int window_radius_ = 10;
   unsigned int minimum_valid_pixels_ = 50;
-  double homography_ransac_threshold_ = 3.0;
   unsigned int checkerboard_cols_ = 10;
   unsigned int checkerboard_rows_ = 10;
   unsigned int checkerboard_size_mm_ = 10;
