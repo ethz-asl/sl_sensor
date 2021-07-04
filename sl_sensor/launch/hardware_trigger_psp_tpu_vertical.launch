@@ -5,7 +5,7 @@
 <arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
 <arg name="save_point_cloud" doc="Save point clouds" default="true" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed.xml" />
+<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam2_new.xml" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
@@ -24,7 +24,7 @@
   <param name="image_trigger_period" type="double" value="0.03333333" />
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
   <param name="projector_service_name" type="string" value="/command_projector"/>    
-  <param name="image_topics" type="string" value="/versavis/cam1/image_raw" />
+  <param name="image_topics" type="string" value="/versavis/cam2/image_raw" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
@@ -53,14 +53,7 @@
 </node>		  
 
 <group if="$(arg visualise_point_cloud)">
-  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/show_pc.rviz" />
-  <?ignore
-  <node pkg="nodelet" type="nodelet" name="visualiser" args="load sl_sensor_visualise/ShowPointCloudNodelet standalone_nodelet" output="screen">
-    <param name="input_topic" type="string" value="/triangulator/point_cloud" />
-    <param name="screen_title" type="string" value="Point Cloud Visualiser" />
-    <param name="calibration_filename" type="string" value="$(arg calibration_filename)" />
-  </node>	
-  ?>	  
+  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/show_pc.rviz" />	  
 </group>
 
 <group if="$(arg save_point_cloud)">

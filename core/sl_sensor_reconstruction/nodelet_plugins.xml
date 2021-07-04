@@ -7,3 +7,13 @@
   Triangulator nodelet.
   </description>
 </library>
+
+<library path="lib/libsl_sensor_reconstruction">
+  <class name="sl_sensor_reconstruction/PointCloudLoggerNodelet"
+         type="sl_sensor::reconstruction::PointCloudLoggerNodelet"
+         base_class_type="nodelet::Nodelet">
+  </class>
+  <description>
+  Point Cloud Logger nodelet.
+  </description>
+</library>

@@ -193,7 +193,9 @@ void Triangulator::TriangulateFromVp(const cv::Mat &vp, cv::Mat &xyz)
   cv::Mat winv;
   cv::divide(1.0, xyzw[3], winv);
   for (unsigned int i = 0; i < 3; i++)
+  {
     xyzw[i] = xyzw[i].mul(winv);
+  }
 
   // Merge
   cv::merge(std::vector<cv::Mat>(xyzw.begin(), xyzw.begin() + 3), xyz);

@@ -8,6 +8,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <boost/thread/thread.hpp>
 #include <memory>
 
 namespace sl_sensor
@@ -25,6 +26,8 @@ public:
 private:
   virtual void onInit();
 
+  void Update();
+
   void PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& image_array);
 
   ros::NodeHandle nh_;
@@ -36,8 +39,10 @@ private:
   std::string screen_title_ = "";
   std::string calibration_filename_ = "";
 
-  std::unique_ptr<pcl::visualization::PCLVisualizer> visualiser_ptr;
-  std::unique_ptr<pcl::visualization::PointCloudColorHandler<pcl::PointXYZRGB>> colour_handler_ptr;
+  std::unique_ptr<pcl::visualization::PCLVisualizer> visualiser_ptr_;
+  std::unique_ptr<pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI>> colour_handler_ptr;
+  boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
+  boost::mutex mutex_;
 };
 
 }  // namespace visualise

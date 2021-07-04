@@ -1,11 +1,14 @@
 #include "sl_sensor_visualise/show_point_cloud_nodelet.hpp"
 
 #include <pcl/conversions.h>
+#include <pcl/visualization/point_cloud_color_handlers.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <vtkRenderWindow.h>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/opencv.hpp>
 #include <sl_sensor_calibration/calibration_data.hpp>
+
+using namespace pcl::visualization;
 
 namespace sl_sensor
 {
@@ -27,15 +30,39 @@ void ShowPointCloudNodelet::onInit()
   // Setup subscriber
   image_array_sub_ = nh_.subscribe(pc_sub_topic_, 10, &ShowPointCloudNodelet::PointCloudCb, this);
 
+  // Create thread for main loop
+  main_loop_thread_ptr_ =
+      boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ShowPointCloudNodelet::Update, this)));
+};
+
+void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+
+  pcl::PCLPointCloud2 pcl_pc2;
+  pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::fromPCLPointCloud2(pcl_pc2, *pc_ptr);
+
+  colour_handler_ptr->setInputCloud(pc_ptr);
+  if (!visualiser_ptr_->updatePointCloud(pc_ptr, *colour_handler_ptr, screen_title_))
+  {
+    visualiser_ptr_->addPointCloud(pc_ptr, *colour_handler_ptr, screen_title_);
+  };
+}
+
+void ShowPointCloudNodelet::Update()
+{
   // Setup visualiser and colour handler
-  visualiser_ptr = std::make_unique<pcl::visualization::PCLVisualizer>(screen_title_, false);
-  visualiser_ptr->getRenderWindow()->SetDoubleBuffer(1);
-  visualiser_ptr->getRenderWindow()->SetErase(1);
-  visualiser_ptr->setShowFPS(true);
+  // Note: Visualiser must be initialise within the thread or else it will crash
+  visualiser_ptr_ = std::make_unique<PCLVisualizer>(screen_title_, true);
+  // visualiser_ptr_->getRenderWindow()->SetDoubleBuffer(1);
+  // visualiser_ptr_->getRenderWindow()->SetErase(1);
+  visualiser_ptr_->setShowFPS(true);
 
   // Camera coordinate frame
-  visualiser_ptr->addCoordinateSystem(50, "camera", 0);
-  visualiser_ptr->setCameraPosition(0, 0, -50, 0, 0, 0, 0, -1, 0);
+  visualiser_ptr_->addCoordinateSystem(50, "camera", 0);
+  visualiser_ptr_->setCameraPosition(0, 0, -50, 0, 0, 0, 0, -1, 0);
 
   // Projector coordinate frame
   calibration::CalibrationData calibration_data;
@@ -48,28 +75,25 @@ void ShowPointCloudNodelet::onInit()
     Eigen::Affine3f T_proj_cam;
     cv::cv2eigen(T_proj_cam_cv, T_proj_cam.matrix());
 
-    visualiser_ptr->addCoordinateSystem(50, T_proj_cam.inverse(), "projector", 0);
+    visualiser_ptr_->addCoordinateSystem(50, T_proj_cam.inverse(), "projector", 0);
   }
 
-  visualiser_ptr->setBackgroundColor(0, 0, 0);
-  visualiser_ptr->setCameraClipDistances(0.001, 10000000);
+  visualiser_ptr_->setBackgroundColor(0, 0, 0);
+  visualiser_ptr_->setCameraClipDistances(0.001, 10000000);
 
   // Initialize point cloud color handler
-  colour_handler_ptr = std::make_unique<pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>>();
-};
+  colour_handler_ptr = std::make_unique<PointCloudColorHandlerGenericField<pcl::PointXYZI>>("intensity");
 
-void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr)
-{
-  pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-  pcl::fromPCLPointCloud2(pcl_pc2, *pc_ptr);
-
-  colour_handler_ptr->setInputCloud(pc_ptr);
-  if (!visualiser_ptr->updatePointCloud(pc_ptr, *colour_handler_ptr, screen_title_))
+  while (!visualiser_ptr_->wasStopped())
   {
-    visualiser_ptr->addPointCloud(pc_ptr, *colour_handler_ptr, screen_title_);
-  };
+    {
+      boost::mutex::scoped_lock lock(mutex_);
+      visualiser_ptr_->spinOnce(1);
+    }
+
+    ros::Duration(0.001f).sleep();
+  }
 }
+
 }  // namespace visualise
 }  // namespace sl_sensor

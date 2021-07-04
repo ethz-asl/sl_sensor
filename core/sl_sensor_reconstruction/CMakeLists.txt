@@ -16,6 +16,7 @@ set (CMAKE_CXX_STANDARD 17)
 cs_add_library(${PROJECT_NAME}
   src/triangulator.cpp
   src/triangulator_nodelet.cpp
+  src/point_cloud_logger_nodelet.cpp
 )
 
 
