@@ -3,7 +3,7 @@ properties:
     resolution: [912, 1140]
 
 defaultSettings:
-  defaultRgb: &defaultRgb [0, 60, 0]
+  defaultRgb: &defaultRgb [200, 200, 200]
   defaultDisplayColour: &defaultDisplayColour 7
   defaultExposureUs: &defaultExposureUs 16667
 

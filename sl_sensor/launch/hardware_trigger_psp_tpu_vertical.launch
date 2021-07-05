@@ -5,7 +5,7 @@
 <arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
 <arg name="save_point_cloud" doc="Save point clouds" default="true" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam2_new.xml" />
+<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam2_new2.xml" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 

@@ -5,7 +5,7 @@
 <arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
 <arg name="save_point_cloud" doc="Save point clouds" default="true" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed.xml" />
+<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed_new2.xml" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
@@ -31,7 +31,7 @@
   <param name="input_topic" type="string" value="/image_synchroniser/grouped_images" />
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="vertical" />
+  <param name="direction" type="string" value="horizontal" />
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
   <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   <param name="number_phases" type="int" value="12" />
