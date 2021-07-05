@@ -32,6 +32,8 @@ void ImageSynchroniserNodelet::onInit()
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
   private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
 
+  private_nh_.param<std::string>("fixed_pattern_name", fixed_pattern_name_, fixed_pattern_name_);
+
   std::string image_topics_full_string = {};
   private_nh_.param<std::string>("image_topics", image_topics_full_string, image_topics_full_string);
   auto image_topics = SplitString(image_topics_full_string, std::string(" "));
@@ -111,6 +113,28 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 
     // Check if pattern exists in projector's YAML file
     std::string pattern_name(req.pattern_name);
+
+    if (!fixed_pattern_name_.empty() && fixed_pattern_name_ != pattern_name)
+    {
+      std::string message;
+
+      if (pattern_name.empty())
+      {
+        message = "[ImageSynchroniserNodelet] Service call contains a an empty pattern name entry. Will project the "
+                  "fixed pattern " +
+                  fixed_pattern_name_ + " instead.";
+      }
+      else
+      {
+        message = "[ImageSynchroniserNodelet] Service call contains a pattern name " + pattern_name +
+                  " that is different from the fixed pattern name provided " + fixed_pattern_name_ + ". Will project " +
+                  fixed_pattern_name_ + " instead.";
+      }
+
+      ROS_INFO("%s", message.c_str());
+      pattern_name = fixed_pattern_name_;
+    }
+
     bool pattern_exists = projector::Lightcrafter4500::PatternExists(projector_config_, pattern_name);
 
     if (pattern_exists)

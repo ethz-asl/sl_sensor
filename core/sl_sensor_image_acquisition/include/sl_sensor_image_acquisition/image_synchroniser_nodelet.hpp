@@ -40,6 +40,7 @@ private:
   std::string frame_id_ = "";
 
   std::string projector_yaml_directory_ = "";
+  std::string fixed_pattern_name_ = "";
 
   boost::mutex mutex_;
 
