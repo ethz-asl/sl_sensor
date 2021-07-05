@@ -2,7 +2,7 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen">
 
-    <param name="output_calibration_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed_new2.xml"/>
+    <param name="output_calibration_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed_new3.xml"/>
 
     <param name="camera_folder_name" type="string" value="cam1" />
     <param name="projector_folder_name" type="string" value="proj1" />

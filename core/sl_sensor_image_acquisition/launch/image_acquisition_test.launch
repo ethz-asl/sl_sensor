@@ -18,7 +18,7 @@
 
   <node pkg="nodelet" type="nodelet" name="image_array_logger" args="load sl_sensor_image_acquisition/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
     <param name="log_directory" type="string" value="/home/ltf/Desktop/logged_data/" />
-    <param name="file_header_" type="string" value="test" />
+    <param name="file_header" type="string" value="test" />
     <param name="log_topic" type="string" value="/image_synchroniser/grouped_images" />
   </node>
 
