@@ -6,22 +6,22 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>TODO</license>
+  <license>BSD3</license>
+
+  <build_depend>message_generation</build_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
-  
-  <build_depend>message_generation</build_depend>
 
-  <exec_depend>message_runtime</exec_depend>
-
-  <depend>pluginlib</depend>
+  <depend>cv_bridge</depend>
   <depend>nodelet</depend>
+  <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>versavis</depend>
-  <depend>cv_bridge</depend>
   <depend>sl_sensor_projector</depend>
+  <depend>versavis</depend>
+
+  <exec_depend>message_runtime</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

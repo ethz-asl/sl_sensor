@@ -6,24 +6,24 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>TODO</license>
+  <license>BSD3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
   
-  <depend>sl_sensor_conversions</depend>
-  <depend>sl_sensor_io</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_registration</depend>
-  <depend>sl_sensor_visualise</depend>
-  <depend>sl_sensor_slstudio</depend>
-  <depend>sl_sensor_vo</depend>
-  <depend>sl_sensor_projector</depend>	
   <depend>sl_sensor_calibration</depend>	
-  <depend>sl_sensor_image_acquisition</depend>	
   <depend>sl_sensor_codec</depend>	
+  <depend>sl_sensor_conversions</depend>
+  <depend>sl_sensor_image_acquisition</depend>	
+  <depend>sl_sensor_io</depend>
+  <depend>sl_sensor_motion_compensation</depend>	
+  <depend>sl_sensor_projector</depend>	
   <depend>sl_sensor_reconstruction</depend>
-  <depend>sl_sensor_motion_compensation</depend>		
+  <depend>sl_sensor_registration</depend>	
+  <depend>sl_sensor_slstudio</depend>
+  <depend>sl_sensor_timer</depend>
+  <depend>sl_sensor_visualise</depend>
+  <depend>sl_sensor_vo</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
