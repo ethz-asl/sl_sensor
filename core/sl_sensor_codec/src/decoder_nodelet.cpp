@@ -52,11 +52,12 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
 
   for (int i = 0; i < number_cameras_; i++)
   {
+    std::vector<cv::Mat> frames;
     for (int j = 0; j < (int)number_patterns; j++)
     {
-      decoder_ptr_->SetFrame(cv_img_ptr_vec[i * number_patterns + j]->image, j);
+      frames.emplace_back(cv_img_ptr_vec[i * number_patterns + j]->image);
     }
-
+    decoder_ptr_->SetFrames(frames);
     decoder_ptr_->DecodeFrames(decoder_results[i * 4], decoder_results[i * 4 + 1], decoder_results[i * 4 + 2],
                                decoder_results[i * 4 + 3]);
   }

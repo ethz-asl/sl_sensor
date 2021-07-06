@@ -56,6 +56,13 @@ public:
   void SetFrame(const cv::Mat &frame, unsigned int number);
 
   /**
+   * @brief Set images to be decoded
+   *
+   * @param frames - images to be decoded
+   */
+  void SetFrames(std::vector<cv::Mat> &frames);
+
+  /**
    * @brief Decode Frames
    *
    * @param up - Matrix of horizontal projector coordinates

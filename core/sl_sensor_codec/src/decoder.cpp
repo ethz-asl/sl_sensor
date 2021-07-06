@@ -26,6 +26,11 @@ CodecDirection Decoder::GetDirection()
   return direction_;
 }
 
+void Decoder::SetFrames(std::vector<cv::Mat>& frames)
+{
+  frames_ = std::move(frames);
+}
+
 void Decoder::InitFromRosNodeHandle(ros::NodeHandle nh)
 {
   std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
