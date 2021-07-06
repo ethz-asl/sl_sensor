@@ -120,7 +120,7 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 
       if (pattern_name.empty())
       {
-        message = "[ImageSynchroniserNodelet] Service call contains a an empty pattern name entry. Will project the "
+        message = "[ImageSynchroniserNodelet] Service call contains an empty pattern name entry. Will project the "
                   "fixed pattern " +
                   fixed_pattern_name_ + " instead.";
       }
@@ -171,6 +171,10 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
       ROS_INFO("[ImageSynchroniserNodelet] Cannot execute command, pattern does not exist");
       res.success = false;
     }
+  }
+  else if (command.empty())
+  {
+    ROS_INFO("[ImageSynchroniserNodelet] Received a service call with an empty command, did you forget to fill it in?");
   }
   else if (command == "stop")
   {

@@ -106,8 +106,8 @@ private:
   bool ExecuteCommandSoftwareTrigger();
 
   /**
-   * @brief Send a service call to the projector
-   *
+   * @brief Send a service call to the projector.
+   * @note If disable projector is set, this function does not do anything
    * @param command - Command to send
    * @param pattern_no - Pattern number
    */
