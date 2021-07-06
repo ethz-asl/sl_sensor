@@ -22,7 +22,8 @@
   <depend>sl_sensor_calibration</depend>	
   <depend>sl_sensor_image_acquisition</depend>	
   <depend>sl_sensor_codec</depend>	
-  <depend>sl_sensor_reconstruction</depend>	
+  <depend>sl_sensor_reconstruction</depend>
+  <depend>sl_sensor_motion_compensation</depend>		
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

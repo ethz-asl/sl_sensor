@@ -2,6 +2,8 @@
 #include "sl_sensor_image_acquisition/image_array_utilities.hpp"
 #include "sl_sensor_image_acquisition/image_synchroniser_nodelet.hpp"
 
+#include <nodelet/nodelet.h>
+#include <pluginlib/class_list_macros.h>
 #include <sl_sensor_projector/CommandProjector.h>
 #include <iterator>
 #include <sl_sensor_projector/lightcrafter_4500.hpp>
@@ -389,6 +391,7 @@ bool ImageSynchroniserNodelet::ProcessNotifyBadData(sl_sensor_image_acquisition:
   boost::mutex::scoped_lock lock(mutex_);
   bad_data_ = req.bad_data;
   res.success = true;
+  return true;
 }
 
 }  // namespace image_acquisition

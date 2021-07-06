@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor_reconstruction</name>
+  <name>sl_sensor_motion_compensation</name>
   <version>0.0.0</version>
-  <description>Conversion of decoded images to 3D point cloud</description>
+  <description>Motion compensation algorithms for sl sensor</description>
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
@@ -12,15 +12,12 @@
   <buildtool_depend>catkin_simple</buildtool_depend>
   
   <exec_depend>message_runtime</exec_depend>
-  
   <depend>pluginlib</depend>
   <depend>nodelet</depend>
   <depend>roscpp</depend>
-  <depend>cv_bridge</depend>
   <depend>sl_sensor_image_acquisition</depend>
-  <depend>sl_sensor_calibration</depend>
-  <depend>pcl_conversions</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
