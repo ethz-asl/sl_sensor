@@ -35,10 +35,8 @@ void ImageArrayLoggerNodelet::ImageArrayCb(const sl_sensor_image_acquisition::Im
 
   for (int i = 0; i < number_images; i++)
   {
-    std::string image_time = std::to_string(image_arr_ptr->data[i].header.stamp.toNSec());
     auto cv_img_ptr = cv_bridge::toCvShare(image_arr_ptr->data[i], nullptr);
-    std::string filename =
-        log_directory_ + file_header_ + "_" + array_time + "_" + image_time + "_" + std::to_string(i) + file_format_;
+    std::string filename = log_directory_ + file_header_ + "_" + array_time + "_" + std::to_string(i) + file_format_;
     cv::imwrite(filename, cv_img_ptr->image);
   }
 }
