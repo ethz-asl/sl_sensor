@@ -3,7 +3,7 @@
 <arg name="frame_id" doc="sl_sensor's frame id" default="sl_sensor" />
 <arg name="number_cameras" doc="Number Cameras" default="1" />
 <arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
-<arg name="save_point_cloud" doc="Save point clouds" default="true" />
+<arg name="save_point_cloud" doc="Save point clouds" default="false" />
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam2_new2.xml" />

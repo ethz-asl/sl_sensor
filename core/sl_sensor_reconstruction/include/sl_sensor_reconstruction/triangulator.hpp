@@ -72,7 +72,7 @@ private:
   calibration::CalibrationData calibration_data_;
   cv::Mat determinant_tensor_;
   cv::Mat uc_, vc_;
-  cv::Mat Pp_, Pc_;
+  cv::Mat cam_matrix_projector, cam_matrix_camera;
   cv::Mat lens_map_1_, lens_map_2_;
   cv::Mat proj_points_cam_;
   std::vector<cv::Mat> xyzw_precompute_offset_;

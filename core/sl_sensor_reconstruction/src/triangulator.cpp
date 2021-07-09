@@ -28,20 +28,21 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
     }
   }
 
-  // Precompute determinant tensor
-  Pc_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(calibration_data_.Kc_).copyTo(Pc_(cv::Range(0, 3), cv::Range(0, 3)));
+  // Compute camera matrix from calibration data
+  cam_matrix_camera = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
+  cv::Mat(calibration_data_.Kc_).copyTo(cam_matrix_camera(cv::Range(0, 3), cv::Range(0, 3)));
 
-  Pp_ = cv::Mat(3, 4, CV_32F);
+  cam_matrix_projector = cv::Mat(3, 4, CV_32F);
   cv::Mat temp(3, 4, CV_32F);
   cv::Mat(calibration_data_.Rp_).copyTo(temp(cv::Range(0, 3), cv::Range(0, 3)));
   cv::Mat(calibration_data_.Tp_).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
-  Pp_ = cv::Mat(calibration_data_.Kp_) * temp;
+  cam_matrix_projector = cv::Mat(calibration_data_.Kp_) * temp;
 
   cv::Mat e = cv::Mat::eye(4, 4, CV_32F);
 
-  int sz[] = { 4, 3, 3, 3 };
-  cv::Mat C(4, sz, CV_32F, cv::Scalar::all(0));
+  // Precompute determinant tensor
+  int determinant_tensor_sz[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
+  determinant_tensor_ = cv::Mat(4, determinant_tensor_sz, CV_32F, cv::Scalar::all(0));
   for (int k = 0; k < 4; k++)
   {
     for (int i = 0; i < 3; i++)
@@ -51,16 +52,15 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
         for (int l = 0; l < 3; l++)
         {
           cv::Mat op(4, 4, CV_32F);
-          Pc_.row(i).copyTo(op.row(0));
-          Pc_.row(j).copyTo(op.row(1));
-          Pp_.row(l).copyTo(op.row(2));
+          cam_matrix_camera.row(i).copyTo(op.row(0));
+          cam_matrix_camera.row(j).copyTo(op.row(1));
+          cam_matrix_projector.row(l).copyTo(op.row(2));
           e.row(k).copyTo(op.row(3));
-          C.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
+          determinant_tensor_.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
         }
       }
     }
   }
-  determinant_tensor_ = C;
 
   // Precompute lens correction maps
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
@@ -69,14 +69,15 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
                               lens_map_1_, lens_map_2_);
 
   // Precompute parts of xyzw
+  cv::Mat &dt = determinant_tensor_;
   xyzw_precompute_offset_.resize(4);
   xyzw_precompute_factor_.resize(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    xyzw_precompute_offset_[i] = C.at<float>(cv::Vec4i(i, 0, 1, 0)) - C.at<float>(cv::Vec4i(i, 2, 1, 0)) * uc_ -
-                                 C.at<float>(cv::Vec4i(i, 0, 2, 0)) * vc_;
-    xyzw_precompute_factor_[i] = -C.at<float>(cv::Vec4i(i, 0, 1, 2)) + C.at<float>(cv::Vec4i(i, 2, 1, 2)) * uc_ +
-                                 C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vc_;
+    xyzw_precompute_offset_[i] = dt.at<float>(cv::Vec4i(i, 0, 1, 0)) - dt.at<float>(cv::Vec4i(i, 2, 1, 0)) * uc_ -
+                                 dt.at<float>(cv::Vec4i(i, 0, 2, 0)) * vc_;
+    xyzw_precompute_factor_[i] = -dt.at<float>(cv::Vec4i(i, 0, 1, 2)) + dt.at<float>(cv::Vec4i(i, 2, 1, 2)) * uc_ +
+                                 dt.at<float>(cv::Vec4i(i, 0, 2, 2)) * vc_;
   }
 
   // Precompute camera coordinates matrix in UpVpTriangulate
@@ -157,8 +158,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up
 
 void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
 {
-  // Solve for xyzw using determinant tensor
-  cv::Mat C = determinant_tensor_;
+  // Solve for xyzw
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
@@ -180,13 +180,13 @@ void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
 void Triangulator::TriangulateFromVp(const cv::Mat &vp, cv::Mat &xyz)
 {
   // Solve for xyzw using determinant tensor
-  cv::Mat C = determinant_tensor_;
+  cv::Mat &dt = determinant_tensor_;
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    xyzw[i] = C.at<float>(cv::Vec4i(i, 0, 1, 1)) - C.at<float>(cv::Vec4i(i, 2, 1, 1)) * uc_ -
-              C.at<float>(cv::Vec4i(i, 0, 2, 1)) * vc_ - C.at<float>(cv::Vec4i(i, 0, 1, 2)) * vp +
-              C.at<float>(cv::Vec4i(i, 2, 1, 2)) * vp.mul(uc_) + C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vp.mul(vc_);
+    xyzw[i] = dt.at<float>(cv::Vec4i(i, 0, 1, 1)) - dt.at<float>(cv::Vec4i(i, 2, 1, 1)) * uc_ -
+              dt.at<float>(cv::Vec4i(i, 0, 2, 1)) * vc_ - dt.at<float>(cv::Vec4i(i, 0, 1, 2)) * vp +
+              dt.at<float>(cv::Vec4i(i, 2, 1, 2)) * vp.mul(uc_) + dt.at<float>(cv::Vec4i(i, 0, 2, 2)) * vp.mul(vc_);
   }
 
   // Convert to non homogenous coordinates
@@ -210,7 +210,7 @@ void Triangulator::TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv:
   vp.clone().reshape(0, 1).copyTo(proj_points_proj.row(1));
 
   cv::Mat xyzw;
-  cv::triangulatePoints(Pc_, Pp_, proj_points_cam_, proj_points_proj, xyzw);
+  cv::triangulatePoints(cam_matrix_camera, cam_matrix_projector, proj_points_cam_, proj_points_proj, xyzw);
 
   xyz.create(3, number_pixels_, CV_32F);
   for (int i = 0; i < number_pixels_; i++)
