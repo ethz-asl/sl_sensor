@@ -38,11 +38,10 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
   cv::Mat(calibration_data_.Tp_).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
   cam_matrix_projector = cv::Mat(calibration_data_.Kp_) * temp;
 
-  cv::Mat e = cv::Mat::eye(4, 4, CV_32F);
-
   // Precompute determinant tensor
-  int determinant_tensor_sz[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
-  determinant_tensor_ = cv::Mat(4, determinant_tensor_sz, CV_32F, cv::Scalar::all(0));
+  int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
+  cv::Mat basis_vectors = cv::Mat::eye(4, 4, CV_32F);
+  determinant_tensor_ = cv::Mat(4, determinant_tensor_size, CV_32F, cv::Scalar::all(0));
   for (int k = 0; k < 4; k++)
   {
     for (int i = 0; i < 3; i++)
@@ -55,7 +54,7 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
           cam_matrix_camera.row(i).copyTo(op.row(0));
           cam_matrix_camera.row(j).copyTo(op.row(1));
           cam_matrix_projector.row(l).copyTo(op.row(2));
-          e.row(k).copyTo(op.row(3));
+          basis_vectors.row(k).copyTo(op.row(3));
           determinant_tensor_.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
         }
       }
