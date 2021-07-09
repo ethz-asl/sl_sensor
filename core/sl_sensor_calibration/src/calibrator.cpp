@@ -172,20 +172,13 @@ void Calibrator::Clear()
 
 CalibrationData Calibrator::Calibrate()
 {
-  CalibrationData calibration_data;
-
-  calibration_data.frame_width_ = image_width_;
-  calibration_data.frame_height_ = image_height_;
-  calibration_data.screen_res_x_ = projector_cols_;
-  calibration_data.screen_res_y_ = projector_rows_;
-
   int number_calibration_sequences = corner_3d_coordinates_storage_.size();
 
   // If no calibration sequences, we return default calibration data
   if (number_calibration_sequences <= 0)
   {
     std::cout << "No calibration sequences found, could not start calibration" << std::endl;
-    return calibration_data;
+    return CalibrationData();
   }
 
   // Calibrate camera
@@ -203,10 +196,7 @@ CalibrationData Calibrator::Calibrate()
                                     cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
 
-  calibration_data.Kc_ = Kc;
-  calibration_data.kc_ = kc;
-  calibration_data.cam_error_ = cam_error;
-
+  /**
   if (calibrate_camera_only_)
   {
     // Print results
@@ -217,6 +207,7 @@ CalibrationData Calibrator::Calibrate()
     // TODO: Also compute and print per-view error if only camera is calibrated
     return calibration_data;
   }
+  **/
 
   // Calibrate projector
   auto Kp = projector_calibration_option_.intrinsics_init;
@@ -232,30 +223,12 @@ CalibrationData Calibrator::Calibrate()
                             kp, proj_rvecs, proj_tvecs, projector_calibration_option_.GetCalibrationFlags(),
                             cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
-
-  calibration_data.Kp_ = Kp;
-  calibration_data.kp_ = kp;
-  calibration_data.proj_error_ = proj_error;
-
   // Calibrate extrinsics
   cv::Mat Rp, Tp, E, F;
   double stereo_error = cv::stereoCalibrate(
       corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, corner_projector_coordinates_storage_, Kc, kc,
       Kp, kp, image_size, Rp, Tp, E, F, cv::CALIB_FIX_INTRINSIC,
       cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, DBL_EPSILON));
-
-  calibration_data.Rp_ = Rp;
-  calibration_data.Tp_ = Tp;
-  calibration_data.stereo_error_ = stereo_error;
-
-  // Display Calibration Results
-  // Print results
-  std::cout << "### Calibration Results ###" << std::endl;
-  std::cout << "Camera calibration error: " << cam_error << std::endl;
-  std::cout << "Projector calibration error: " << proj_error << std::endl;
-  std::cout << "Stereo calibration error: " << stereo_error << std::endl;
-  std::cout << "Calibrated Parameters: " << std::endl;
-  std::cout << calibration_data << std::endl;
 
   // Compute and display reprojection errors
   std::cout << "Per-view calibration errors: " << std::endl;
@@ -312,6 +285,18 @@ CalibrationData Calibrator::Calibrate()
     std::cout << "Error " << i + 1 << ") Sequence " << sequence_label_storage_[i]
               << "):\n\tcam:" << cam_error_per_view[i] << " proj:" << proj_error_per_view[i] << std::endl;
   }
+
+  CalibrationData calibration_data(Kc, kc, cam_error, Kp, kp, proj_error, Rp, Tp, stereo_error, image_width_,
+                                   image_height_, projector_rows_, projector_cols_);
+
+  // Display Calibration Results
+  // Print results
+  std::cout << "### Calibration Results ###" << std::endl;
+  std::cout << "Camera calibration error: " << cam_error << std::endl;
+  std::cout << "Projector calibration error: " << proj_error << std::endl;
+  std::cout << "Stereo calibration error: " << stereo_error << std::endl;
+  std::cout << "Calibrated Parameters: " << std::endl;
+  std::cout << calibration_data << std::endl;
 
   return calibration_data;
 }

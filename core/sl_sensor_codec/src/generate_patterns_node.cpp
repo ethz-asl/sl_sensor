@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   calibration_data.Load(projector_calibration_data_file);
   cv::Mat map1, map2;
   cv::Size map_size = cv::Size(screen_cols, screen_rows);
-  Encoder::InitDistortMap(calibration_data.Kp_, calibration_data.kp_, map_size, map1, map2);
+  Encoder::InitDistortMap(calibration_data.Kp(), calibration_data.kp(), map_size, map1, map2);
 
   auto patterns = encoder_ptr->GetEncodingPatterns();
 

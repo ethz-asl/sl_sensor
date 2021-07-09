@@ -70,8 +70,8 @@ void ShowPointCloudNodelet::Update()
   if (calibration_data.Load(calibration_filename_))
   {
     cv::Mat T_proj_cam_cv(3, 4, CV_32F);
-    cv::Mat(calibration_data.Rp_).copyTo(T_proj_cam_cv.colRange(0, 3));
-    cv::Mat(calibration_data.Tp_).copyTo(T_proj_cam_cv.col(3));
+    cv::Mat(calibration_data.Rp()).copyTo(T_proj_cam_cv.colRange(0, 3));
+    cv::Mat(calibration_data.Tp()).copyTo(T_proj_cam_cv.col(3));
     Eigen::Affine3f T_proj_cam;
     cv::cv2eigen(T_proj_cam_cv, T_proj_cam.matrix());
 

@@ -34,7 +34,8 @@ CalibrationData::CalibrationData()
 
 CalibrationData::CalibrationData(cv::Matx33f Kc, cv::Vec<float, 5> kc, double cam_error, cv::Matx33f Kp,
                                  cv::Vec<float, 5> kp, double proj_error, cv::Matx33f Rp, cv::Vec3f Tp,
-                                 double stereo_error)
+                                 double stereo_error, int frame_width, int frame_height, int screen_res_x,
+                                 int screen_res_y)
   : Kc_(Kc)
   , kc_(kc)
   , cam_error_(cam_error)
@@ -44,6 +45,10 @@ CalibrationData::CalibrationData(cv::Matx33f Kc, cv::Vec<float, 5> kc, double ca
   , Rp_(Rp)
   , Tp_(Tp)
   , stereo_error_(stereo_error)
+  , frame_width_(frame_width)
+  , frame_height_(frame_height)
+  , screen_res_x_(screen_res_x)
+  , screen_res_y_(screen_res_y)
 {
 }
 
@@ -163,31 +168,96 @@ std::ostream& operator<<(std::ostream& os, const CalibrationData& data)
   os << std::setw(5) << std::setprecision(4) << "========================================\n"
      << "Camera Calibration: \n"
      << "- cam_error:\n"
-     << data.cam_error_ << "\n"
+     << data.cam_error() << "\n"
      << "- Kc:\n"
-     << data.Kc_ << "\n"
+     << data.Kc() << "\n"
      << "- kc:\n"
-     << data.kc_ << "\n"
+     << data.kc() << "\n"
      << "- image size:\n"
-     << data.frame_height_ << "x" << data.frame_width_ << "\n"
+     << data.frame_height() << "x" << data.frame_width() << "\n"
      << "Projector Calibration: "
      << "- proj_error: \n"
-     << data.proj_error_ << "\n"
+     << data.proj_error() << "\n"
      << "- Kp: \n"
-     << data.Kp_ << "\n"
+     << data.Kp() << "\n"
      << "- kp: \n"
-     << data.kp_ << "\n"
+     << data.kp() << "\n"
      << "- projector size:\n"
-     << data.screen_res_y_ << "x" << data.screen_res_x_ << "\n"
+     << data.screen_res_y() << "x" << data.screen_res_x() << "\n"
      << "Stereo Calibration: \n"
      << "- stereo_error:\n"
-     << data.stereo_error_ << "\n"
+     << data.stereo_error() << "\n"
      << "- Rp:\n"
-     << data.Rp_ << "\n"
+     << data.Rp() << "\n"
      << "- Tp:\n"
-     << data.Tp_ << std::endl;
+     << data.Tp() << std::endl;
 
   return os;
+}
+
+const cv::Matx33f& CalibrationData::Kc() const
+{
+  return Kc_;
+}
+
+const cv::Vec<float, 5>& CalibrationData::kc() const
+{
+  return kc_;
+}
+
+const cv::Matx33f& CalibrationData::Kp() const
+{
+  return Kp_;
+}
+
+const cv::Vec<float, 5>& CalibrationData::kp() const
+{
+  return kp_;
+}
+
+const double& CalibrationData::cam_error() const
+{
+  return cam_error_;
+}
+
+const double& CalibrationData::proj_error() const
+{
+  return proj_error_;
+}
+
+const cv::Matx33f& CalibrationData::Rp() const
+{
+  return Rp_;
+}
+
+const cv::Vec3f CalibrationData::Tp() const
+{
+  return Tp_;
+}
+
+const double& CalibrationData::stereo_error() const
+{
+  return stereo_error_;
+}
+
+const int& CalibrationData::frame_width() const
+{
+  return frame_width_;
+}
+
+const int& CalibrationData::frame_height() const
+{
+  return frame_height_;
+}
+
+const int& CalibrationData::screen_res_x() const
+{
+  return CalibrationData::screen_res_x_;
+}
+
+const int& CalibrationData::screen_res_y() const
+{
+  return screen_res_y_;
 }
 
 }  // namespace calibration

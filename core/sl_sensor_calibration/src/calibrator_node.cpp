@@ -143,16 +143,16 @@ int main(int argc, char** argv)
 
   if (camera_calibration_data_init.LoadXML(camera_calibration_init_yaml))
   {
-    camera_calibration_option.intrinsics_init = camera_calibration_data_init.Kc_;
-    camera_calibration_option.lens_distortion_init = camera_calibration_data_init.kc_;
+    camera_calibration_option.intrinsics_init = camera_calibration_data_init.Kc();
+    camera_calibration_option.lens_distortion_init = camera_calibration_data_init.kc();
   }
 
   CalibrationData projector_calibration_data_init;
 
   if (projector_calibration_data_init.LoadXML(projector_calibration_init_yaml))
   {
-    projector_calibration_option.intrinsics_init = projector_calibration_data_init.Kp_;
-    projector_calibration_option.lens_distortion_init = projector_calibration_data_init.kp_;
+    projector_calibration_option.intrinsics_init = projector_calibration_data_init.Kp();
+    projector_calibration_option.lens_distortion_init = projector_calibration_data_init.kp();
   }
 
   std::string delimiter = " ";
