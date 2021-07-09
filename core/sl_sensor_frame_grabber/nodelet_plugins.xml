@@ -1,9 +1,0 @@
-<library path="lib/libsl_sensor_frame_grabber">
-  <class name="sl_sensor_frame_grabber/FrameGrabberNodelet"
-         type="sl_sensor::frame_grabber::FrameGrabberNodelet"
-         base_class_type="nodelet::Nodelet">
-  </class>
-  <description>
-  Frame grabber nodelet.
-  </description>
-</library>

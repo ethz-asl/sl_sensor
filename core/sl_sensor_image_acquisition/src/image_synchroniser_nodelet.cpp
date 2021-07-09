@@ -1,8 +1,9 @@
 #include <iostream>
+#include "sl_sensor_image_acquisition/image_array_utilities.hpp"
 #include "sl_sensor_image_acquisition/image_synchroniser_nodelet.hpp"
 
 #include <sl_sensor_projector/CommandProjector.h>
-#include <boost/range/adaptor/reversed.hpp>
+#include <iterator>
 #include <sl_sensor_projector/lightcrafter_4500.hpp>
 
 namespace sl_sensor
@@ -15,10 +16,11 @@ ImageSynchroniserNodelet::ImageSynchroniserNodelet()
 
 void ImageSynchroniserNodelet::onInit()
 {
-  // nh_ = getNodeHandle();
+  // Get ROS nodes
   nh_ = getMTNodeHandle();  // Need to use multi threaded node so callbacks still work while nodelet is grouping images
   private_nh_ = getPrivateNodeHandle();
 
+  // Obtain key information from private node handle
   private_nh_.param<double>("lower_bound_tol", lower_bound_tol_, lower_bound_tol_);
   private_nh_.param<double>("upper_bound_tol", upper_bound_tol_, upper_bound_tol_);
   private_nh_.param<double>("image_trigger_period", image_trigger_period_, image_trigger_period_);
@@ -30,17 +32,18 @@ void ImageSynchroniserNodelet::onInit()
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
   private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
 
+  std::string image_topics_full_string = {};
+  private_nh_.param<std::string>("image_topics", image_topics_full_string, image_topics_full_string);
+  auto image_topics = SplitString(image_topics_full_string, std::string(" "));
+
+  // Set up subscribers
   image_array_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(image_array_pub_topic_, 10);
   projector_timing_sub_ =
       nh_.subscribe(projector_timing_sub_topic_, 10, &ImageSynchroniserNodelet::ProjectorTimeCb, this);
   synchroniser_service_ = nh_.advertiseService("command_image_synchroniser",
                                                &ImageSynchroniserNodelet::ProcessImageSynchroniserCommand, this);
 
-  // Setup ImageGroupers
-  std::string image_topics_full_string = {};
-  private_nh_.param<std::string>("image_topics", image_topics_full_string, image_topics_full_string);
-  auto image_topics = SplitString(image_topics_full_string, std::string(" "));
-
+  // Setup and initialise ImageGroupers, one for each camera / image topic provided
   for (const auto& topic : image_topics)
   {
     auto temp_grouper_ptr =
@@ -80,10 +83,11 @@ void ImageSynchroniserNodelet::SendProjectorCommand(const std::string& command, 
 void ImageSynchroniserNodelet::ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr)
 {
   boost::mutex::scoped_lock lock(mutex_);
+
+  // If synchroniser is running, we add projector timing to buffer
   if (synchroniser_state_.is_running && synchroniser_state_.is_hardware_trigger)
   {
     projector_time_buffer_.push_back(time_numbered_ptr->time);
-    // std::cout << "Projector: " << std::to_string(time_numbered_ptr->time.toSec()) << std::endl;
   }
 }
 
@@ -105,6 +109,7 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
       Cleanup();
     }
 
+    // Check if pattern exists in projector's YAML file
     std::string pattern_name(req.pattern_name);
     bool pattern_exists = projector::Lightcrafter4500::PatternExists(projector_config_, pattern_name);
 
@@ -120,7 +125,8 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
       synchroniser_state_.number_images_per_scan =
           projector::Lightcrafter4500::GetNumberProjections(projector_config_, pattern_name);
 
-      // If hardware triggered, we configure projector now and sleep for a bit so projector has time to respond
+      // If hardware triggered, we configure projector and project the entire image sequence and sleep for a bit so
+      // projector has time to respond
       if (synchroniser_state_.is_hardware_trigger)
       {
         SendProjectorCommand(synchroniser_state_.pattern_name, -1);
@@ -150,39 +156,25 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
   return true;
 }
 
-void ImageSynchroniserNodelet::PublishImageArray(const std::vector<sensor_msgs::ImageConstPtr>& image_vec,
-                                                 const ros::Time& timestamp)
-{
-  sl_sensor_image_acquisition::ImageArray img_arr;
-
-  img_arr.header.stamp = timestamp;
-  img_arr.header.frame_id = frame_id_;
-
-  for (const auto img_ptr : image_vec)
-  {
-    auto& img = *img_ptr;
-    img_arr.data.emplace_back(std::move(img));
-  }
-
-  image_array_pub_.publish(img_arr);
-}
-
 bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
 {
   ros::Time successful_projector_time;
   bool success = false;
   std::vector<std::vector<sensor_msgs::ImageConstPtr>> nested_img_ptr_vec = {};
 
-  for (const auto& projector_time : boost::adaptors::reverse(projector_time_buffer_))
-  // for (const auto& projector_time : projector_time_buffer_)
+  // We iterate over all stored projector times, starting with the latest one
+  for (auto projector_time_it = std::rbegin(projector_time_buffer_);
+       projector_time_it != std::rend(projector_time_buffer_); ++projector_time_it)
   {
     nested_img_ptr_vec.clear();
 
-    // For each image grouper
+    // For each image grouper, try to obtain an image group for the current projector time
     for (const auto& grouper_ptr : image_grouper_ptrs_)
     {
       std::vector<sensor_msgs::ImageConstPtr> temp_vec = {};
-      grouper_ptr->RetrieveImageGroup(projector_time, temp_vec, false);
+      // Note, last argument is false because we do not want to clear the image buffer of the ImageGrouper
+      // prematurely. We need to make sure the other cameras are successful before clearing
+      grouper_ptr->RetrieveImageGroup(*projector_time_it, temp_vec, false);
 
       // If image grouper is successful, add to nested_img_ptr_vec
       if (!temp_vec.empty())
@@ -196,11 +188,12 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
       }
     }
 
-    // If all image groupers are successful, we break the loop and start processing the results
+    // If all image groupers are successful for this projector time, we break the loop and start processing the
+    // results
     if (nested_img_ptr_vec.size() == image_grouper_ptrs_.size())
     {
       success = true;
-      successful_projector_time = projector_time;
+      successful_projector_time = *projector_time_it;
       break;
     }
   }
@@ -219,7 +212,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     // Process and publish image array
     std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
     MergeNestedVectors(nested_img_ptr_vec, imgs_to_publish);
-    PublishImageArray(imgs_to_publish, successful_projector_time);
+    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_);
   }
 
   return success;
@@ -227,6 +220,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
 
 void ImageSynchroniserNodelet::ClearAllProjectorTimingsFromBufferBeforeTiming(const ros::Time& target_time)
 {
+  // Iterate over projector time buffer, remove entries that are before target_time
   for (auto it = projector_time_buffer_.begin(); it != projector_time_buffer_.end(); it++)
   {
     if ((*it - target_time).toSec() <= 0.0f)
@@ -245,13 +239,16 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
   std::vector<std::vector<sensor_msgs::ImageConstPtr>> temp(image_grouper_ptrs_.size(),
                                                             std::vector<sensor_msgs::ImageConstPtr>());
 
+  // For each pattern
   for (int i = 0; i < synchroniser_state_.number_images_per_scan; i++)
   {
+    // Command projector to display pattern
     SendProjectorCommand(synchroniser_state_.pattern_name, i);
 
     // Sleep for exposure period and delay
     ros::Duration(synchroniser_state_.delay + image_trigger_period_).sleep();
 
+    // For each camera, get the latest image in the buffer
     for (int j = 0; j < (int)image_grouper_ptrs_.size(); j++)
     {
       auto img_ptr = image_grouper_ptrs_[j]->GetLatestImageAndClearBuffer();
@@ -263,18 +260,15 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
       else
       {
         // If shared pointer is empty, this acquisition attempt has failed
-        // Turn off projector and return false
-        // SendProjectorCommand("black", 0);
         return false;
       }
     }
   }
 
   // Merge all vectors together and publish
-
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
-  PublishImageArray(imgs_to_publish, ros::Time::now());
+  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_);
 
   return true;
 }
@@ -300,10 +294,9 @@ void ImageSynchroniserNodelet::MainLoop()
       // If successful, we update the number of scans retrieved
       if (success_this_iteration)
       {
-        // std::cout << "Success this iteration" << std::endl;
         synchroniser_state_.current_number_scans++;
 
-        // If we have met the target number, we reset cleanup
+        // If we have met the target number, we reset and cleanup
         if (synchroniser_state_.target_number_scans > 0 &&
             synchroniser_state_.current_number_scans >= synchroniser_state_.target_number_scans)
         {

@@ -19,6 +19,11 @@ namespace sl_sensor
 {
 namespace image_acquisition
 {
+/**
+ * @brief Nodelet that groups images based on projector trigger timings for multiple cameras. Publishes the grouped
+ * images in an Image Array message
+ *
+ */
 class ImageSynchroniserNodelet : public nodelet::Nodelet
 {
 public:
@@ -58,17 +63,45 @@ private:
 
   void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
 
+  /**
+   * @brief Function that will be called upon a service call
+   *
+   * @param req
+   * @param res
+   * @return true
+   * @return false
+   */
   bool ProcessImageSynchroniserCommand(sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
                                        sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
 
-  void PublishImageArray(const std::vector<sensor_msgs::ImageConstPtr>& image_ptr_vec, const ros::Time& timestamp);
-
+  /**
+   * @brief Attempt to obtain and publish an image group based when in projector is in hardware trigger mode
+   *
+   * @return true
+   * @return false
+   */
   bool ExecuteCommandHardwareTrigger();
 
+  /**
+   * @brief Attempt to obtain and publish an image group based when in projector is in software trigger mode
+   *
+   * @return true
+   * @return false
+   */
   bool ExecuteCommandSoftwareTrigger();
 
+  /**
+   * @brief Send a service call to the projector
+   *
+   * @param command - Command to send
+   * @param pattern_no - Pattern number
+   */
   void SendProjectorCommand(const std::string& command, int pattern_no);
 
+  /**
+   * @brief Struct to keep track of the state of the Synchroniser
+   *
+   */
   struct SynchroniserState
   {
     std::string pattern_name = "";
@@ -95,10 +128,26 @@ private:
 
   SynchroniserState synchroniser_state_;
 
+  /**
+   * @brief Update loop that is called in a separate thread.
+   *
+   */
   void MainLoop();
 
+  /**
+   * @brief To be called when syncrhoniser is no longer in use (clear ImageGroupers, reset state of Synchroniser, etc)
+   *
+   */
   void Cleanup();
 
+  /**
+   * @brief Move elements from a nested vector to a vector. Note: Nested vector will be empty at the end of the
+   * operation
+   *
+   * @tparam T - Variable stored in the vectors
+   * @param input - input nested vector
+   * @param output - output nested vector
+   */
   template <typename T>
   void MergeNestedVectors(std::vector<std::vector<T>>& input, std::vector<T>& output)
   {
@@ -107,7 +156,7 @@ private:
     for (int i = 0; i < (int)input.size(); i++)
     {
       std::move(input[i].begin(), input[i].end(), std::back_inserter(output));
-      input[i].erase(input[i].begin(), input[i].end());  // TODO Need to test if clear() does the same job
+      input[i].clear();
     }
   };
 

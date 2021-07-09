@@ -20,5 +20,13 @@ patterns:
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
+    imageIndices: [7, 7, 7, 8, 8, 8]
+    channelNumbers: [0, 1, 2, 0, 1, 2]
+  pspTpuVertical:
+    bitDepth: 8
+    rgb: *defaultRgb
+    exposureUs: *defaultExposureUs
+    displayColour: *defaultDisplayColour
     imageIndices: [9, 9, 9, 10, 10, 10]
     channelNumbers: [0, 1, 2, 0, 1, 2]
+

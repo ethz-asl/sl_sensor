@@ -84,7 +84,7 @@ EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsig
   patterns.insert(it + 1, patternI);
 }
 
-cv::Mat EncoderPhaseShift2p1Tpu::getEncodingPattern(unsigned int depth)
+cv::Mat EncoderPhaseShift2p1Tpu::getEncodingPattern(size_t depth)
 {
   return patterns[depth];
 }

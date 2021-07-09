@@ -1,0 +1,9 @@
+<library path="lib/libsl_sensor_codec">
+  <class name="sl_sensor_codec/DecoderNodelet"
+         type="sl_sensor::codec::DecoderNodelet"
+         base_class_type="nodelet::Nodelet">
+  </class>
+  <description>
+  Decoder nodelet.
+  </description>
+</library>

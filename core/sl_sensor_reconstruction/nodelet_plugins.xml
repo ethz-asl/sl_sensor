@@ -1,0 +1,9 @@
+<library path="lib/libsl_sensor_reconstruction">
+  <class name="sl_sensor_reconstruction/TriangulatorNodelet"
+         type="sl_sensor::reconstruction::TriangulatorNodelet"
+         base_class_type="nodelet::Nodelet">
+  </class>
+  <description>
+  Triangulator nodelet.
+  </description>
+</library>

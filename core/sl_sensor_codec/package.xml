@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sl_sensor_frame_grabber</name>
+  <name>sl_sensor_codec</name>
   <version>0.0.0</version>
-  <description>Grab images and groups them based on projector trigger</description>
+  <description>Codec for different structured light patterns</description>
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
@@ -10,19 +10,15 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
-  
-  <build_depend>message_generation</build_depend>
-  <build_depend>pluginlib</build_depend>
-  <build_depend>nodelet</build_depend>
 
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>pluginlib</exec_depend>
-  <exec_depend>nodelet</exec_depend>
 
+  <depend>pluginlib</depend>
+  <depend>nodelet</depend>
   <depend>roscpp</depend>
-  <depend>sensor_msgs</depend>
-  <depend>versavis</depend>
   <depend>cv_bridge</depend>
+  <depend>sl_sensor_image_acquisition</depend>
+  <depend>sensor_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

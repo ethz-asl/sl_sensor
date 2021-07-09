@@ -11,7 +11,7 @@ class EncoderPhaseShift2p1Tpu : public Encoder
 public:
   EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsigned int _screenRows, CodecDir _dir);
   // Encoding
-  cv::Mat getEncodingPattern(unsigned int depth);
+  cv::Mat getEncodingPattern(size_t depth);
 
 private:
   std::vector<cv::Mat> patterns;

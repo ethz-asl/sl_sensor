@@ -5,7 +5,8 @@ find_package(catkin_simple REQUIRED)
 find_package(OpenCV REQUIRED)
 catkin_simple(ALL_DEPS_REQUIRED)
 
-add_definitions(-std=c++17 -Wall -Wextra)
+add_definitions(-Wall -Wextra)
+set (CMAKE_CXX_STANDARD 17)
 
 #############
 # LIBRARIES #

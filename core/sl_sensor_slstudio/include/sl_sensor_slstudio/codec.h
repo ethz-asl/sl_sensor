@@ -32,7 +32,7 @@ public:
     return dir;
   }
   // Encoding
-  virtual cv::Mat getEncodingPattern(unsigned int depth) = 0;
+  virtual cv::Mat getEncodingPattern(size_t depth) = 0;
   virtual ~Encoder()
   {
   }

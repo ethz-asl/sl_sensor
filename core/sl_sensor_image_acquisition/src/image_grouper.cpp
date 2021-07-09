@@ -20,6 +20,8 @@ ImageGrouper::ImageGrouper(std::string image_sub_topic, int number_images_per_gr
 void ImageGrouper::Init(ros::NodeHandle nh)
 {
   nh_ = nh;
+
+  // Set up subscriber
   image_sub_ = nh_.subscribe(image_sub_topic_, 10, &ImageGrouper::ImageCb, this);
 };
 
@@ -27,16 +29,10 @@ void ImageGrouper::ImageCb(const sensor_msgs::ImageConstPtr& image_ptr)
 {
   boost::mutex::scoped_lock lock(mutex_);
 
+  // Add image to buffer only if Start() has been called
   if (is_running_)
   {
     image_ptr_buffer_.push_back(image_ptr);
-    // std::cout << "Camera: " << std::to_string(image_ptr->header.stamp.toSec()) << std::endl;
-
-    // auto cv_img_ptr = cv_bridge::toCvShare(image_ptr);
-
-    // std::string filename =
-    //    "/home/ltf/Desktop/logged_data/debug_" + std::to_string(image_ptr->header.stamp.toNSec()) + ".bmp";
-    // cv::imwrite(filename, cv_img_ptr->image);
   }
 }
 
@@ -50,6 +46,8 @@ void ImageGrouper::Stop()
 {
   boost::mutex::scoped_lock lock(mutex_);
   is_running_ = false;
+
+  // Clear image buffer
   image_ptr_buffer_.clear();
 };
 
@@ -91,31 +89,27 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
   // We check if we can retrieve all images that make up a frame for the current projector time
   for (int i = 0; i < number_images_per_group_; i++)
   {
+    // Computation of expected image time
     auto target_time = projector_time + ros::Duration((double)i * image_trigger_period_);
 
     sensor_msgs::ImageConstPtr temp_ptr;
 
+    // Attempt to obtain an image with a timestamp close to target_time
     bool image_acquisition_successful = GetImagePtrFromBuffer(target_time, temp_ptr);
-
-    // std::cout << image_acquisition_successful << " " << i << " " << temp_ptr->header.stamp.toSec() -
-    // target_time.toSec()
-    //         << std::endl;
 
     if (image_acquisition_successful)
     {
       // Successful frame acquisition, store the image pointer in temp_img_ptr_vec
       temp_img_ptr_vec.push_back(temp_ptr);
-      // std::cout << "Successful at the " << i + 1 << "th image" << std::endl;
     }
     else
     {
-      // If not successful, we stop the looking for next image
-      // std::cout << "Unsuccessful at the " << i + 1 << "th image" << std::endl;
+      // If not successful, we stop the looking for next image and break the for loop
       break;
     }
   }
 
-  // if successful (all image pointer for a frame in temp_img_ptr_vec)
+  // Check success (all image pointer for a frame in temp_img_ptr_vec)
   if ((int)temp_img_ptr_vec.size() == number_images_per_group_)
   {
     success = true;
@@ -129,7 +123,7 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
     result_image_vec.clear();
     result_image_vec.swap(temp_img_ptr_vec);
 
-    // Clear all images before and including this frame
+    // Clear all images before and including this frame if specified
     if (clear_image_buffer_if_successful)
     {
       ClearAllImagesFromBufferBeforeTimingNoLock(last_image_time);
@@ -149,6 +143,7 @@ void ImageGrouper::ClearAllImagesFromBufferBeforeTimingNoLock(const ros::Time& t
 {
   int counter = 0;
 
+  // Iterate over image buffer, delete images before target_time
   for (auto it = image_ptr_buffer_.begin(); it != image_ptr_buffer_.end(); it++)
   {
     if (((*it)->header.stamp - target_time).toSec() <= 0.0f)

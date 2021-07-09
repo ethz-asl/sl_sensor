@@ -1,5 +1,0 @@
-string command
-int64 delay_ms
-int64 number_images 
-int64 number_frames
----

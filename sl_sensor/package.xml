@@ -19,6 +19,10 @@
   <depend>sl_sensor_slstudio</depend>
   <depend>sl_sensor_vo</depend>
   <depend>sl_sensor_projector</depend>	
+  <depend>sl_sensor_calibration</depend>	
+  <depend>sl_sensor_image_acquisition</depend>	
+  <depend>sl_sensor_codec</depend>	
+  <depend>sl_sensor_reconstruction</depend>	
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

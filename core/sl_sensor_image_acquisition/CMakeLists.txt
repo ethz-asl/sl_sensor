@@ -7,7 +7,8 @@ find_package(yaml-cpp REQUIRED)
 
 catkin_simple(ALL_DEPS_REQUIRED)
 
-add_definitions(-std=c++17 -Wall -Wextra)
+add_definitions(-Wall -Wextra)
+set (CMAKE_CXX_STANDARD 17)
 
 #############
 # LIBRARIES #
@@ -16,6 +17,7 @@ cs_add_library(${PROJECT_NAME}
   src/image_grouper.cpp
   src/image_array_logger_nodelet.cpp
   src/image_synchroniser_nodelet.cpp
+  src/image_array_utilities.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${YAML_CPP_INCLUDE_DIR})
