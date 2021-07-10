@@ -252,7 +252,7 @@ const int& CalibrationData::frame_height() const
 
 const int& CalibrationData::screen_res_x() const
 {
-  return CalibrationData::screen_res_x_;
+  return screen_res_x_;
 }
 
 const int& CalibrationData::screen_res_y() const

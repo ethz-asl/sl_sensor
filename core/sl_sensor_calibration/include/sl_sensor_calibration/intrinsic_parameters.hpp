@@ -17,9 +17,9 @@ public:
 
   IntrinsicParameters(){};
 
-  bool Save(const std::string& filename);
+  virtual bool Save(const std::string& filename);
 
-  bool Load(const std::string& filename);
+  virtual bool Load(const std::string& filename);
 
   const cv::Matx33f& intrinsic_mat() const;
   const cv::Vec<float, 5>& lens_distortion() const;
