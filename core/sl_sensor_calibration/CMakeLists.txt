@@ -19,6 +19,7 @@ cs_add_library(${PROJECT_NAME}
   src/calibration_data.cpp
   src/calibration_sequence_acquisition_nodelet.cpp
   src/calibrator.cpp 
+  src/intrinsic_parameters.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
