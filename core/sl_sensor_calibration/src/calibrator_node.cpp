@@ -12,9 +12,10 @@
 
 #include <sl_sensor_projector/projector_utils.hpp>
 
-#include "sl_sensor_calibration/calibration_data.hpp"
 #include "sl_sensor_calibration/calibration_option.hpp"
 #include "sl_sensor_calibration/calibrator.hpp"
+#include "sl_sensor_calibration/camera_parameters.hpp"
+#include "sl_sensor_calibration/projector_parameters.hpp"
 
 using namespace sl_sensor::calibration;
 
@@ -76,7 +77,8 @@ int main(int argc, char** argv)
   std::vector<std::string> directories_vec;
   std::vector<std::unordered_set<std::string>> files_to_ignore_vec;
   std::string projector_yaml_directory = "";
-  std::string output_calibration_filename = "";
+  std::string output_camera_parameters_filename = "";
+  std::string output_projector_parameters_filename = "";
 
   unsigned int projector_cols = 0;
   unsigned int projector_rows = 0;
@@ -136,23 +138,25 @@ int main(int argc, char** argv)
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
 
-  private_nh.param<std::string>("output_calibration_filename", output_calibration_filename,
-                                output_calibration_filename);
+  private_nh.param<std::string>("output_camera_parameters_filename", output_camera_parameters_filename,
+                                output_camera_parameters_filename);
+  private_nh.param<std::string>("output_projector_parameters_filename", output_projector_parameters_filename,
+                                output_projector_parameters_filename);
 
-  CalibrationData camera_calibration_data_init;
+  CameraParameters camera_calibration_data_init;
 
-  if (camera_calibration_data_init.LoadXML(camera_calibration_init_yaml))
+  if (camera_calibration_data_init.Load(camera_calibration_init_yaml))
   {
-    camera_calibration_option.intrinsics_init = camera_calibration_data_init.Kc();
-    camera_calibration_option.lens_distortion_init = camera_calibration_data_init.kc();
+    camera_calibration_option.intrinsics_init = camera_calibration_data_init.intrinsic_mat();
+    camera_calibration_option.lens_distortion_init = camera_calibration_data_init.lens_distortion();
   }
 
-  CalibrationData projector_calibration_data_init;
+  ProjectorParameters projector_calibration_data_init;
 
-  if (projector_calibration_data_init.LoadXML(projector_calibration_init_yaml))
+  if (projector_calibration_data_init.Load(projector_calibration_init_yaml))
   {
-    projector_calibration_option.intrinsics_init = projector_calibration_data_init.Kp();
-    projector_calibration_option.lens_distortion_init = projector_calibration_data_init.kp();
+    projector_calibration_option.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
+    projector_calibration_option.lens_distortion_init = projector_calibration_data_init.lens_distortion();
   }
 
   std::string delimiter = " ";
@@ -267,14 +271,27 @@ int main(int argc, char** argv)
   }
 
   // Perform calibration and save to calibration file
-  CalibrationData calibration_results = calibrator.Calibrate();
-  if (calibration_results.SaveXML(output_calibration_filename))
+  auto calibration_results = calibrator.Calibrate();
+
+  ProjectorParameters projector_parameters = calibration_results.first;
+  CameraParameters camera_parameters = calibration_results.second;
+
+  if (projector_parameters.Save(output_projector_parameters_filename))
   {
-    ROS_INFO("[CalibratorNode] Calibration completed");
+    ROS_INFO("[CalibratorNode] Projector parameters saved");
   }
   else
   {
-    ROS_INFO("[CalibratorNode] Calibration failed - could not save calibration file");
+    ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
+  }
+
+  if (camera_parameters.Save(output_camera_parameters_filename))
+  {
+    ROS_INFO("[CalibratorNode] Camera parameters saved");
+  }
+  else
+  {
+    ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
   }
 
   return 0;

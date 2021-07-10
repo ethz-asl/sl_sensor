@@ -1,9 +1,11 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include <utility>
 
-#include "sl_sensor_calibration/calibration_data.hpp"
 #include "sl_sensor_calibration/calibration_option.hpp"
+#include "sl_sensor_calibration/camera_parameters.hpp"
+#include "sl_sensor_calibration/projector_parameters.hpp"
 
 namespace sl_sensor
 {
@@ -24,23 +26,22 @@ public:
                                     const std::string& label = "", const cv::Mat& up = cv::Mat(),
                                     const cv::Mat& vp = cv::Mat());
 
-  CalibrationData Calibrate();
+  std::pair<ProjectorParameters, CameraParameters> Calibrate();
   void Clear();
 
 private:
-  unsigned int projector_cols_ = 0;
-  unsigned int projector_rows_ = 0;
+  unsigned int resolution_x_proj_ = 0;
+  unsigned int resolution_y_proj_ = 0;
   unsigned int window_radius_ = 10;
   unsigned int minimum_valid_pixels_ = 50;
   unsigned int checkerboard_cols_ = 10;
   unsigned int checkerboard_rows_ = 10;
   unsigned int checkerboard_size_mm_ = 10;
-  unsigned int image_width_ = 0;
-  unsigned int image_height_ = 0;
+  unsigned int resolution_x_cam_ = 0;
+  unsigned int resolution_y_cam_ = 0;
 
   CalibrationOption camera_calibration_option_;
   CalibrationOption projector_calibration_option_;
-  bool calibrate_camera_only_ = false;
 
   std::vector<std::vector<cv::Point2f>> corner_camera_coordinates_storage_;
   std::vector<std::vector<cv::Point2f>> corner_projector_coordinates_storage_;

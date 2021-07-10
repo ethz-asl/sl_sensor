@@ -87,18 +87,7 @@ bool CameraParameters::LoadExtrinsic(const std::string& filename)
 
 std::ostream& operator<<(std::ostream& os, const CameraParameters& data)
 {
-  os << std::setw(5) << std::setprecision(4) << "=== Intrinsic Parameters ===\n"
-     << "Intrinsic Matrix: \n"
-     << data.intrinsic_mat() << "\n"
-     << "Lens Distortion: \n"
-     << data.lens_distortion() << "\n"
-     << "Calibration Error: \n"
-     << data.calibration_error() << "\n"
-     << "Resolution x: \n"
-     << data.resolution_x() << "\n"
-     << "Resolution y: \n"
-     << data.resolution_y() << "\n"
-     << std::endl;
+  os << (const IntrinsicParameters&)data << std::endl;
 
   os << std::setw(5) << std::setprecision(4) << "=== Extrinsic Parameters ===\n"
      << "Extrinsic Rotation Matrix: \n"

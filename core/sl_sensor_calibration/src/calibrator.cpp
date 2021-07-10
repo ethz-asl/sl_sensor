@@ -10,8 +10,8 @@ Calibrator::Calibrator(){};
 
 void Calibrator::SetProjectorResolution(unsigned int projector_cols, unsigned int projector_rows)
 {
-  projector_cols_ = projector_cols;
-  projector_rows_ = projector_rows;
+  resolution_x_proj_ = projector_cols;
+  resolution_y_proj_ = projector_rows;
 }
 
 void Calibrator::SetCheckerboardInformation(unsigned int checkerboard_cols, unsigned int checkerboard_rows,
@@ -20,11 +20,6 @@ void Calibrator::SetCheckerboardInformation(unsigned int checkerboard_cols, unsi
   checkerboard_cols_ = checkerboard_cols;
   checkerboard_rows_ = checkerboard_rows;
   checkerboard_size_mm_ = checkerboard_size_mm;
-}
-
-void Calibrator::SetCalibrateCameraOnly(bool calibrate_camera_only)
-{
-  calibrate_camera_only_ = calibrate_camera_only;
 }
 
 void Calibrator::SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option)
@@ -47,10 +42,9 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
                                               const std::string& label, const cv::Mat& up, const cv::Mat& vp)
 {
   // Check that projector up and vp are provided if we need to calibrate it
-  if (!calibrate_camera_only_ && (up.empty() || vp.empty()))
+  if (up.empty() || vp.empty())
   {
-    std::cout << "Calibrator set to calibrate both camera and projector but no projector coordinates detected."
-              << std::endl;
+    std::cout << "[Calibrator] No projector coordinates provided." << std::endl;
 
     return false;
   }
@@ -79,22 +73,13 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
     }
   }
 
-  // Handle calibrate camera only
-  if (calibrate_camera_only_)
-  {
-    corner_3d_coordinates_storage_.push_back(all_checkerboard_3d_corners);
-    corner_camera_coordinates_storage_.push_back(camera_checkerboard_corners);
-    sequence_label_storage_.push_back(label);
-    return true;
-  }
-
   // Otherwise, we compute projector corner coordinates usings local homography method
   std::vector<cv::Point2f> current_projector_corners;
   std::vector<cv::Point2f> current_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
 
-  image_width_ = camera_shading.cols;
-  image_height_ = camera_shading.rows;
+  resolution_x_cam_ = camera_shading.cols;
+  resolution_y_cam_ = camera_shading.rows;
 
   // Loop through checkerboard corners
   for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
@@ -106,9 +91,9 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
 
     // Avoid going out of bounds
     unsigned int start_h = std::max(int(processed_camera_corner.y + 0.5) - window_radius_, 0u);
-    unsigned int stop_h = std::min(int(processed_camera_corner.y + 0.5) + window_radius_, image_height_ - 1);
+    unsigned int stop_h = std::min(int(processed_camera_corner.y + 0.5) + window_radius_, resolution_y_cam_ - 1);
     unsigned int start_w = std::max(int(processed_camera_corner.x + 0.5) - window_radius_, 0u);
-    unsigned int stop_w = std::min(int(processed_camera_corner.x + 0.5) + window_radius_, image_width_ - 1);
+    unsigned int stop_w = std::min(int(processed_camera_corner.x + 0.5) + window_radius_, resolution_x_cam_ - 1);
 
     for (unsigned int h = start_h; h <= stop_h; h++)
     {
@@ -170,7 +155,7 @@ void Calibrator::Clear()
   sequence_label_storage_.clear();
 }
 
-CalibrationData Calibrator::Calibrate()
+std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
 {
   int number_calibration_sequences = corner_3d_coordinates_storage_.size();
 
@@ -178,56 +163,45 @@ CalibrationData Calibrator::Calibrate()
   if (number_calibration_sequences <= 0)
   {
     std::cout << "No calibration sequences found, could not start calibration" << std::endl;
-    return CalibrationData();
+    return std::make_pair(ProjectorParameters(), CameraParameters());
   }
 
   // Calibrate camera
-  auto Kc = camera_calibration_option_.intrinsics_init;
-  auto kc = camera_calibration_option_.lens_distortion_init;
+  auto intrinsic_cam = camera_calibration_option_.intrinsics_init;
+  auto lens_distortion_cam = camera_calibration_option_.lens_distortion_init;
   std::vector<cv::Mat> cam_rvecs, cam_tvecs;
 
-  cv::Size image_size(image_width_, image_height_);
+  cv::Size image_size(resolution_x_cam_, resolution_y_cam_);
   double cam_error = 0.0f;
 
   if (!camera_calibration_option_.fix_values)
   {
-    cam_error = cv::calibrateCamera(corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, image_size, Kc,
-                                    kc, cam_rvecs, cam_tvecs, camera_calibration_option_.GetCalibrationFlags(),
+    cam_error = cv::calibrateCamera(corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, image_size,
+                                    intrinsic_cam, lens_distortion_cam, cam_rvecs, cam_tvecs,
+                                    camera_calibration_option_.GetCalibrationFlags(),
                                     cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
 
-  /**
-  if (calibrate_camera_only_)
-  {
-    // Print results
-    std::cout << "### Calibration Results ###" << std::endl;
-    std::cout << "Camera calibration error: " << cam_error << std::endl;
-    std::cout << calibration_data << std::endl;
-
-    // TODO: Also compute and print per-view error if only camera is calibrated
-    return calibration_data;
-  }
-  **/
-
   // Calibrate projector
-  auto Kp = projector_calibration_option_.intrinsics_init;
-  auto kp = projector_calibration_option_.lens_distortion_init;
+  auto intrinsic_proj = projector_calibration_option_.intrinsics_init;
+  auto lens_distortion_proj = projector_calibration_option_.lens_distortion_init;
   std::vector<cv::Mat> proj_rvecs, proj_tvecs;
-  cv::Size projector_size(projector_rows_, projector_cols_);
+  cv::Size projector_size(resolution_y_proj_, resolution_x_proj_);
   double proj_error = 0.0f;
 
   if (!projector_calibration_option_.fix_values)
   {
-    proj_error =
-        cv::calibrateCamera(corner_3d_coordinates_storage_, corner_projector_coordinates_storage_, projector_size, Kp,
-                            kp, proj_rvecs, proj_tvecs, projector_calibration_option_.GetCalibrationFlags(),
-                            cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
+    proj_error = cv::calibrateCamera(
+        corner_3d_coordinates_storage_, corner_projector_coordinates_storage_, projector_size, intrinsic_proj,
+        lens_distortion_proj, proj_rvecs, proj_tvecs, projector_calibration_option_.GetCalibrationFlags(),
+        cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
   // Calibrate extrinsics
-  cv::Mat Rp, Tp, E, F;
+  cv::Mat extrinsic_rot, extrinsic_trans, E, F;
   double stereo_error = cv::stereoCalibrate(
-      corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, corner_projector_coordinates_storage_, Kc, kc,
-      Kp, kp, image_size, Rp, Tp, E, F, cv::CALIB_FIX_INTRINSIC,
+      corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, corner_projector_coordinates_storage_,
+      intrinsic_cam, lens_distortion_cam, intrinsic_proj, lens_distortion_proj, image_size, extrinsic_rot,
+      extrinsic_trans, E, F, cv::CALIB_FIX_INTRINSIC,
       cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, DBL_EPSILON));
 
   // Compute and display reprojection errors
@@ -247,21 +221,22 @@ CalibrationData Calibrator::Calibrate()
     {
       cam_rvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
       cam_tvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
-      cv::solvePnP(cv::Mat(corner_3d_coordinates_storage_[i]), corner_camera_coordinates_storage_[i], Kc, kc,
-                   cam_rvecs[i], cam_tvecs[i]);
+      cv::solvePnP(cv::Mat(corner_3d_coordinates_storage_[i]), corner_camera_coordinates_storage_[i], intrinsic_cam,
+                   lens_distortion_cam, cam_rvecs[i], cam_tvecs[i]);
     }
 
     if (projector_calibration_option_.fix_values)
     {
       proj_rvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
       proj_tvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
-      cv::solvePnP(cv::Mat(corner_3d_coordinates_storage_[i]), corner_projector_coordinates_storage_[i], Kp, kp,
-                   proj_rvecs[i], proj_tvecs[i]);
+      cv::solvePnP(cv::Mat(corner_3d_coordinates_storage_[i]), corner_projector_coordinates_storage_[i], intrinsic_proj,
+                   lens_distortion_proj, proj_rvecs[i], proj_tvecs[i]);
     }
 
     // Compute camera error per view
     std::vector<cv::Point2f> qc_proj;
-    cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), cam_rvecs[i], cam_tvecs[i], Kc, kc, qc_proj);
+    cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), cam_rvecs[i], cam_tvecs[i], intrinsic_cam,
+                      lens_distortion_cam, qc_proj);
 
     float err = 0;
     for (unsigned int j = 0; j < qc_proj.size(); j++)
@@ -273,7 +248,8 @@ CalibrationData Calibrator::Calibrate()
 
     // Compute projector error per view
     std::vector<cv::Point2f> qp_proj;
-    cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), proj_rvecs[i], proj_tvecs[i], Kp, kp, qp_proj);
+    cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), proj_rvecs[i], proj_tvecs[i], intrinsic_proj,
+                      lens_distortion_proj, qp_proj);
     err = 0;
     for (unsigned int j = 0; j < qc_proj.size(); j++)
     {
@@ -286,8 +262,11 @@ CalibrationData Calibrator::Calibrate()
               << "):\n\tcam:" << cam_error_per_view[i] << " proj:" << proj_error_per_view[i] << std::endl;
   }
 
-  CalibrationData calibration_data(Kc, kc, cam_error, Kp, kp, proj_error, Rp, Tp, stereo_error, image_width_,
-                                   image_height_, projector_rows_, projector_cols_);
+  ProjectorParameters proj_params(intrinsic_proj, lens_distortion_proj, proj_error, resolution_x_proj_,
+                                  resolution_y_proj_);
+
+  CameraParameters cam_params(intrinsic_cam, lens_distortion_cam, cam_error, resolution_x_cam_, resolution_y_cam_,
+                              extrinsic_rot, extrinsic_trans, stereo_error);
 
   // Display Calibration Results
   // Print results
@@ -295,10 +274,12 @@ CalibrationData Calibrator::Calibrate()
   std::cout << "Camera calibration error: " << cam_error << std::endl;
   std::cout << "Projector calibration error: " << proj_error << std::endl;
   std::cout << "Stereo calibration error: " << stereo_error << std::endl;
-  std::cout << "Calibrated Parameters: " << std::endl;
-  std::cout << calibration_data << std::endl;
+  std::cout << "Calibrated projector parameters: " << std::endl;
+  std::cout << proj_params << std::endl;
+  std::cout << "Calibrated camera parameters: " << std::endl;
+  std::cout << cam_params << std::endl;
 
-  return calibration_data;
+  return std::make_pair(proj_params, cam_params);
 }
 
 }  // namespace calibration
