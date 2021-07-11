@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
-#include <sl_sensor_calibration/calibration_data.hpp>
+#include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_projector/projector_utils.hpp>
 
 #include "sl_sensor_codec/codec_factory.hpp"
@@ -20,13 +20,12 @@ int main(int argc, char** argv)
   std::string encoder_name;
   std::string projector_yaml_directory;
   std::string save_folder;
-  std::string projector_calibration_data_file;
+  std::string projector_parameters_file;
 
   private_nh.param<std::string>("encoder_name", encoder_name, encoder_name);
   private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
   private_nh.param<std::string>("save_folder", save_folder, save_folder);
-  private_nh.param<std::string>("projector_calibration_data_file", projector_calibration_data_file,
-                                projector_calibration_data_file);
+  private_nh.param<std::string>("projector_parameters_file", projector_parameters_file, projector_parameters_file);
 
   // Setup encoder
   auto encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, private_nh);
@@ -42,11 +41,21 @@ int main(int argc, char** argv)
   unsigned int screen_cols, screen_rows;
   GetProjectorResolution(projector_yaml_directory, screen_rows, screen_cols);
   bool is_diamond_pixel = GetIsDiamondPixel(projector_yaml_directory);
-  CalibrationData calibration_data;
-  calibration_data.Load(projector_calibration_data_file);
+  ProjectorParameters projector_parameters;
+
+  if (projector_parameters.Load(projector_parameters_file))
+  {
+    ROS_INFO("Projector parameters successfully loaded");
+  }
+  else
+  {
+    ROS_INFO("Failed to load projector parameters");
+  }
+
   cv::Mat map1, map2;
   cv::Size map_size = cv::Size(screen_cols, screen_rows);
-  Encoder::InitDistortMap(calibration_data.Kp(), calibration_data.kp(), map_size, map1, map2);
+  Encoder::InitDistortMap(projector_parameters.intrinsic_mat(), projector_parameters.lens_distortion(), map_size, map1,
+                          map2);
 
   auto patterns = encoder_ptr->GetEncodingPatterns();
 

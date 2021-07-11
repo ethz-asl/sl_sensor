@@ -7,10 +7,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <algorithm>
-#include <sl_sensor_calibration/calibration_data.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
-using namespace sl_sensor::calibration;
 using namespace sl_sensor::image_acquisition;
 
 namespace sl_sensor

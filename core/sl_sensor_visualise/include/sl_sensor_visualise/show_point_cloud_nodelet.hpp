@@ -37,7 +37,7 @@ private:
 
   std::string pc_sub_topic_ = "/pc";
   std::string screen_title_ = "";
-  std::string calibration_filename_ = "";
+  std::string camera_parameters_filename_ = "";
 
   std::unique_ptr<pcl::visualization::PCLVisualizer> visualiser_ptr_;
   std::unique_ptr<pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI>> colour_handler_ptr;

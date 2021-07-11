@@ -6,7 +6,7 @@
 #include <vtkRenderWindow.h>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/opencv.hpp>
-#include <sl_sensor_calibration/calibration_data.hpp>
+#include <sl_sensor_calibration/camera_parameters.hpp>
 
 using namespace pcl::visualization;
 
@@ -25,7 +25,8 @@ void ShowPointCloudNodelet::onInit()
   // Obtain information from private node handle
   private_nh_.param<std::string>("input_topic", pc_sub_topic_, pc_sub_topic_);
   private_nh_.param<std::string>("screen_title", screen_title_, screen_title_);
-  private_nh_.param<std::string>("calibration_filename", calibration_filename_, calibration_filename_);
+  private_nh_.param<std::string>("camera_parameters_filename", camera_parameters_filename_,
+                                 camera_parameters_filename_);
 
   // Setup subscriber
   image_array_sub_ = nh_.subscribe(pc_sub_topic_, 10, &ShowPointCloudNodelet::PointCloudCb, this);
@@ -65,13 +66,13 @@ void ShowPointCloudNodelet::Update()
   visualiser_ptr_->setCameraPosition(0, 0, -50, 0, 0, 0, 0, -1, 0);
 
   // Projector coordinate frame
-  calibration::CalibrationData calibration_data;
+  calibration::CameraParameters camera_parameters;
 
-  if (calibration_data.Load(calibration_filename_))
+  if (camera_parameters.Load(camera_parameters_filename_))
   {
     cv::Mat T_proj_cam_cv(3, 4, CV_32F);
-    cv::Mat(calibration_data.Rp()).copyTo(T_proj_cam_cv.colRange(0, 3));
-    cv::Mat(calibration_data.Tp()).copyTo(T_proj_cam_cv.col(3));
+    cv::Mat(camera_parameters.extrinsic_rot()).copyTo(T_proj_cam_cv.colRange(0, 3));
+    cv::Mat(camera_parameters.extrinsic_trans()).copyTo(T_proj_cam_cv.col(3));
     Eigen::Affine3f T_proj_cam;
     cv::cv2eigen(T_proj_cam_cv, T_proj_cam.matrix());
 
