@@ -3,7 +3,9 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <opencv2/opencv.hpp>
-#include <sl_sensor_calibration/calibration_data.hpp>
+#include <sl_sensor_calibration/camera_parameters.hpp>
+#include <sl_sensor_calibration/projector_parameters.hpp>
+#include <utility>
 #include <vector>
 
 namespace sl_sensor
@@ -20,16 +22,17 @@ public:
   /**
    * @brief Construct a new Triangulator object
    *
-   * @param calibration - CalibrationData of SL Sensor
+   * @param projector_parameters projector parameters
+   * @param camera_parameters  camera parameters
    */
-  Triangulator(calibration::CalibrationData calibration);
+  Triangulator(calibration::ProjectorParameters projector_parameters, calibration::CameraParameters camera_parameters);
 
   /**
    * @brief Get the Calibration Data
    *
    * @return calibration::CalibrationData
    */
-  calibration::CalibrationData GetCalibrationData();
+  std::pair<calibration::ProjectorParameters, calibration::CameraParameters> GetCalibrationParams();
 
   /**
    * @brief Perform triangulation
@@ -69,7 +72,8 @@ private:
    */
   void TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv::Mat &xyz);
 
-  calibration::CalibrationData calibration_data_;
+  calibration::ProjectorParameters projector_parameters_;
+  calibration::CameraParameters camera_parameters_;
   cv::Mat determinant_tensor_;
   cv::Mat uc_, vc_;
   cv::Mat cam_matrix_projector, cam_matrix_camera;

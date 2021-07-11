@@ -6,7 +6,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <algorithm>
-#include <sl_sensor_calibration/calibration_data.hpp>
+#include <sl_sensor_calibration/camera_parameters.hpp>
+#include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
 using namespace sl_sensor::calibration;
@@ -27,7 +28,10 @@ void TriangulatorNodelet::onInit()
   // Obtain information from private node handle
   private_nh_.param<std::string>("input_topic", image_array_sub_topic_, image_array_sub_topic_);
   private_nh_.param<std::string>("output_topic", pc_pub_topic_, pc_pub_topic_);
-  private_nh_.param<std::string>("calibration_file", calibration_filename_, calibration_filename_);
+  private_nh_.param<std::string>("camera_parameters_filename", camera_parameters_filename_,
+                                 camera_parameters_filename_);
+  private_nh_.param<std::string>("projector_parameters_filename", projector_parameters_filename_,
+                                 projector_parameters_filename_);
   private_nh_.param<int>("number_cameras", number_cameras_, number_cameras_);
   private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
   private_nh_.param<float>("crop_box_x_min", crop_box_x_min_, crop_box_x_min_);
@@ -37,21 +41,36 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<float>("crop_box_y_max", crop_box_y_max_, crop_box_y_max_);
   private_nh_.param<float>("crop_box_z_max", crop_box_z_max_, crop_box_z_max_);
 
-  // Load Calibration Data
-  CalibrationData calibration_data;
-  if (calibration_data.Load(calibration_filename_))
+  // Load Projector Data
+  ProjectorParameters projector_parameters;
+  if (projector_parameters.Load(projector_parameters_filename_))
   {
-    ROS_INFO("[TriangulatorNodelet] Calibration data loaded successfully.");
+    ROS_INFO("[TriangulatorNodelet] Projector parameters loaded successfully.");
   }
   else
   {
-    ROS_ERROR("[TriangulatorNodelet] Failed to load calibration data!");
+    ROS_ERROR("[TriangulatorNodelet] Failed to load projector parameters!");
   }
 
-  std::cout << calibration_data << std::endl;
+  std::cout << "Projector parameters: " << std::endl;
+  std::cout << projector_parameters << std::endl;
+
+  // Load Camera Calibration Data
+  CameraParameters camera_parameters;
+  if (camera_parameters.Load(camera_parameters_filename_))
+  {
+    ROS_INFO("[TriangulatorNodelet] Camera parameters loaded successfully.");
+  }
+  else
+  {
+    ROS_ERROR("[TriangulatorNodelet] Failed to load camera parameters!");
+  }
+
+  std::cout << "Camera parameters: " << std::endl;
+  std::cout << camera_parameters << std::endl;
 
   // Setup Triangulator
-  triangulator_ptr_ = std::make_unique<Triangulator>(calibration_data);
+  triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, camera_parameters);
 
   // Setup publisher and subscriber
   pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pc_pub_topic_, 10);

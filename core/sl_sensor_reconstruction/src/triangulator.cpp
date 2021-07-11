@@ -8,20 +8,22 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
-CalibrationData Triangulator::GetCalibrationData()
+std::pair<calibration::ProjectorParameters, calibration::CameraParameters> Triangulator::GetCalibrationParams()
 {
-  return calibration_data_;
+  return std::make_pair(projector_parameters_, camera_parameters_);
 }
 
-Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(calibration)
+Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters,
+                           calibration::CameraParameters camera_parameters)
+  : projector_parameters_(projector_parameters), camera_parameters_(camera_parameters)
 {
   // Precompute uc_, vc_ maps
-  uc_.create(calibration_data_.frame_height(), calibration_data_.frame_width(), CV_32F);
-  vc_.create(calibration_data_.frame_height(), calibration_data_.frame_width(), CV_32F);
+  uc_.create(camera_parameters_.resolution_y(), camera_parameters_.resolution_x(), CV_32F);
+  vc_.create(camera_parameters_.resolution_y(), camera_parameters_.resolution_x(), CV_32F);
 
-  for (unsigned int row = 0; row < (unsigned int)calibration_data_.frame_height(); row++)
+  for (unsigned int row = 0; row < (unsigned int)camera_parameters_.resolution_y(); row++)
   {
-    for (unsigned int col = 0; col < (unsigned int)calibration_data_.frame_width(); col++)
+    for (unsigned int col = 0; col < (unsigned int)camera_parameters_.resolution_x(); col++)
     {
       uc_.at<float>(row, col) = col;
       vc_.at<float>(row, col) = row;
@@ -30,13 +32,13 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
 
   // Compute camera matrix from calibration data
   cam_matrix_camera = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(calibration_data_.Kc()).copyTo(cam_matrix_camera(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(camera_parameters_.intrinsic_mat()).copyTo(cam_matrix_camera(cv::Range(0, 3), cv::Range(0, 3)));
 
   cam_matrix_projector = cv::Mat(3, 4, CV_32F);
   cv::Mat temp(3, 4, CV_32F);
-  cv::Mat(calibration_data_.Rp()).copyTo(temp(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::Mat(calibration_data_.Tp()).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
-  cam_matrix_projector = cv::Mat(calibration_data_.Kp()) * temp;
+  cv::Mat(camera_parameters_.extrinsic_rot()).copyTo(temp(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(camera_parameters_.extrinsic_trans()).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
+  cam_matrix_projector = cv::Mat(projector_parameters_.intrinsic_mat()) * temp;
 
   // Precompute determinant tensor
   int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
@@ -63,8 +65,9 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
 
   // Precompute lens correction maps
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
-  cv::initUndistortRectifyMap(calibration_data_.Kc(), calibration_data_.kc(), eye, calibration_data_.Kc(),
-                              cv::Size(calibration_data_.frame_width(), calibration_data_.frame_height()), CV_16SC2,
+  cv::initUndistortRectifyMap(camera_parameters_.intrinsic_mat(), camera_parameters_.lens_distortion(), eye,
+                              camera_parameters_.intrinsic_mat(),
+                              cv::Size(camera_parameters_.resolution_y(), camera_parameters_.resolution_x()), CV_16SC2,
                               lens_map_1_, lens_map_2_);
 
   // Precompute parts of xyzw
@@ -80,7 +83,7 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
   }
 
   // Precompute camera coordinates matrix in UpVpTriangulate
-  int number_pixels_ = calibration_data_.frame_height() * calibration_data_.frame_width();
+  int number_pixels_ = camera_parameters_.resolution_y() * camera_parameters_.resolution_x();
   proj_points_cam_ = cv::Mat(2, number_pixels_, CV_32F);
 
   uc_.reshape(0, 1).copyTo(proj_points_cam_.row(0));
