@@ -3,13 +3,15 @@
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <string>
+#include <vector>
 
 namespace sl_sensor
 {
 namespace calibration
 {
-class DualCameraCalibrationPreparator:
+class DualCameraCalibrationPreparator
 {
 public:
   DualCameraCalibrationPreparator(const ProjectorParameters& proj_params, const CameraParameters& pri_cam_params,
@@ -31,6 +33,9 @@ private:
   ProjectorParameters proj_params_;
   CameraParameters pri_cam_params_;
   CameraParameters sec_cam_params_;
+
+  cv::Mat projection_matrix_projector_;
+  cv::Mat projection_matrix_sec_cam_;
 
   unsigned int window_radius_ = 10;
   unsigned int minimum_valid_pixels_ = 50;

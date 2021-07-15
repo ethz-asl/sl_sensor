@@ -143,11 +143,6 @@ cv::Mat CameraParameters::GetProjectionMatrix() const
   return cv::Mat(this->intrinsic_mat()) * GetTransformationMatrix();
 }
 
-cv::Mat CameraParameters::GetInverseProjectionMatrix() const
-{
-  return cv::Mat(this->intrinsic_mat()) * GetInverseTransformationMatrix();
-}
-
 }  // namespace calibration
 
 }  // namespace sl_sensor
