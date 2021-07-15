@@ -2,6 +2,10 @@
 
 #include "sl_sensor_calibration/calibration_utils.hpp"
 
+#include <math.h>
+#include <cmath>
+#include <opencv2/sfm/triangulation.hpp>
+
 namespace sl_sensor
 {
 namespace calibration
@@ -11,6 +15,10 @@ DualCameraCalibrationPreparator::DualCameraCalibrationPreparator(const Projector
                                                                  const CameraParameters& sec_cam_params)
   : proj_params_(proj_params), pri_cam_params_(pri_cam_params), sec_cam_params_(sec_cam_params)
 {
+  // Compute Projection Matrix of Primary Camera
+  projection_matrix_pri_cam_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
+  cv::Mat(pri_cam_params.intrinsic_mat()).copyTo(projection_matrix_pri_cam_(cv::Range(0, 3), cv::Range(0, 3)));
+
   // Compute Projection Matrix of Projector wrt Primary Cam
   cv::Mat projection_matrix_projector_ = pri_cam_params_.GetProjectionMatrix();
 
@@ -28,8 +36,6 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     const cv::Mat& sec_camera_shading, const cv::Mat& sec_camera_mask, const cv::Mat& sec_up, const cv::Mat& sec_vp,
     const std::string& label)
 {
-  // TODO: Has a lot or similar code to Calibrator, refactor to reduce code repetition
-
   cv::Size checkerboard_size(checkerboard_cols_, checkerboard_rows_);
 
   // Extract Checkerboard From Primary Camera, return false if fail
@@ -104,11 +110,59 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     }
 
     // Consistency check for using extracted projector coordinates, continue if fail
+    if (!ProjectorCoordinatesConsistencyCheck(pri_processed_projector_corner, sec_processed_projector_corner))
+    {
+      continue;
+    }
+
+    // Undistort 2D corners based on calibrated intrinsics of cameras and projector. Note: We do not triangulate with
+    // projector coordinates from the secondary camera from the second with for now.
+    auto undistorted_pri_cam_point =
+        UndistortSinglePoint(processed_pri_camera_corner, cv::Mat(pri_cam_params_.intrinsic_mat()),
+                             cv::Mat(pri_cam_params_.lens_distortion()));
+    auto undistorted_sec_cam_point =
+        UndistortSinglePoint(processed_sec_camera_corner, cv::Mat(sec_cam_params_.intrinsic_mat()),
+                             cv::Mat(sec_cam_params_.lens_distortion()));
+    auto undistorted_pri_proj_point = UndistortSinglePoint(
+        pri_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
+    /**
+    auto undistorted_sec_proj_point = UndistortSinglePoint(
+        sec_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
+    **/
 
     // Triangulate 3D coordinate of corner, wrt to primary camera
+    std::vector<std::vector<cv::Point2f>> corner_points_vec;
+    corner_points_vec.push_back({ undistorted_pri_cam_point, undistorted_sec_cam_point, undistorted_pri_proj_point });
+    std::vector<std::vector<cv::Mat>> projection_matrix_vec;
+    projection_matrix_vec.push_back(
+        { projection_matrix_pri_cam_, projection_matrix_sec_cam_, projection_matrix_projector_ });
+    std::vector<cv::Point3d> triangulated_point_vec;
+    cv::sfm::triangulatePoints(corner_points_vec, projection_matrix_vec, triangulated_point_vec);
 
     // Append information to storage vectors
+    current_projector_corners.push_back(undistorted_pri_proj_point);
+    current_pri_camera_corners.push_back(undistorted_pri_cam_point);
+    current_sec_camera_corners.push_back(undistorted_sec_cam_point);
+    current_3d_corners.push_back(triangulated_point_vec[0]);
   }
+
+  // Store results to storage for this calibration sequence
+  if (!current_3d_corners.empty())
+  {
+    corner_projector_coordinates_storage_.push_back(current_projector_corners);
+    corner_pri_camera_coordinates_storage_.push_back(current_pri_camera_corners);
+    corner_sec_camera_coordinates_storage_.push_back(current_sec_camera_corners);
+    corner_3d_coordinates_storage_.push_back(current_3d_corners);
+    sequence_label_storage_.push_back(label);
+  }
+
+  return (!current_3d_corners.empty()) ? true : false;
+}
+
+bool DualCameraCalibrationPreparator::ProjectorCoordinatesConsistencyCheck(const cv::Point2f& coord_1,
+                                                                           const cv::Point2f& coord_2)
+{
+  return std::sqrt(pow(coord_1.x - coord_2.x, 2.0) + pow(coord_1.y - coord_2.y, 2.0)) < projector_acceptance_tol_;
 }
 
 void DualCameraCalibrationPreparator::SetLocalHomographySettings(unsigned int window_radius,

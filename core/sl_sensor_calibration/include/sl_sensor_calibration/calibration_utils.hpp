@@ -20,6 +20,9 @@ bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coord
                                                     unsigned int minimum_valid_pixels,
                                                     cv::Point2f& output_proj_coordinate);
 
+cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::Mat& intrinsic_matrix,
+                                 const cv::Mat& lens_distortion_coefficients);
+
 }  // namespace calibration
 
 }  // namespace sl_sensor

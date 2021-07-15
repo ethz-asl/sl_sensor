@@ -35,6 +35,7 @@ private:
   CameraParameters pri_cam_params_;
   CameraParameters sec_cam_params_;
 
+  cv::Mat projection_matrix_pri_cam_;
   cv::Mat projection_matrix_projector_;
   cv::Mat projection_matrix_sec_cam_;
 
@@ -45,13 +46,15 @@ private:
   unsigned int checkerboard_rows_ = 10;
   unsigned int checkerboard_size_mm_ = 10;
 
-  double projector_acceptance_tol_ = 0.1;
+  double projector_acceptance_tol_ = 0.25;
 
   std::vector<std::vector<cv::Point2f>> corner_pri_camera_coordinates_storage_;
   std::vector<std::vector<cv::Point2f>> corner_sec_camera_coordinates_storage_;
   std::vector<std::vector<cv::Point2f>> corner_projector_coordinates_storage_;
   std::vector<std::vector<cv::Point3f>> corner_3d_coordinates_storage_;
   std::vector<std::string> sequence_label_storage_;
+
+  bool ProjectorCoordinatesConsistencyCheck(const cv::Point2f& coord_1, const cv::Point2f& coord_2);
 };
 
 }  // namespace calibration

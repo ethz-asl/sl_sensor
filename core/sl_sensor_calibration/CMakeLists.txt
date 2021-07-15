@@ -25,7 +25,7 @@ cs_add_library(${PROJECT_NAME}
   src/calibration_utils.cpp
   )
 
-target_include_directories(${PROJECT_NAME} PUBLIC "/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs)
 
 ##############

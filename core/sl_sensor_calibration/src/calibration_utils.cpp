@@ -88,9 +88,18 @@ bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coord
 
   // Compute corresponding projector corner coordinate
   cv::Point3d Q = cv::Point3d(cv::Mat(H * cv::Mat(cv::Point3d(cam_coordinate.x, cam_coordinate.y, 1.0))));
-  cv::Point2f processed_projector_corner = cv::Point2f(Q.x / Q.z, Q.y / Q.z);
+  output_proj_coordinate = cv::Point2f(Q.x / Q.z, Q.y / Q.z);
 
   return true;
+}
+
+cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::Mat& intrinsic_matrix,
+                                 const cv::Mat& lens_distortion_coefficients)
+{
+  std::vector<cv::Point2f> distorted_point_vec = { distorted_point };
+  std::vector<cv::Point2f> undistorted_point_vec;
+  cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix, lens_distortion_coefficients);
+  return undistorted_point_vec[0];
 }
 
 }  // namespace calibration

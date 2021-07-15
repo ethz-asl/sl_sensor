@@ -69,7 +69,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
     }
   }
 
-  // Otherwise, we compute projector corner coordinates usings local homography method
+  // Otherwise, we compute projector corner coordinates using local homography method
   std::vector<cv::Point2f> current_projector_corners;
   std::vector<cv::Point2f> current_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
