@@ -22,9 +22,8 @@ public:
   void SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option);
   void SetProjectorCalibrationOption(const CalibrationOption& projector_calibration_option);
   void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
-  bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
-                                    const std::string& label = "", const cv::Mat& up = cv::Mat(),
-                                    const cv::Mat& vp = cv::Mat());
+  bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask, const cv::Mat& up,
+                                    const cv::Mat& vp, const std::string& label = "");
 
   std::pair<ProjectorParameters, CameraParameters> Calibrate();
   void Clear();

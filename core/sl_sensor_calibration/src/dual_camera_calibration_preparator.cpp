@@ -1,5 +1,7 @@
 #include "sl_sensor_calibration/dual_camera_calibration_preparator.hpp"
 
+#include "sl_sensor_calibration/calibration_utils.hpp"
+
 namespace sl_sensor
 {
 namespace calibration
@@ -22,36 +24,91 @@ DualCameraCalibrationPreparator::DualCameraCalibrationPreparator(const Projector
 }
 
 bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
-    const cv::Mat& pri_camera_shading, const cv::Mat& pri_camera_mask, const cv::Mat& sec_camera_shading,
-    const cv::Mat& sec_camera_mask, const std::string& label, const cv::Mat& up, const cv::Mat& vp)
+    const cv::Mat& pri_camera_shading, const cv::Mat& pri_camera_mask, const cv::Mat& pri_up, const cv::Mat& pri_vp,
+    const cv::Mat& sec_camera_shading, const cv::Mat& sec_camera_mask, const cv::Mat& sec_up, const cv::Mat& sec_vp,
+    const std::string& label)
 {
-  // Extract Checkerboard From Primary Camera
+  // TODO: Has a lot or similar code to Calibrator, refactor to reduce code repetition
 
-  // Return if fail
+  cv::Size checkerboard_size(checkerboard_cols_, checkerboard_rows_);
 
-  // Extract Checkerboard from Secondary Camera
+  // Extract Checkerboard From Primary Camera, return false if fail
+  std::vector<cv::Point2f> pri_camera_checkerboard_corners;
+  bool pri_checkerboard_detected =
+      FindCheckerboardAndRefineCorners(pri_camera_shading, checkerboard_size, pri_camera_checkerboard_corners);
+  if (!pri_checkerboard_detected)
+  {
+    std::cout << "[Calibrator] No checkerboard detected for primary camera" << std::endl;
+    return false;
+  }
 
-  // Return if fail
+  // Extract Checkerboard from Secondary Camera, return false if fail
+  std::vector<cv::Point2f> sec_camera_checkerboard_corners;
+  bool sec_checkerboard_detected =
+      FindCheckerboardAndRefineCorners(sec_camera_shading, checkerboard_size, sec_camera_checkerboard_corners);
+  if (!sec_checkerboard_detected)
+  {
+    std::cout << "[Calibrator] No checkerboard detected for secondary camera" << std::endl;
+    return false;
+  }
 
   // Check that orientation of checkerboards are correct. If not, flip them
+  OrientCheckerBoardCorners(pri_camera_checkerboard_corners);
+  OrientCheckerBoardCorners(sec_camera_checkerboard_corners);
+
+  // Generate a vector of checkerboard 3d points, from the top left corners and going row-wise downwards
+  std::vector<cv::Point3f> all_checkerboard_3d_corners;
+  for (unsigned int h = 0; h < checkerboard_rows_; h++)
+  {
+    for (unsigned int w = 0; w < checkerboard_cols_; w++)
+    {
+      all_checkerboard_3d_corners.push_back(cv::Point3f(checkerboard_size_mm_ * w, checkerboard_size_mm_ * h, 0.0));
+    }
+  }
+
+  // Initialise some variables required for next few steps
+  std::vector<cv::Point2f> current_projector_corners;
+  std::vector<cv::Point2f> current_pri_camera_corners;
+  std::vector<cv::Point2f> current_sec_camera_corners;
+  std::vector<cv::Point3f> current_3d_corners;
 
   // For each checkerboard corner
+  for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
+  {
+    // Extract projector coordinate for primary camera, continue if fail
+    const cv::Point2f& processed_pri_camera_corner = pri_camera_checkerboard_corners[j];
+    std::vector<cv::Point2f> pri_neighbourhood_camera_coordinates, pri_neighbourhood_projector_coordinates;
 
-  // Perform local homography for Primary Camera
+    cv::Point2f pri_processed_projector_corner;
+    bool pri_projector_coordinate_extracted = ExtractProjectorCoordinateUsingLocalHomography(
+        processed_pri_camera_corner, pri_camera_mask, pri_up, pri_vp, window_radius_, minimum_valid_pixels_,
+        pri_processed_projector_corner);
 
-  // Continue if fail
+    if (!pri_projector_coordinate_extracted)
+    {
+      continue;
+    }
 
-  // Perform local homography for Secondary Camera
+    // Extract projector coordinate for secondary camera, continue if fail
+    const cv::Point2f& processed_sec_camera_corner = sec_camera_checkerboard_corners[j];
+    std::vector<cv::Point2f> sec_neighbourhood_camera_coordinates, sec_neighbourhood_projector_coordinates;
 
-  // Continue if fail
+    cv::Point2f sec_processed_projector_corner;
+    bool sec_projector_coordinate_extracted = ExtractProjectorCoordinateUsingLocalHomography(
+        processed_sec_camera_corner, sec_camera_mask, sec_up, sec_vp, window_radius_, minimum_valid_pixels_,
+        sec_processed_projector_corner);
 
-  // Consistency check for projector coordinates
+    if (!sec_projector_coordinate_extracted)
+    {
+      continue;
+    }
 
-  // Continue if fail
+    // Consistency check for using extracted projector coordinates, continue if fail
 
-  // Triangulate 3D coordinate of corner
+    // Triangulate 3D coordinate of corner, wrt to primary camera
 
-  // Append information to storage vectors
+    // Append information to storage vectors
+  }
 }
 
 void DualCameraCalibrationPreparator::SetLocalHomographySettings(unsigned int window_radius,

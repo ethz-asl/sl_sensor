@@ -18,9 +18,10 @@ public:
                                   const CameraParameters& sec_cam_params);
 
   bool AddSingleCalibrationSequence(const cv::Mat& pri_camera_shading, const cv::Mat& pri_camera_mask,
-                                    const cv::Mat& sec_camera_shading, const cv::Mat& sec_camera_mask,
-                                    const std::string& label = "", const cv::Mat& up = cv::Mat(),
-                                    const cv::Mat& vp = cv::Mat());
+                                    const cv::Mat& pri_up, const cv::Mat& pri_vp, const cv::Mat& sec_camera_shading,
+                                    const cv::Mat& sec_camera_mask, const cv::Mat& sec_up, const cv::Mat& sec_vp,
+                                    const std::string& label = "");
+
   void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
 
   void Reset();
@@ -39,6 +40,11 @@ private:
 
   unsigned int window_radius_ = 10;
   unsigned int minimum_valid_pixels_ = 50;
+
+  unsigned int checkerboard_cols_ = 10;
+  unsigned int checkerboard_rows_ = 10;
+  unsigned int checkerboard_size_mm_ = 10;
+
   double projector_acceptance_tol_ = 0.1;
 
   std::vector<std::vector<cv::Point2f>> corner_pri_camera_coordinates_storage_;

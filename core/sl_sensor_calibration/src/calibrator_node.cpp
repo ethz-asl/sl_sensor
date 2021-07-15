@@ -262,7 +262,7 @@ int main(int argc, char** argv)
       if (shading_success && mask_success && up_success && vp_success)
       {
         std::string label = directory + "|" + stem;
-        bool load_success = calibrator.AddSingleCalibrationSequence(shading, mask, label, up, vp);
+        bool load_success = calibrator.AddSingleCalibrationSequence(shading, mask, up, vp, label);
         std::cout << "Loading files from " << label << "..." << (load_success ? " success " : " fail ") << std::endl;
       }
     }

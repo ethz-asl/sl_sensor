@@ -22,6 +22,7 @@ cs_add_library(${PROJECT_NAME}
   src/intrinsic_parameters.cpp
   src/camera_parameters.cpp
   src/dual_camera_calibration_preparator.cpp
+  src/calibration_utils.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")

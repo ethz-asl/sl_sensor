@@ -1,5 +1,7 @@
 #include "sl_sensor_calibration/calibrator.hpp"
 
+#include "sl_sensor_calibration/calibration_utils.hpp"
+
 #include <algorithm>
 
 namespace sl_sensor
@@ -39,31 +41,25 @@ void Calibrator::SetLocalHomographySettings(unsigned int window_radius, unsigned
 }
 
 bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
-                                              const std::string& label, const cv::Mat& up, const cv::Mat& vp)
+                                              const cv::Mat& up, const cv::Mat& vp, const std::string& label)
 {
-  // Check that projector up and vp are provided if we need to calibrate it
-  if (up.empty() || vp.empty())
-  {
-    std::cout << "[Calibrator] No projector coordinates provided." << std::endl;
-
-    return false;
-  }
-
   // Detect checkerboard
   cv::Size checkerboard_size(checkerboard_cols_, checkerboard_rows_);
   std::vector<cv::Point2f> camera_checkerboard_corners;
-  bool checkerboard_detected = cv::findChessboardCorners(camera_shading, checkerboard_size, camera_checkerboard_corners,
-                                                         cv::CALIB_CB_ADAPTIVE_THRESH);
+  bool checkerboard_detected =
+      FindCheckerboardAndRefineCorners(camera_shading, checkerboard_size, camera_checkerboard_corners);
   if (!checkerboard_detected)
   {
-    std::cout << "No checkerboard detected" << std::endl;
+    std::cout << "[Calibrator] No checkerboard detected" << std::endl;
     return false;
   }
 
-  cv::cornerSubPix(camera_shading, camera_checkerboard_corners, cv::Size(5, 5), cv::Size(1, 1),
-                   cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 20, 0.01));
+  // Check that orientation of checkerboards are correct. If not, flip them
+  OrientCheckerBoardCorners(camera_checkerboard_corners);
 
   // If checkerboard detected successfully, we proceed to populating the storage variables
+
+  // Generate a vector of checkerboard 3d points, from the top left corners and going row-wise downwards
   std::vector<cv::Point3f> all_checkerboard_3d_corners;
   for (unsigned int h = 0; h < checkerboard_rows_; h++)
   {
@@ -78,64 +74,33 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
   std::vector<cv::Point2f> current_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
 
-  resolution_x_cam_ = camera_shading.cols;
-  resolution_y_cam_ = camera_shading.rows;
-
   // Loop through checkerboard corners
   for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
   {
+    // Get 2d camera coordinate for that corner
     const cv::Point2f& processed_camera_corner = camera_checkerboard_corners[j];
 
-    // Collect neighbourhood points about corner that is currently processed
-    std::vector<cv::Point2f> neighbourhood_camera_coordinates, neighbourhood_projector_coordinates;
+    // Get 2d projector coordinate for that corner using local homography
+    cv::Point2f processed_projector_corner;
+    bool projector_coordinate_extracted =
+        ExtractProjectorCoordinateUsingLocalHomography(processed_camera_corner, camera_mask, up, vp, window_radius_,
+                                                       minimum_valid_pixels_, processed_projector_corner);
 
-    // Avoid going out of bounds
-    unsigned int start_h = std::max(int(processed_camera_corner.y + 0.5) - window_radius_, 0u);
-    unsigned int stop_h = std::min(int(processed_camera_corner.y + 0.5) + window_radius_, resolution_y_cam_ - 1);
-    unsigned int start_w = std::max(int(processed_camera_corner.x + 0.5) - window_radius_, 0u);
-    unsigned int stop_w = std::min(int(processed_camera_corner.x + 0.5) + window_radius_, resolution_x_cam_ - 1);
-
-    for (unsigned int h = start_h; h <= stop_h; h++)
+    // If 2d projector coordinate extracted successfully
+    if (projector_coordinate_extracted)
     {
-      for (unsigned int w = start_w; w <= stop_w; w++)
-      {
-        // Only consider neighbourhood pixels that are within the mask
-        if (camera_mask.at<bool>(h, w))
-        {
-          neighbourhood_camera_coordinates.push_back(cv::Point2f(w, h));
-
-          float neighbourhood_projector_u = up.at<float>(h, w);
-          float neighbourhood_projector_v = vp.at<float>(h, w);
-          neighbourhood_projector_coordinates.push_back(
-              cv::Point2f(neighbourhood_projector_u, neighbourhood_projector_v));
-        }
-      }
+      // Store results for this corner
+      current_camera_corners.push_back(processed_camera_corner);
+      current_projector_corners.push_back(processed_projector_corner);
+      current_3d_corners.push_back(all_checkerboard_3d_corners[j]);
     }
-
-    // If there are enough legitimate points around the corner, we perform local homography
-    if (neighbourhood_projector_coordinates.size() >= minimum_valid_pixels_)
+    else
     {
-      cv::Mat H = cv::findHomography(neighbourhood_camera_coordinates, neighbourhood_projector_coordinates, cv::LMEDS);
-      if (!H.empty())
-      {
-        // Compute corresponding projector corner coordinate
-        cv::Point3d Q =
-            cv::Point3d(cv::Mat(H * cv::Mat(cv::Point3d(processed_camera_corner.x, processed_camera_corner.y, 1.0))));
-        cv::Point2f processed_projector_corner = cv::Point2f(Q.x / Q.z, Q.y / Q.z);
-
-        // Store results for this corner
-        current_projector_corners.push_back(processed_projector_corner);
-        current_camera_corners.push_back(processed_camera_corner);
-        current_3d_corners.push_back(all_checkerboard_3d_corners[j]);
-      }
-      else
-      {
-        std::cout << "Homography failed for " << j << "th corner" << std::endl;
-      }
+      std::cout << "[Calibrator] Homography failed for " << j << "th corner" << std::endl;
     }
   }
 
-  // Store results to storage for this round
+  // Store results to storage for this calibration sequence
   if (!current_3d_corners.empty())
   {
     corner_projector_coordinates_storage_.push_back(current_projector_corners);
@@ -162,7 +127,7 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
   // If no calibration sequences, we return default calibration data
   if (number_calibration_sequences <= 0)
   {
-    std::cout << "No calibration sequences found, could not start calibration" << std::endl;
+    std::cout << "[Calibrator] No calibration sequences found, could not start calibration" << std::endl;
     return std::make_pair(ProjectorParameters(), CameraParameters());
   }
 
