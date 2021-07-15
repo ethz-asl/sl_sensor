@@ -31,14 +31,10 @@ Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters
   }
 
   // Compute camera matrix from calibration data
-  cam_matrix_camera = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(camera_parameters_.intrinsic_mat()).copyTo(cam_matrix_camera(cv::Range(0, 3), cv::Range(0, 3)));
+  projection_matrix_camera_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
+  cv::Mat(camera_parameters_.intrinsic_mat()).copyTo(projection_matrix_camera_(cv::Range(0, 3), cv::Range(0, 3)));
 
-  cam_matrix_projector = cv::Mat(3, 4, CV_32F);
-  cv::Mat temp(3, 4, CV_32F);
-  cv::Mat(camera_parameters_.extrinsic_rot()).copyTo(temp(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::Mat(camera_parameters_.extrinsic_trans()).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
-  cam_matrix_projector = cv::Mat(projector_parameters_.intrinsic_mat()) * temp;
+  projection_matrix_projector_ = camera_parameters_.GetTransformationMatrix();
 
   // Precompute determinant tensor
   int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
@@ -53,9 +49,9 @@ Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters
         for (int l = 0; l < 3; l++)
         {
           cv::Mat op(4, 4, CV_32F);
-          cam_matrix_camera.row(i).copyTo(op.row(0));
-          cam_matrix_camera.row(j).copyTo(op.row(1));
-          cam_matrix_projector.row(l).copyTo(op.row(2));
+          projection_matrix_camera_.row(i).copyTo(op.row(0));
+          projection_matrix_camera_.row(j).copyTo(op.row(1));
+          projection_matrix_projector_.row(l).copyTo(op.row(2));
           basis_vectors.row(k).copyTo(op.row(3));
           determinant_tensor_.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
         }
@@ -212,7 +208,8 @@ void Triangulator::TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv:
   vp.clone().reshape(0, 1).copyTo(proj_points_proj.row(1));
 
   cv::Mat xyzw;
-  cv::triangulatePoints(cam_matrix_camera, cam_matrix_projector, proj_points_cam_, proj_points_proj, xyzw);
+  cv::triangulatePoints(projection_matrix_camera_, projection_matrix_projector_, proj_points_cam_, proj_points_proj,
+                        xyzw);
 
   xyz.create(3, number_pixels_, CV_32F);
   for (int i = 0; i < number_pixels_; i++)

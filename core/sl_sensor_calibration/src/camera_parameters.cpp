@@ -120,6 +120,34 @@ bool CameraParameters::Load(const std::string& filename)
   return success;
 }
 
+cv::Mat CameraParameters::GetTransformationMatrix() const
+{
+  cv::Mat transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
+  cv::Mat(this->extrinsic_rot()).copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(this->extrinsic_trans()).copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+  return transformation_matrix;
+}
+
+cv::Mat CameraParameters::GetInverseTransformationMatrix() const
+{
+  cv::Mat inverted_transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
+  cv::Mat inverted_rotation_matrix = cv::Mat(this->extrinsic_rot()).t();
+  cv::Mat inverted_translation_vector = -inverted_rotation_matrix * cv::Mat(this->extrinsic_trans());
+  inverted_rotation_matrix.copyTo(inverted_transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
+  inverted_translation_vector.copyTo(inverted_transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+  return inverted_transformation_matrix;
+}
+
+cv::Mat CameraParameters::GetProjectionMatrix() const
+{
+  return cv::Mat(this->intrinsic_mat()) * GetTransformationMatrix();
+}
+
+cv::Mat CameraParameters::GetInverseProjectionMatrix() const
+{
+  return cv::Mat(this->intrinsic_mat()) * GetInverseTransformationMatrix();
+}
+
 }  // namespace calibration
 
 }  // namespace sl_sensor

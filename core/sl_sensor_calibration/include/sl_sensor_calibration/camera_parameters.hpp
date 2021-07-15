@@ -27,6 +27,14 @@ public:
 
   const double& stereo_error() const;
 
+  cv::Mat GetTransformationMatrix() const;
+
+  cv::Mat GetInverseTransformationMatrix() const;
+
+  cv::Mat GetProjectionMatrix() const;
+
+  cv::Mat GetInverseProjectionMatrix() const;
+
 private:
   cv::Matx33f extrinsic_rot_ = cv::Matx33f::eye();
   cv::Vec3f extrinsic_trans_ = cv::Vec3f(0, 0, 0);
