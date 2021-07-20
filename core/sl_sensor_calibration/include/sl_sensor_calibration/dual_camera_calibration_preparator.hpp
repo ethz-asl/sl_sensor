@@ -27,8 +27,6 @@ public:
 
   void Reset();
 
-  void Run();
-
   void ExportFile(const std::string& filename);
 
 private:

@@ -181,10 +181,6 @@ void DualCameraCalibrationPreparator::Reset()
   sequence_label_storage_.clear();
 }
 
-void DualCameraCalibrationPreparator::Run()
-{
-}
-
 void DualCameraCalibrationPreparator::WriteExtrinsics(std::ofstream& ba_file, const cv::Mat& rvec, const cv::Mat& tvec)
 {
   // Rotation vector (Rodrigues format)
