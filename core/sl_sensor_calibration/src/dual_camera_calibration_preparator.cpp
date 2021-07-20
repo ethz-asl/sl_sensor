@@ -185,8 +185,150 @@ void DualCameraCalibrationPreparator::Run()
 {
 }
 
+void DualCameraCalibrationPreparator::WriteExtrinsics(std::ofstream& ba_file, const cv::Mat& rvec, const cv::Mat& tvec)
+{
+  // Rotation vector (Rodrigues format)
+  ba_file << rvec.at<float>(0, 0) << "\n" << rvec.at<float>(1, 0) << "\n" << rvec.at<float>(2, 0) << "\n";
+
+  // Translation vector
+  ba_file << tvec.at<float>(0, 0) << "\n" << tvec.at<float>(1, 0) << "\n" << tvec.at<float>(2, 0) << "\n";
+}
+
+void DualCameraCalibrationPreparator::WriteIntrinsics(std::ofstream& ba_file,
+                                                      const IntrinsicParameters& intrinsic_params)
+{
+  // Intrinsics
+  cv::Mat intrinsic_mat = cv::Mat(intrinsic_params.intrinsic_mat());
+
+  // x focal length in pixel
+  ba_file << intrinsic_mat.at<float>(0, 0) << "\n";
+
+  // y focal length in pixels
+  ba_file << intrinsic_mat.at<float>(1, 1) << "\n";
+
+  // image center x
+  ba_file << intrinsic_mat.at<float>(0, 2) << "\n";
+
+  // image center y
+  ba_file << intrinsic_mat.at<float>(1, 2) << "\n";
+
+  // Lens distortion
+  auto lens_distortion = intrinsic_params.lens_distortion();
+
+  // radial distortion coefficient 1
+  ba_file << lens_distortion[0] << "\n";
+
+  // radial distortion coefficient 2
+  ba_file << lens_distortion[1] << "\n";
+
+  // radial distortion coefficient 3
+  ba_file << lens_distortion[4] << "\n";
+
+  // tangential distortion coefficient 1
+  ba_file << lens_distortion[2] << "\n";
+
+  // tangential distortion coefficient 2
+  ba_file << lens_distortion[3] << "\n";
+}
+
 void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
 {
+  // Open file for writing
+  std::ofstream ba_file;
+  ba_file.open(filename);
+
+  // Compute total number of observations
+  int number_observations = 0;
+  for (const auto& coordinates : corner_pri_camera_coordinates_storage_)
+  {
+    number_observations += coordinates.size();
+  }
+
+  // 1) First line of file is number of cameras, number of points, number of fixed points, number of observations,
+  // number of fixed observations. Note that we do not have any fixed points / observations
+  ba_file << 3 << " " << corner_3d_coordinates_storage_.size() << " " << 0 << " " << number_observations << " " << 0
+          << "\n";
+
+  // 2) Next n_obs rows are [camera index, point id, camera coord x, camera coord y]
+  int point_id = 0;
+  for (int i = 0; (unsigned int)corner_3d_coordinates_storage_.size(); i++)
+  {
+    for (int j = 0; (unsigned int)corner_3d_coordinates_storage_[i].size(); j++)
+    {
+      // Primary camera (camera index 0)
+      ba_file << 0 << " " << point_id << " " << corner_pri_camera_coordinates_storage_[i][j].x << " "
+              << corner_pri_camera_coordinates_storage_[i][j].y << "\n";
+
+      // Projector (camera index 1)
+      ba_file << 1 << " " << point_id << " " << corner_projector_coordinates_storage_[i][j].x << " "
+              << corner_projector_coordinates_storage_[i][j].y << "\n";
+
+      // Secondary camera (camera index 2)
+      ba_file << 1 << " " << point_id << " " << corner_projector_coordinates_storage_[i][j].x << " "
+              << corner_projector_coordinates_storage_[i][j].y << "\n";
+
+      // Update point_id
+      point_id++;
+    }
+  }
+
+  // 3) Next n_fobs rows are [camera index, point id, camera cood x, camera coord y] (we have no fixed points so we do
+  // not add anything)
+
+  // 4) After all observations have been listed, we list out all camera parameters
+
+  // Primary camera
+  cv::Mat rvec_pri_cam = cv::Mat(3, 1, CV_32F);
+  cv::Mat tvec_pri_cam = cv::Mat::zeros(3, 1, CV_32F);
+  cv::Rodrigues(cv::Mat::eye(3, 3, CV_32F), rvec_pri_cam);
+
+  WriteExtrinsics(ba_file, rvec_pri_cam, tvec_pri_cam);
+  WriteIntrinsics(ba_file, pri_cam_params_);
+
+  // Projector
+  cv::Mat rvec_projector = cv::Mat(3, 1, CV_32F);
+  cv::Mat tvec_projector = cv::Mat(pri_cam_params_.extrinsic_trans());  // Pri cam params because we want the extrinsics
+                                                                        // between pri cam and projector
+  cv::Rodrigues(cv::Mat(pri_cam_params_.extrinsic_rot()), rvec_projector);
+
+  WriteExtrinsics(ba_file, rvec_projector, tvec_projector);
+  WriteIntrinsics(ba_file, proj_params_);
+
+  // Secondary camera
+  cv::Mat transformation_matrix_sec_cam_to_projector = sec_cam_params_.GetInverseTransformationMatrix();
+  cv::Mat transformation_matrix_projector_to_pri_cam = pri_cam_params_.GetTransformationMatrix();
+  cv::Mat transformation_matrix_sec_cam_to_pri_cam =
+      transformation_matrix_sec_cam_to_projector * transformation_matrix_projector_to_pri_cam;
+
+  cv::Mat rvec_sec_cam = cv::Mat(3, 1, CV_32F);
+  cv::Mat sec_cam_rot_matrix = cv::Mat(3, 3, CV_32F);
+  transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(0, 3))
+      .copyTo(sec_cam_rot_matrix(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Rodrigues(sec_cam_rot_matrix, rvec_sec_cam);
+
+  cv::Mat tvec_sec_cam = cv::Mat(3, 1, CV_32F);
+  transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(3, 4))
+      .copyTo(tvec_sec_cam(cv::Range(0, 3), cv::Range(0, 1)));
+
+  WriteExtrinsics(ba_file, rvec_sec_cam, tvec_sec_cam);
+  WriteIntrinsics(ba_file, sec_cam_params_);
+
+  // 5) After camera parameters, print out 3d coordinates of points
+
+  for (int i = 0; (unsigned int)corner_3d_coordinates_storage_.size(); i++)
+  {
+    for (int j = 0; (unsigned int)corner_3d_coordinates_storage_[i].size(); j++)
+    {
+      ba_file << corner_3d_coordinates_storage_[i][j].x << "\n";
+      ba_file << corner_3d_coordinates_storage_[i][j].y << "\n";
+      ba_file << corner_3d_coordinates_storage_[i][j].z << "\n";
+    }
+  }
+
+  // 6) Followed by fixed 3D points (not applicable)
+
+  // Close file
+  ba_file.close();
 }
 
 }  // namespace calibration

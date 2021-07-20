@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sl_sensor_calibration/camera_parameters.hpp"
+#include "sl_sensor_calibration/intrinsic_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
 
 #include <opencv2/opencv.hpp>
@@ -55,6 +56,10 @@ private:
   std::vector<std::string> sequence_label_storage_;
 
   bool ProjectorCoordinatesConsistencyCheck(const cv::Point2f& coord_1, const cv::Point2f& coord_2);
+
+  void WriteIntrinsics(std::ofstream& ba_file, const IntrinsicParameters& intrinsic_params);
+
+  void WriteExtrinsics(std::ofstream& ba_file, const cv::Mat& rvec, const cv::Mat& tvec);
 };
 
 }  // namespace calibration
