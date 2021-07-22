@@ -65,6 +65,7 @@ bool CameraParameters::SaveExtrinsic(const std::string& filename)
 
 bool CameraParameters::LoadExtrinsic(const std::string& filename)
 {
+  std::cout << "Load intrinsic" << std::endl;
   cv::FileStorage fs(filename, cv::FileStorage::READ);
   if (!fs.isOpened())
   {
@@ -91,9 +92,9 @@ std::ostream& operator<<(std::ostream& os, const CameraParameters& data)
 
   os << std::setw(5) << std::setprecision(4) << "=== Extrinsic Parameters ===\n"
      << "Extrinsic Rotation Matrix: \n"
-     << data.extrinsic_trans() << "\n"
-     << "Extrinsics Translation Vector: \n"
      << data.extrinsic_rot() << "\n"
+     << "Extrinsic Translation Vector: \n"
+     << data.extrinsic_trans() << "\n"
      << "Stereo Error: \n"
      << data.stereo_error() << std::endl;
 

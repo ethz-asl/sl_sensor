@@ -54,6 +54,10 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
     return false;
   }
 
+  // Update camera resolution
+  resolution_x_cam_ = camera_shading.cols;
+  resolution_y_cam_ = camera_shading.rows;
+
   // Check that orientation of checkerboards are correct. If not, flip them
   OrientCheckerBoardCorners(camera_checkerboard_corners);
 
@@ -151,7 +155,7 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
   auto intrinsic_proj = projector_calibration_option_.intrinsics_init;
   auto lens_distortion_proj = projector_calibration_option_.lens_distortion_init;
   std::vector<cv::Mat> proj_rvecs, proj_tvecs;
-  cv::Size projector_size(resolution_y_proj_, resolution_x_proj_);
+  cv::Size projector_size(resolution_x_proj_, resolution_y_proj_);
   double proj_error = 0.0f;
 
   if (!projector_calibration_option_.fix_values)

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<extrinsic_rot type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>f</dt>
+  <data>
+    9.73781288e-01 5.85009418e-02 2.19835490e-01 -1.44919539e-02
+    9.80358243e-01 -1.96692005e-01 -2.27024198e-01 1.88349158e-01
+    9.55502272e-01</data></extrinsic_rot>
+<extrinsic_trans type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>1</cols>
+  <dt>f</dt>
+  <data>
+    -1.34846680e+02 -2.52954483e+01 -1.13524876e+01</data></extrinsic_trans>
+<stereo_error>3.8594430682910708e-01</stereo_error>
+</opencv_storage>

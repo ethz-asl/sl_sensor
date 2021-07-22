@@ -145,7 +145,8 @@ int main(int argc, char** argv)
 
   CameraParameters camera_calibration_data_init;
 
-  if (camera_calibration_data_init.Load(camera_calibration_init_yaml))
+  if ((camera_calibration_option.use_initial_guess || camera_calibration_option.fix_values) &&
+      camera_calibration_data_init.Load(camera_calibration_init_yaml))
   {
     camera_calibration_option.intrinsics_init = camera_calibration_data_init.intrinsic_mat();
     camera_calibration_option.lens_distortion_init = camera_calibration_data_init.lens_distortion();
@@ -153,10 +154,14 @@ int main(int argc, char** argv)
 
   ProjectorParameters projector_calibration_data_init;
 
-  if (projector_calibration_data_init.Load(projector_calibration_init_yaml))
+  if ((projector_calibration_option.use_initial_guess || projector_calibration_option.fix_values) &&
+      projector_calibration_data_init.Load(projector_calibration_init_yaml))
   {
     projector_calibration_option.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
     projector_calibration_option.lens_distortion_init = projector_calibration_data_init.lens_distortion();
+
+    std::cout << projector_calibration_option.intrinsics_init << std::endl;
+    std::cout << projector_calibration_option.lens_distortion_init << std::endl;
   }
 
   std::string delimiter = " ";
@@ -276,22 +281,28 @@ int main(int argc, char** argv)
   ProjectorParameters projector_parameters = calibration_results.first;
   CameraParameters camera_parameters = calibration_results.second;
 
-  if (projector_parameters.Save(output_projector_parameters_filename))
+  if (!projector_calibration_option.fix_values)
   {
-    ROS_INFO("[CalibratorNode] Projector parameters saved");
-  }
-  else
-  {
-    ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
+    if (projector_parameters.Save(output_projector_parameters_filename))
+    {
+      ROS_INFO("[CalibratorNode] Projector parameters saved");
+    }
+    else
+    {
+      ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
+    }
   }
 
-  if (camera_parameters.Save(output_camera_parameters_filename))
+  if (!camera_calibration_option.fix_values)
   {
-    ROS_INFO("[CalibratorNode] Camera parameters saved");
-  }
-  else
-  {
-    ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
+    if (&&camera_parameters.Save(output_camera_parameters_filename))
+    {
+      ROS_INFO("[CalibratorNode] Camera parameters saved");
+    }
+    else
+    {
+      ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
+    }
   }
 
   return 0;

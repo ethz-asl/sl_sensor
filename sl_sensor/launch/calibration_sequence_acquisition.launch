@@ -37,7 +37,7 @@
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
     <param name="image_array_sub_topic" type="string" value="$(arg decoded_image_topic)" />
     <param name="save_directory" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/" />
-    <param name="save_filename" type="string" value="session_4" />
+    <param name="save_filename" type="string" value="cam2" />
     <param name="image_synchroniser_service_name" type="string" value="/command_image_synchroniser" />
     <param name="projector_service_name" type="string" value="/command_projector" />
     <!--Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)-->

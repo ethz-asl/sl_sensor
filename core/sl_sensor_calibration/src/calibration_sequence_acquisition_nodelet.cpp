@@ -289,7 +289,9 @@ void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequenc
   srv.request.pattern_name = "calibrationPattern";
   srv.request.is_hardware_trigger = false;
   srv.request.number_scans = 1;
-  srv.request.delay_ms = 200;
+  srv.request.delay_ms =
+      500;  // At least half a second of delay to take into account that the projector is in a transient state between
+            // for some time between projecting nothing to an illuminated pattern
 
   if (!image_synchroniser_client_.call(srv))
   {
