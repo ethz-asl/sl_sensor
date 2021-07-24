@@ -98,7 +98,12 @@ cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::M
 {
   std::vector<cv::Point2f> distorted_point_vec = { distorted_point };
   std::vector<cv::Point2f> undistorted_point_vec;
-  cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix, lens_distortion_coefficients);
+  cv::Mat temp_projection_mat(3, 4,
+                              CV_32F);  // We need to provide a projection matrix to convert back from homogeneous image
+                                        // coordinates. See cv::undistortPoints documentation for more information
+  intrinsic_matrix.copyTo(temp_projection_mat(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix, lens_distortion_coefficients,
+                      cv::noArray(), temp_projection_mat);
   return undistorted_point_vec[0];
 }
 

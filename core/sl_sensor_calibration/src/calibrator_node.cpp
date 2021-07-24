@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
   int checkerboard_rows = 0;
   int checkerboard_cols = 0;
-  double checkerboard_size_mm = 10;
+  double checkerboard_size = 10;
 
   int window_radius = 10;
   int minimum_valid_pixels = 50;
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 
   private_nh.param<int>("checkerboard_rows", checkerboard_rows, checkerboard_rows);
   private_nh.param<int>("checkerboard_cols", checkerboard_cols, checkerboard_cols);
-  private_nh.param<double>("checkerboard_size_mm", checkerboard_size_mm, checkerboard_size_mm);
+  private_nh.param<double>("checkerboard_size", checkerboard_size, checkerboard_size);
 
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
   // Initialise calibrator
   Calibrator calibrator;
   calibrator.SetProjectorResolution(projector_cols, projector_rows);
-  calibrator.SetCheckerboardInformation(checkerboard_cols, checkerboard_rows, checkerboard_size_mm);
+  calibrator.SetCheckerboardInformation(checkerboard_cols, checkerboard_rows, checkerboard_size);
   calibrator.SetCameraCalibrationOption(camera_calibration_option);
   calibrator.SetProjectorCalibrationOption(projector_calibration_option);
   calibrator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
@@ -295,7 +295,7 @@ int main(int argc, char** argv)
 
   if (!camera_calibration_option.fix_values)
   {
-    if (&&camera_parameters.Save(output_camera_parameters_filename))
+    if (camera_parameters.Save(output_camera_parameters_filename))
     {
       ROS_INFO("[CalibratorNode] Camera parameters saved");
     }

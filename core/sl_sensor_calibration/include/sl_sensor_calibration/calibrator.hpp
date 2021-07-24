@@ -17,7 +17,7 @@ public:
   Calibrator();
   void SetProjectorResolution(unsigned int projector_cols, unsigned int projector_rows);
   void SetCheckerboardInformation(unsigned int checkerboard_cols, unsigned int checkerboard_rows,
-                                  unsigned int checkerboard_size_mm);
+                                  double checkerboard_size);
   void SetCalibrateCameraOnly(bool calibrate_camera_only);
   void SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option);
   void SetProjectorCalibrationOption(const CalibrationOption& projector_calibration_option);
@@ -35,7 +35,7 @@ private:
   unsigned int minimum_valid_pixels_ = 50;
   unsigned int checkerboard_cols_ = 10;
   unsigned int checkerboard_rows_ = 10;
-  unsigned int checkerboard_size_mm_ = 10;
+  double checkerboard_size_ = 10;
   unsigned int resolution_x_cam_ = 0;
   unsigned int resolution_y_cam_ = 0;
 

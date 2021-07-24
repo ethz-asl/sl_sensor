@@ -17,11 +17,11 @@ void Calibrator::SetProjectorResolution(unsigned int projector_cols, unsigned in
 }
 
 void Calibrator::SetCheckerboardInformation(unsigned int checkerboard_cols, unsigned int checkerboard_rows,
-                                            unsigned int checkerboard_size_mm)
+                                            double checkerboard_size)
 {
   checkerboard_cols_ = checkerboard_cols;
   checkerboard_rows_ = checkerboard_rows;
-  checkerboard_size_mm_ = checkerboard_size_mm;
+  checkerboard_size_ = checkerboard_size;
 }
 
 void Calibrator::SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option)
@@ -69,7 +69,7 @@ bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, con
   {
     for (unsigned int w = 0; w < checkerboard_cols_; w++)
     {
-      all_checkerboard_3d_corners.push_back(cv::Point3f(checkerboard_size_mm_ * w, checkerboard_size_mm_ * h, 0.0));
+      all_checkerboard_3d_corners.push_back(cv::Point3f(checkerboard_size_ * w, checkerboard_size_ * h, 0.0));
     }
   }
 

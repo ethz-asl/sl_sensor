@@ -44,7 +44,8 @@ bool CameraParameters::SaveExtrinsic(const std::string& filename)
 
   if (file_extension == "xml")
   {
-    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+    // We append to original parameter file with intrinsics
+    cv::FileStorage fs(filename, cv::FileStorage::APPEND);
 
     if (fs.isOpened())
     {
@@ -65,7 +66,6 @@ bool CameraParameters::SaveExtrinsic(const std::string& filename)
 
 bool CameraParameters::LoadExtrinsic(const std::string& filename)
 {
-  std::cout << "Load intrinsic" << std::endl;
   cv::FileStorage fs(filename, cv::FileStorage::READ);
   if (!fs.isOpened())
   {
@@ -124,8 +124,7 @@ bool CameraParameters::Load(const std::string& filename)
 cv::Mat CameraParameters::GetTransformationMatrix() const
 {
   cv::Mat transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
-  cv::Mat(this->extrinsic_rot()).copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::Mat(this->extrinsic_trans()).copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+  GetExtrinsicMatrix().copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(0, 4)));
   return transformation_matrix;
 }
 
@@ -139,9 +138,12 @@ cv::Mat CameraParameters::GetInverseTransformationMatrix() const
   return inverted_transformation_matrix;
 }
 
-cv::Mat CameraParameters::GetProjectionMatrix() const
+cv::Mat CameraParameters::GetExtrinsicMatrix() const
 {
-  return cv::Mat(this->intrinsic_mat()) * GetTransformationMatrix();
+  cv::Mat extrinsic_matrix = cv::Mat::zeros(3, 4, CV_32F);
+  cv::Mat(this->extrinsic_rot()).copyTo(extrinsic_matrix(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(this->extrinsic_trans()).copyTo(extrinsic_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+  return extrinsic_matrix;
 }
 
 }  // namespace calibration

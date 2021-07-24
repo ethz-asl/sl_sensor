@@ -22,7 +22,6 @@ cs_add_library(${PROJECT_NAME}
   src/intrinsic_parameters.cpp
   src/camera_parameters.cpp
   src/dual_camera_calibration_preparator.cpp
-  src/dual_camera_calibration_preparator_node.cpp
   src/calibration_utils.cpp
   )
 
@@ -35,6 +34,9 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs)
 
 cs_add_executable(calibrator_node src/calibrator_node.cpp)
 target_link_libraries(calibrator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
+
+cs_add_executable(dual_camera_calibration_preparator_node src/dual_camera_calibration_preparator_node.cpp)
+target_link_libraries(dual_camera_calibration_preparator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
 
 ##########
 # EXPORT #

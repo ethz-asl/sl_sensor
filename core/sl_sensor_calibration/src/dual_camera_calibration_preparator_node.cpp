@@ -82,6 +82,13 @@ int main(int argc, char** argv)
   std::string projector_parameters_filename = "";
   std::string bundle_adjustment_problem_output_filename = "";
 
+  int checkerboard_rows = 0;
+  int checkerboard_cols = 0;
+  double checkerboard_size = 10;
+
+  int window_radius = 10;
+  int minimum_valid_pixels = 50;
+
   private_nh.param<std::string>("pri_camera_folder_name", pri_camera_folder_name, pri_camera_folder_name);
   private_nh.param<std::string>("sec_camera_folder_name", sec_camera_folder_name, sec_camera_folder_name);
   private_nh.param<std::string>("pri_projector_folder_name", pri_projector_folder_name, pri_projector_folder_name);
@@ -97,6 +104,13 @@ int main(int argc, char** argv)
                                 sec_camera_parameters_filename);
   private_nh.param<std::string>("projector_parameters_filename", projector_parameters_filename,
                                 projector_parameters_filename);
+
+  private_nh.param<int>("checkerboard_rows", checkerboard_rows, checkerboard_rows);
+  private_nh.param<int>("checkerboard_cols", checkerboard_cols, checkerboard_cols);
+  private_nh.param<double>("checkerboard_size", checkerboard_size, checkerboard_size);
+
+  private_nh.param<int>("window_radius", window_radius, window_radius);
+  private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
 
   CameraParameters pri_cam_params(pri_camera_parameters_filename);
   CameraParameters sec_cam_params(sec_camera_parameters_filename);
@@ -124,7 +138,9 @@ int main(int argc, char** argv)
   }
 
   // Initialise preparator
-  DualCameraCalibrationPreparator preparator(proj_params, pri_cam_params, sec_cam_params);
+  DualCameraCalibrationPreparator preparator(proj_params, pri_cam_params, sec_cam_params, checkerboard_cols,
+                                             checkerboard_rows, checkerboard_size);
+  preparator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
 
   // Add calibration sequences to calibrator
   int counter = 0;
@@ -225,10 +241,9 @@ int main(int argc, char** argv)
       cv::Mat sec_up;
       cv::Mat sec_vp;
 
-      pri_shading = cv::imread(entry.path().u8string(), CV_8UC1);
+      pri_shading = cv::imread(pri_cam_shading_directory + "/" + stem + ".bmp", CV_8UC1);
       pri_mask = cv::imread(pri_cam_mask_directory + "/" + stem + ".bmp", CV_8UC1);
-
-      sec_shading = cv::imread(entry.path().u8string(), CV_8UC1);
+      sec_shading = cv::imread(sec_cam_shading_directory + "/" + stem + ".bmp", CV_8UC1);
       sec_mask = cv::imread(sec_cam_mask_directory + "/" + stem + ".bmp", CV_8UC1);
 
       bool pri_shading_success = !pri_shading.empty();
@@ -255,6 +270,8 @@ int main(int argc, char** argv)
   }
 
   // Export Bundle Adjustment Problem
+  std::cout << "Exporting" << std::endl;
+
   preparator.ExportFile(bundle_adjustment_problem_output_filename);
   std::string final_message = "Bundle Adjustment Problem Exported to " + bundle_adjustment_problem_output_filename;
   ROS_INFO("[DualCameraCalibrationPreparatorNode] %s", final_message.c_str());

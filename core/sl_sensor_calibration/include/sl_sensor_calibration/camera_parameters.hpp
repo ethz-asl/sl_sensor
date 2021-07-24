@@ -31,7 +31,7 @@ public:
 
   cv::Mat GetInverseTransformationMatrix() const;
 
-  cv::Mat GetProjectionMatrix() const;
+  cv::Mat GetExtrinsicMatrix() const;
 
 private:
   cv::Matx33f extrinsic_rot_ = cv::Matx33f::eye();
