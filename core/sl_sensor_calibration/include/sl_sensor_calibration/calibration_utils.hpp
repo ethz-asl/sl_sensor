@@ -23,6 +23,9 @@ bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coord
 cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::Mat& intrinsic_matrix,
                                  const cv::Mat& lens_distortion_coefficients);
 
+void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
+                            const std::vector<double> residuals, const std::vector<int>& camera_indices);
+
 }  // namespace calibration
 
 }  // namespace sl_sensor

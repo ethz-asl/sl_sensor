@@ -65,7 +65,7 @@ bool GetCvMatFromXml(const std::string& filename, const std::string& param_name,
 int main(int argc, char** argv)
 {
   // Init ros node
-  ros::init(argc, argv, "calibrator");
+  ros::init(argc, argv, "dual_camera_calibration_preparator");
   ros::NodeHandle nh_public;
   ros::NodeHandle private_nh("~");
 

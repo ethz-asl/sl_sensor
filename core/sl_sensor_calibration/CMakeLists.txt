@@ -23,6 +23,8 @@ cs_add_library(${PROJECT_NAME}
   src/camera_parameters.cpp
   src/dual_camera_calibration_preparator.cpp
   src/calibration_utils.cpp
+  src/BAProblem.cpp
+  src/run_bundle_adjustment_node.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${OpenCV_INCLUDE_DIRS})

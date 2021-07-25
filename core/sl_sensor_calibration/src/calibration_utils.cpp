@@ -1,5 +1,9 @@
 #include "sl_sensor_calibration/calibration_utils.hpp"
 
+#include <cassert>
+#include <fstream>
+#include <iostream>
+
 namespace sl_sensor
 {
 namespace calibration
@@ -105,6 +109,38 @@ cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::M
   cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix, lens_distortion_coefficients,
                       cv::noArray(), temp_projection_mat);
   return undistorted_point_vec[0];
+}
+
+void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
+                            const std::vector<double> residuals, const std::vector<int>& camera_indices)
+{
+  assert((camera_indices == residuals.size() / 2) && "Number of residual entries do not match number of camera indices "
+                                                     "provided");
+
+  const std::string delimiter = " ";
+
+  // Initialise text tiles
+  std::vector<std::ofstream> files;
+  for (const auto& filename : filenames)
+  {
+    std::string full_filename = directory + filename;
+    files.push_back(std::ofstream(full_filename.c_str()));
+  }
+
+  // For each pair of residual values, write into the correct file
+  for (size_t i = 0; i < residuals.size() / 2; i++)
+  {
+    double residual_x = residuals[i * 2];
+    double residual_y = residuals[i * 2 + 1];
+    int camera_index = camera_indices[i];
+    files[camera_index] << residual_x << delimiter << residual_y << "\n";
+  }
+
+  // Close all files
+  for (auto& file : files)
+  {
+    file.close();
+  }
 }
 
 }  // namespace calibration
