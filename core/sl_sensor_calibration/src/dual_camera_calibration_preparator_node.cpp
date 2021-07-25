@@ -89,6 +89,8 @@ int main(int argc, char** argv)
   int window_radius = 10;
   int minimum_valid_pixels = 50;
 
+  double projector_acceptance_tol = 0.25;
+
   private_nh.param<std::string>("pri_camera_folder_name", pri_camera_folder_name, pri_camera_folder_name);
   private_nh.param<std::string>("sec_camera_folder_name", sec_camera_folder_name, sec_camera_folder_name);
   private_nh.param<std::string>("pri_projector_folder_name", pri_projector_folder_name, pri_projector_folder_name);
@@ -111,6 +113,8 @@ int main(int argc, char** argv)
 
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
+
+  private_nh.param<double>("projector_acceptance_tol", projector_acceptance_tol, projector_acceptance_tol);
 
   CameraParameters pri_cam_params(pri_camera_parameters_filename);
   CameraParameters sec_cam_params(sec_camera_parameters_filename);
@@ -139,7 +143,7 @@ int main(int argc, char** argv)
 
   // Initialise preparator
   DualCameraCalibrationPreparator preparator(proj_params, pri_cam_params, sec_cam_params, checkerboard_cols,
-                                             checkerboard_rows, checkerboard_size);
+                                             checkerboard_rows, checkerboard_size, projector_acceptance_tol);
   preparator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
 
   // Add calibration sequences to calibrator

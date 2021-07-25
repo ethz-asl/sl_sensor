@@ -10,18 +10,17 @@ namespace sl_sensor
 {
 namespace calibration
 {
-DualCameraCalibrationPreparator::DualCameraCalibrationPreparator(const ProjectorParameters& proj_params,
-                                                                 const CameraParameters& pri_cam_params,
-                                                                 const CameraParameters& sec_cam_params,
-                                                                 unsigned int checkerboard_cols,
-                                                                 unsigned int checkerboard_rows,
-                                                                 double checkerboard_size)
+DualCameraCalibrationPreparator::DualCameraCalibrationPreparator(
+    const ProjectorParameters& proj_params, const CameraParameters& pri_cam_params,
+    const CameraParameters& sec_cam_params, unsigned int checkerboard_cols, unsigned int checkerboard_rows,
+    double checkerboard_size, double projector_acceptance_tol)
   : proj_params_(proj_params)
   , pri_cam_params_(pri_cam_params)
   , sec_cam_params_(sec_cam_params)
   , checkerboard_cols_(checkerboard_cols)
   , checkerboard_rows_(checkerboard_rows)
   , checkerboard_size_(checkerboard_size)
+  , projector_acceptance_tol_(projector_acceptance_tol)
 {
   // Compute Projection Matrix of Primary Camera
   projection_matrix_pri_cam_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
@@ -88,6 +87,8 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
   std::vector<cv::Point2f> current_pri_camera_corners;
   std::vector<cv::Point2f> current_sec_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
+
+  // std::vector<cv::Point3f> debug_3d_corners;
 
   // For each checkerboard corner
   for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
@@ -162,10 +163,9 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
                              cv::Mat(sec_cam_params_.lens_distortion()));
     auto undistorted_pri_proj_point = UndistortSinglePoint(
         pri_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
-    /**
-    auto undistorted_sec_proj_point = UndistortSinglePoint(
-        sec_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
-    **/
+    // auto undistorted_sec_proj_point = UndistortSinglePoint(
+    //    sec_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()),
+    //    cv::Mat(proj_params_.lens_distortion()));
 
     // Triangulate 3D coordinate of corner, wrt to primary camera
 
@@ -176,11 +176,11 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     std::vector<cv::Mat> corner_points_vec;
 
     corner_points_vec.push_back(cv::Mat(undistorted_pri_cam_point));
-    corner_points_vec.push_back(cv::Mat(undistorted_sec_cam_point));
+    // corner_points_vec.push_back(cv::Mat(undistorted_sec_cam_point));
     corner_points_vec.push_back(cv::Mat(undistorted_pri_proj_point));
+    // corner_points_vec.push_back(cv::Mat(undistorted_sec_proj_point));
 
-    std::vector<cv::Mat> projection_matrix_vec = { projection_matrix_pri_cam_, projection_matrix_sec_cam_,
-                                                   projection_matrix_projector_ };
+    std::vector<cv::Mat> projection_matrix_vec = { projection_matrix_pri_cam_, projection_matrix_projector_ };
 
     // std::vector<cv::Mat> projection_matrix_vec = { projection_matrix_sec_cam_, projection_matrix_projector_ };
 
@@ -188,11 +188,26 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     cv::sfm::triangulatePoints(corner_points_vec, projection_matrix_vec, triangulated_point_mat);
     cv::Point3f triangulated_point(triangulated_point_mat);
 
+    /**
+    corner_points_vec.clear();
+
+    corner_points_vec.push_back(cv::Mat(undistorted_sec_cam_point));
+    corner_points_vec.push_back(cv::Mat(undistorted_sec_proj_point));
+    projection_matrix_vec.clear();
+    projection_matrix_vec = { projection_matrix_sec_cam_, projection_matrix_projector_ };
+    cv::sfm::triangulatePoints(corner_points_vec, projection_matrix_vec, triangulated_point_mat);
+    cv::Point3f triangulated_point_debug(triangulated_point_mat);
+    **/
+
     // Append information to storage vectors
-    current_projector_corners.push_back(undistorted_pri_proj_point);
-    current_pri_camera_corners.push_back(undistorted_pri_cam_point);
-    current_sec_camera_corners.push_back(undistorted_sec_cam_point);
+    // Note: We store the distorted observations since the reprojection error in the bundle adjustment will take lens
+    // distortion into account
+    current_projector_corners.push_back(pri_processed_projector_corner);
+    current_pri_camera_corners.push_back(processed_pri_camera_corner);
+    current_sec_camera_corners.push_back(processed_sec_camera_corner);
     current_3d_corners.push_back(triangulated_point);
+
+    // debug_3d_corners.push_back(triangulated_point_debug);
   }
 
   // Store results to storage for this calibration sequence
@@ -216,7 +231,9 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     // Displaying the Coordinate Origin (0,0,0)
     window.showWidget("coordinate", cv::viz::WCoordinateSystem(100));
     // Displaying the 3D points in green
-    window.showWidget("points", cv::viz::WCloud(current_3d_corners, cv::viz::Color::green()));
+    window.showWidget("points1", cv::viz::WCloud(current_3d_corners, cv::viz::Color::green()));
+    // Displaying the 3D points in green
+    window.showWidget("points2", cv::viz::WCloud(debug_3d_corners, cv::viz::Color::red()));
     window.spin();
     **/
   }
@@ -336,8 +353,6 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
       point_id++;
     }
   }
-
-  std::cout << "end " << std::endl;
 
   // 3) Next n_fobs rows are [camera index, point id, camera cood x, camera coord y] (we have no fixed points so we do
   // not add anything)

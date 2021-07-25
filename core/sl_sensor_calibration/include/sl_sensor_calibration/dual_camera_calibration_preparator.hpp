@@ -17,7 +17,8 @@ class DualCameraCalibrationPreparator
 public:
   DualCameraCalibrationPreparator(const ProjectorParameters& proj_params, const CameraParameters& pri_cam_params,
                                   const CameraParameters& sec_cam_params, unsigned int checkerboard_cols,
-                                  unsigned int checkerboard_rows, double checkerboard_size);
+                                  unsigned int checkerboard_rows, double checkerboard_size,
+                                  double projector_acceptance_tol = 0.25);
 
   bool AddSingleCalibrationSequence(const cv::Mat& pri_camera_shading, const cv::Mat& pri_camera_mask,
                                     const cv::Mat& pri_up, const cv::Mat& pri_vp, const cv::Mat& sec_camera_shading,
@@ -46,7 +47,7 @@ private:
   unsigned int checkerboard_rows_ = 10;
   double checkerboard_size_ = 10;
 
-  double projector_acceptance_tol_ = 0.5;
+  double projector_acceptance_tol_ = 0.25;
 
   std::vector<std::vector<cv::Point2f>> corner_pri_camera_coordinates_storage_;
   std::vector<std::vector<cv::Point2f>> corner_sec_camera_coordinates_storage_;

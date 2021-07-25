@@ -38,6 +38,8 @@ target_link_libraries(calibrator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs ya
 cs_add_executable(dual_camera_calibration_preparator_node src/dual_camera_calibration_preparator_node.cpp)
 target_link_libraries(dual_camera_calibration_preparator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
 
+cs_install_scripts(python_scripts/visualise_residuals.py)
+
 ##########
 # EXPORT #
 ##########
