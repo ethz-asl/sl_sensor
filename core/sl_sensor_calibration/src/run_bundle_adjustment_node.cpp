@@ -27,6 +27,8 @@
 #include "multicamera-calibration/SnavelyReprojectionError.hpp"
 
 #include "sl_sensor_calibration/calibration_utils.hpp"
+#include "sl_sensor_calibration/camera_parameters.hpp"
+#include "sl_sensor_calibration/projector_parameters.hpp"
 
 #include <ceres/ceres.h>
 #include <gflags/gflags.h>
@@ -35,6 +37,8 @@
 #include <memory>
 
 #include <omp.h>
+
+using namespace sl_sensor::calibration;
 
 bool setOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
 {
@@ -146,6 +150,24 @@ bool buildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, b
   return true;
 }
 
+void ExtractCameraParametersFromBAProblem(BAProblem& ba_problem, int camera_index, cv::Matx33f& intrinsic_mat,
+                                          cv::Vec<float, 5> lens_distortion, cv::Matx33f& rot_mat, cv::Vec3f& trans_vec)
+
+{
+  double* params = ba_problem.mutable_camera_for_observation(camera_index);
+
+  cv::Mat rvec = cv::Mat(std::vector<float>{ (float)params[0], (float)params[1], (float)params[2] }, true);
+  cv::Rodrigues(rvec, rot_mat);
+
+  trans_vec = cv::Vec3f((float)params[3], (float)params[4], (float)params[5]);
+
+  intrinsic_mat =
+      cv::Matx33f((float)params[6], 0.0, (float)params[8], 0.0, (float)params[7], (float)params[9], 0.0, 0.0, 1.0);
+
+  lens_distortion =
+      cv::Vec<float, 5>((float)params[10], (float)params[11], (float)params[13], (float)params[14], (float)params[12]);
+}
+
 int main(int argc, char** argv)
 {
   // Init ros node
@@ -157,8 +179,8 @@ int main(int argc, char** argv)
   std::string output_ba_problem_file;
   std::string intrinsic_adjustment;
   std::string residuals_save_folder;
-  std::string pri_camera_paramters_file;
-  std::string sec_cam_parameters_files;
+  std::string pri_cam_parameters_file;
+  std::string sec_cam_parameters_file;
   std::string proj_parameters_file;
 
   // Process parameters
@@ -167,8 +189,8 @@ int main(int argc, char** argv)
   private_nh.param<std::string>("intrinsic_adjustment", intrinsic_adjustment,
                                 intrinsic_adjustment);  // fixed, unconstrained or two_pass
   private_nh.param<std::string>("residuals_save_folder", residuals_save_folder, residuals_save_folder);
-  private_nh.param<std::string>("pri_camera_paramters_file", pri_camera_paramters_file, pri_camera_paramters_file);
-  private_nh.param<std::string>("sec_cam_parameters_files", sec_cam_parameters_files, sec_cam_parameters_files);
+  private_nh.param<std::string>("pri_cam_parameters_file", pri_cam_parameters_file, pri_cam_parameters_file);
+  private_nh.param<std::string>("sec_cam_parameters_file", sec_cam_parameters_file, sec_cam_parameters_file);
   private_nh.param<std::string>("proj_parameters_file", proj_parameters_file, proj_parameters_file);
 
   bool constrain = !(intrinsic_adjustment == "unconstrained");
@@ -199,7 +221,7 @@ int main(int argc, char** argv)
 
   if (!std::string(residuals_save_folder).empty())
   {
-    sl_sensor::calibration::WriteResidualTextFiles(
+    WriteResidualTextFiles(
         std::string(residuals_save_folder),
         { "pri_cam_residuals_initial.txt", "proj_residuals_initial.txt", "sec_cam_residuals_initial.txt" },
         initial_residuals, camera_indices);
@@ -226,11 +248,55 @@ int main(int argc, char** argv)
   problem->Evaluate(ceres::Problem::EvaluateOptions(), &final_cost, &final_residuals, nullptr, nullptr);
   if (!std::string(residuals_save_folder).empty())
   {
-    sl_sensor::calibration::WriteResidualTextFiles(
-        std::string(residuals_save_folder),
-        { "pri_cam_residuals_final.txt", "proj_residuals_final.txt", "sec_cam_residuals_final.txt" }, final_residuals,
-        camera_indices);
+    WriteResidualTextFiles(std::string(residuals_save_folder),
+                           { "pri_cam_residuals_final.txt", "proj_residuals_final.txt", "sec_cam_residuals_final.txt" },
+                           final_residuals, camera_indices);
   }
+
+  // Write camera and projector parameter files
+
+  // Primary Camera
+  cv::Matx33f pri_cam_rot_mat;
+  cv::Vec3f pri_cam_trans;
+  cv::Matx33f pri_cam_intrinsics;
+  cv::Vec<float, 5> pri_cam_lens_distortion;
+  ExtractCameraParametersFromBAProblem(ba_problem, 0, pri_cam_intrinsics, pri_cam_lens_distortion, pri_cam_rot_mat,
+                                       pri_cam_trans);
+
+  // Projector
+  cv::Matx33f proj_rot_mat;
+  cv::Vec3f proj_trans;
+  cv::Matx33f proj_intrinsics;
+  cv::Vec<float, 5> proj_lens_distortion;
+  ExtractCameraParametersFromBAProblem(ba_problem, 1, proj_intrinsics, proj_lens_distortion, proj_rot_mat, proj_trans);
+
+  // Secondary Camera
+  cv::Matx33f rot_mat_sc_to_pc;
+  cv::Vec3f trans_sc_to_pc;
+  cv::Matx33f sec_cam_intrinsics;
+  cv::Vec<float, 5> sec_cam_lens_distortion;
+  ExtractCameraParametersFromBAProblem(ba_problem, 2, sec_cam_intrinsics, sec_cam_lens_distortion, rot_mat_sc_to_pc,
+                                       trans_sc_to_pc);
+
+  CameraParameters pri_cam_params(pri_cam_intrinsics, pri_cam_lens_distortion, 0, 0, 0, proj_rot_mat, proj_trans, 0);
+  pri_cam_params.Save(pri_cam_parameters_file);
+
+  ProjectorParameters proj_params(proj_intrinsics, proj_lens_distortion, 0, 0, 0);
+  proj_params.Save(proj_parameters_file);
+
+  cv::Matx33f sec_cam_rot_mat;
+  cv::Vec3f sec_cam_trans;
+  cv::Mat transformation_matrix_sec_cam_to_pri_cam = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
+  cv::Mat(rot_mat_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(trans_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(3, 4)));
+  cv::Mat transformation_matrix_sec_cam_to_projector =
+      transformation_matrix_sec_cam_to_pri_cam * pri_cam_params.GetInverseTransformationMatrix();
+  transformation_matrix_sec_cam_to_projector(cv::Range(0, 3), cv::Range(0, 3)).copyTo(sec_cam_rot_mat);
+  transformation_matrix_sec_cam_to_projector(cv::Range(0, 3), cv::Range(3, 4)).copyTo(sec_cam_trans);
+
+  CameraParameters sec_cam_params(sec_cam_intrinsics, sec_cam_lens_distortion, 0, 0, 0, sec_cam_rot_mat, sec_cam_trans,
+                                  0);
+  sec_cam_params.Save(sec_cam_parameters_file);
 
   // Clean up
   delete problem;
