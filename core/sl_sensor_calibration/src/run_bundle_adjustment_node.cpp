@@ -40,7 +40,7 @@
 
 using namespace sl_sensor::calibration;
 
-bool setOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
+bool SetOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
 {
   const int num_points = problem.num_points();
   const int point_block_size = problem.point_block_size();
@@ -81,7 +81,7 @@ bool setOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_i
   return true;
 }
 
-bool buildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_intrinsics = false)
+bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_intrinsics = false)
 {
   // Create residuals for each observation in the bundle adjustment problem. The
   // parameters for cameras and points are added automatically.
@@ -133,7 +133,7 @@ bool buildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   return true;
 }
 
-bool buildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
+bool BuildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
 {
   options.linear_solver_type = ceres::ITERATIVE_SCHUR;
   options.preconditioner_type = ceres::SCHUR_JACOBI;
@@ -146,7 +146,7 @@ bool buildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, b
   options.function_tolerance = 1e-16;
   options.parameter_tolerance = 1e-16;
   options.max_num_consecutive_invalid_steps = 20;
-  setOrdering(ba_problem, options, fix_intrinsics);
+  SetOrdering(ba_problem, options, fix_intrinsics);
   return true;
 }
 
@@ -202,9 +202,9 @@ int main(int argc, char** argv)
   ceres::Problem* problem = new ceres::Problem;
 
   // Build ceres problem
-  buildCeresProblem(ba_problem, *problem, constrain);
+  BuildCeresProblem(ba_problem, *problem, constrain);
   ceres::Solver::Options options;
-  buildCeresOptions(ba_problem, options, constrain);
+  BuildCeresOptions(ba_problem, options, constrain);
   ceres::Solver::Summary summary;
 
   // Compute residuals before solving
@@ -236,8 +236,8 @@ int main(int argc, char** argv)
   {
     delete problem;
     problem = new ceres::Problem;
-    buildCeresProblem(ba_problem, *problem);
-    buildCeresOptions(ba_problem, options);
+    BuildCeresProblem(ba_problem, *problem);
+    BuildCeresOptions(ba_problem, options);
     ceres::Solve(options, problem, &summary);
     std::cout << summary.FullReport() << "\n";
   }
