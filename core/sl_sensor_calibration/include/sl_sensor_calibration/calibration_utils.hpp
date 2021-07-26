@@ -26,6 +26,8 @@ cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::M
 void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
                             const std::vector<double> residuals, const std::vector<int>& camera_indices);
 
+void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output_transformation_matrix);
+
 }  // namespace calibration
 
 }  // namespace sl_sensor

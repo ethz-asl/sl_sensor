@@ -158,9 +158,10 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     auto undistorted_pri_cam_point =
         UndistortSinglePoint(processed_pri_camera_corner, cv::Mat(pri_cam_params_.intrinsic_mat()),
                              cv::Mat(pri_cam_params_.lens_distortion()));
-    auto undistorted_sec_cam_point =
-        UndistortSinglePoint(processed_sec_camera_corner, cv::Mat(sec_cam_params_.intrinsic_mat()),
-                             cv::Mat(sec_cam_params_.lens_distortion()));
+    // auto undistorted_sec_cam_point =
+    //    UndistortSinglePoint(processed_sec_camera_corner, cv::Mat(sec_cam_params_.intrinsic_mat()),
+    //                         cv::Mat(sec_cam_params_.lens_distortion()));
+
     auto undistorted_pri_proj_point = UndistortSinglePoint(
         pri_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
     // auto undistorted_sec_proj_point = UndistortSinglePoint(
@@ -315,6 +316,9 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
   // Open file for writing
   std::ofstream ba_file;
   ba_file.open(filename);
+
+  // Set precision
+  ba_file << std::fixed << std::setprecision(20);
 
   // Compute total number of points
   int number_points = 0;

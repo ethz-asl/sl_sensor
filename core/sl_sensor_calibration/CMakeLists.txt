@@ -10,7 +10,7 @@ catkin_simple(ALL_DEPS_REQUIRED)
 
 add_definitions(-Wall -Wextra)
 set (CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-lstdc++fs" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -lstdc++fs")
 
 #############
 # LIBRARIES #
@@ -24,7 +24,6 @@ cs_add_library(${PROJECT_NAME}
   src/dual_camera_calibration_preparator.cpp
   src/calibration_utils.cpp
   src/BAProblem.cpp
-  src/run_bundle_adjustment_node.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${OpenCV_INCLUDE_DIRS})
@@ -39,6 +38,9 @@ target_link_libraries(calibrator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs ya
 
 cs_add_executable(dual_camera_calibration_preparator_node src/dual_camera_calibration_preparator_node.cpp)
 target_link_libraries(dual_camera_calibration_preparator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
+
+cs_add_executable(run_bundle_adjustment_node src/run_bundle_adjustment_node.cpp)
+target_link_libraries(run_bundle_adjustment_node ${PROJECT_NAME} ${OpenCV_LIBS})
 
 cs_install_scripts(python_scripts/visualise_residuals.py)
 

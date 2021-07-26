@@ -1,0 +1,20 @@
+<launch>
+
+  <node pkg="sl_sensor_calibration" type="run_bundle_adjustment_node" name="run_bundle_adjustment_node" output="screen">
+
+    <param name="input_ba_problem_file" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
+    <param name="output_ba_problem_file" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem_final.txt" />
+    <param name="intrinsic_adjustment_mode" type="string" value="fixed" /> <!-- fixed, unconstrained or two_pass -->
+    <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
+
+    <param name="input_pri_cam_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+    <param name="input_sec_cam_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
+    <param name="input_proj_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+
+    <param name="output_pri_cam_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera_ba.xml" />
+    <param name="output_sec_cam_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera_ba.xml" />
+    <param name="output_proj_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector_ba.xml" />
+
+  </node>
+
+</launch>

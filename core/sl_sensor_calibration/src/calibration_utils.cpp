@@ -143,5 +143,20 @@ void WriteResidualTextFiles(const std::string& directory, const std::vector<std:
   }
 }
 
+void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output_transformation_matrix)
+{
+  output_transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
+  cv::Mat rotation_mat = cv::Mat::eye(3, 3, CV_32F);
+  cv::Mat translation_vec = cv::Mat::eye(3, 1, CV_32F);
+  input_transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)).copyTo(rotation_mat);
+  input_transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)).copyTo(translation_vec);
+
+  cv::Mat inverted_rotation_mat = rotation_mat.t();
+  cv::Mat inverted_translation_vec = -inverted_rotation_mat * translation_vec;
+
+  inverted_rotation_mat.copyTo(output_transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
+  inverted_translation_vec.copyTo(output_transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+}
+
 }  // namespace calibration
 }  // namespace sl_sensor

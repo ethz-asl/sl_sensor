@@ -1,5 +1,7 @@
 #include "sl_sensor_calibration/camera_parameters.hpp"
 
+#include "sl_sensor_calibration/calibration_utils.hpp"
+
 namespace sl_sensor
 {
 namespace calibration
@@ -131,10 +133,7 @@ cv::Mat CameraParameters::GetTransformationMatrix() const
 cv::Mat CameraParameters::GetInverseTransformationMatrix() const
 {
   cv::Mat inverted_transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
-  cv::Mat inverted_rotation_matrix = cv::Mat(this->extrinsic_rot()).t();
-  cv::Mat inverted_translation_vector = -inverted_rotation_matrix * cv::Mat(this->extrinsic_trans());
-  inverted_rotation_matrix.copyTo(inverted_transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
-  inverted_translation_vector.copyTo(inverted_transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+  SwapFramesCVMat(GetTransformationMatrix(), inverted_transformation_matrix);
   return inverted_transformation_matrix;
 }
 
@@ -147,5 +146,4 @@ cv::Mat CameraParameters::GetExtrinsicMatrix() const
 }
 
 }  // namespace calibration
-
 }  // namespace sl_sensor

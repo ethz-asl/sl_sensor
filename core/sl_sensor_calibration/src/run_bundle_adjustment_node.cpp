@@ -151,8 +151,8 @@ bool BuildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, b
 }
 
 void ExtractCameraParametersFromBAProblem(BAProblem& ba_problem, int camera_index, cv::Matx33f& intrinsic_mat,
-                                          cv::Vec<float, 5> lens_distortion, cv::Matx33f& rot_mat, cv::Vec3f& trans_vec)
-
+                                          cv::Vec<float, 5>& lens_distortion, cv::Matx33f& rot_mat,
+                                          cv::Vec3f& trans_vec)
 {
   double* params = ba_problem.mutable_camera_for_observation(camera_index);
 
@@ -179,19 +179,30 @@ int main(int argc, char** argv)
   std::string output_ba_problem_file;
   std::string intrinsic_adjustment;
   std::string residuals_save_folder;
-  std::string pri_cam_parameters_file;
-  std::string sec_cam_parameters_file;
-  std::string proj_parameters_file;
+  std::string input_pri_cam_parameters_file;
+  std::string input_sec_cam_parameters_file;
+  std::string input_proj_parameters_file;
+  std::string output_pri_cam_parameters_file;
+  std::string output_sec_cam_parameters_file;
+  std::string output_proj_parameters_file;
 
   // Process parameters
   private_nh.param<std::string>("input_ba_problem_file", input_ba_problem_file, input_ba_problem_file);
   private_nh.param<std::string>("output_ba_problem_file", output_ba_problem_file, output_ba_problem_file);
-  private_nh.param<std::string>("intrinsic_adjustment", intrinsic_adjustment,
+  private_nh.param<std::string>("intrinsic_adjustment_mode", intrinsic_adjustment,
                                 intrinsic_adjustment);  // fixed, unconstrained or two_pass
   private_nh.param<std::string>("residuals_save_folder", residuals_save_folder, residuals_save_folder);
-  private_nh.param<std::string>("pri_cam_parameters_file", pri_cam_parameters_file, pri_cam_parameters_file);
-  private_nh.param<std::string>("sec_cam_parameters_file", sec_cam_parameters_file, sec_cam_parameters_file);
-  private_nh.param<std::string>("proj_parameters_file", proj_parameters_file, proj_parameters_file);
+  private_nh.param<std::string>("input_pri_cam_parameters_file", input_pri_cam_parameters_file,
+                                input_pri_cam_parameters_file);
+  private_nh.param<std::string>("input_sec_cam_parameters_file", input_sec_cam_parameters_file,
+                                input_sec_cam_parameters_file);
+  private_nh.param<std::string>("input_proj_parameters_file", input_proj_parameters_file, input_proj_parameters_file);
+  private_nh.param<std::string>("output_pri_cam_parameters_file", output_pri_cam_parameters_file,
+                                output_pri_cam_parameters_file);
+  private_nh.param<std::string>("output_sec_cam_parameters_file", output_sec_cam_parameters_file,
+                                output_sec_cam_parameters_file);
+  private_nh.param<std::string>("output_proj_parameters_file", output_proj_parameters_file,
+                                output_proj_parameters_file);
 
   bool constrain = !(intrinsic_adjustment == "unconstrained");
   bool two_pass = (intrinsic_adjustment == "two_pass");
@@ -253,13 +264,14 @@ int main(int argc, char** argv)
                            final_residuals, camera_indices);
   }
 
-  // Write camera and projector parameter files
+  // Extract calibration parameters from BA Problem
 
   // Primary Camera
   cv::Matx33f pri_cam_rot_mat;
   cv::Vec3f pri_cam_trans;
   cv::Matx33f pri_cam_intrinsics;
   cv::Vec<float, 5> pri_cam_lens_distortion;
+
   ExtractCameraParametersFromBAProblem(ba_problem, 0, pri_cam_intrinsics, pri_cam_lens_distortion, pri_cam_rot_mat,
                                        pri_cam_trans);
 
@@ -278,25 +290,36 @@ int main(int argc, char** argv)
   ExtractCameraParametersFromBAProblem(ba_problem, 2, sec_cam_intrinsics, sec_cam_lens_distortion, rot_mat_sc_to_pc,
                                        trans_sc_to_pc);
 
-  CameraParameters pri_cam_params(pri_cam_intrinsics, pri_cam_lens_distortion, 0, 0, 0, proj_rot_mat, proj_trans, 0);
-  pri_cam_params.Save(pri_cam_parameters_file);
+  // Save parameters (We need to open the original parameter files to fill in the camera/projector resolutions)
+  CameraParameters initial_pri_cam_params(input_pri_cam_parameters_file);
+  CameraParameters pri_cam_params(pri_cam_intrinsics, pri_cam_lens_distortion, 0, initial_pri_cam_params.resolution_x(),
+                                  initial_pri_cam_params.resolution_y(), proj_rot_mat, proj_trans, 0);
+  pri_cam_params.Save(output_pri_cam_parameters_file);
 
-  ProjectorParameters proj_params(proj_intrinsics, proj_lens_distortion, 0, 0, 0);
-  proj_params.Save(proj_parameters_file);
+  ProjectorParameters initial_proj_params(input_proj_parameters_file);
+  ProjectorParameters proj_params(proj_intrinsics, proj_lens_distortion, 0, initial_proj_params.resolution_x(),
+                                  initial_proj_params.resolution_y());
+  proj_params.Save(output_proj_parameters_file);
 
+  // Note: Optimised extrinsics in BA is w.r.t. transformation from secondary camera to primary camera. We need to
+  // compute the transformation matrix from projector to secondary camera
   cv::Matx33f sec_cam_rot_mat;
   cv::Vec3f sec_cam_trans;
   cv::Mat transformation_matrix_sec_cam_to_pri_cam = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
   cv::Mat(rot_mat_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(0, 3)));
   cv::Mat(trans_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(3, 4)));
-  cv::Mat transformation_matrix_sec_cam_to_projector =
-      transformation_matrix_sec_cam_to_pri_cam * pri_cam_params.GetInverseTransformationMatrix();
-  transformation_matrix_sec_cam_to_projector(cv::Range(0, 3), cv::Range(0, 3)).copyTo(sec_cam_rot_mat);
-  transformation_matrix_sec_cam_to_projector(cv::Range(0, 3), cv::Range(3, 4)).copyTo(sec_cam_trans);
+  cv::Mat transformation_matrix_pri_cam_to_sec_cam;
+  SwapFramesCVMat(transformation_matrix_sec_cam_to_pri_cam, transformation_matrix_pri_cam_to_sec_cam);
+  cv::Mat transformation_matrix_projector_to_sec_cam =
+      pri_cam_params.GetTransformationMatrix() * transformation_matrix_pri_cam_to_sec_cam;
 
-  CameraParameters sec_cam_params(sec_cam_intrinsics, sec_cam_lens_distortion, 0, 0, 0, sec_cam_rot_mat, sec_cam_trans,
-                                  0);
-  sec_cam_params.Save(sec_cam_parameters_file);
+  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(0, 3)).copyTo(sec_cam_rot_mat);
+  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(3, 4)).copyTo(sec_cam_trans);
+
+  CameraParameters initial_sec_cam_params(input_sec_cam_parameters_file);
+  CameraParameters sec_cam_params(sec_cam_intrinsics, sec_cam_lens_distortion, 0, initial_sec_cam_params.resolution_x(),
+                                  initial_sec_cam_params.resolution_y(), sec_cam_rot_mat, sec_cam_trans, 0);
+  sec_cam_params.Save(output_sec_cam_parameters_file);
 
   // Clean up
   delete problem;
