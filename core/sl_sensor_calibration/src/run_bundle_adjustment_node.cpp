@@ -234,7 +234,7 @@ int main(int argc, char** argv)
   {
     WriteResidualTextFiles(
         std::string(residuals_save_folder),
-        { "pri_cam_residuals_pre_ba.txt", "proj_residuals_pre_bal.txt", "sec_cam_residuals_pre_ba.txt" },
+        { "pri_cam_residuals_pre_ba.txt", "proj_residuals_pre_ba.txt", "sec_cam_residuals_pre_ba.txt" },
         initial_residuals, camera_indices);
   }
 

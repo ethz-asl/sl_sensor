@@ -1,6 +1,6 @@
 <launch>
 
-  <node pkg="sl_sensor_calibration" type="dual_camera_calibration_preparator_node" name="dual_camera_calibration_preparator_node" output="screen">
+  <node pkg="sl_sensor_calibration" type="dual_camera_calibration_preparator_node" name="dual_camera_calibration_preparator_node" required="true" output="screen">
 
     <param name="pri_camera_folder_name" type="string" value="cam2" />
     <param name="sec_camera_folder_name" type="string" value="cam1" />

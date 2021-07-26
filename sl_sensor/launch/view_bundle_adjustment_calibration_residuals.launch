@@ -1,0 +1,6 @@
+<launch>
+
+<node pkg="sl_sensor_calibration" name="view_residuals" type="visualise_residuals.py" required="true" output="screen" 
+args='-directories="Primary_Camera,$(find sl_sensor_calibration)/residual_files/pri_cam_residuals_pre_ba.txt,$(find sl_sensor_calibration)/residual_files/pri_cam_residuals_ba.txt Projector,$(find sl_sensor_calibration)/residual_files/proj_residuals_pre_ba.txt,$(find sl_sensor_calibration)/residual_files/proj_residuals_ba.txt Secondary_Camera,$(find sl_sensor_calibration)/residual_files/sec_cam_residuals_pre_ba.txt,$(find sl_sensor_calibration)/residual_files/sec_cam_residuals_ba.txt"'/> 
+
+</launch>

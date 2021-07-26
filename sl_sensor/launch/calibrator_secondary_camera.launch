@@ -1,6 +1,6 @@
 <launch>
 
-  <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen">
+  <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
     <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
 

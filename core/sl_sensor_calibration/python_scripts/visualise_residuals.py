@@ -44,8 +44,6 @@ def split_residuals_by_axis(residuals):
 
 def plot_scatter_plot(ax, subplot_directory):
   
-  print(subplot_directory)
-
   residuals = extract_residuals_from_files(subplot_directory)
   
   rmse = compute_rmse(residuals)
@@ -68,10 +66,10 @@ if __name__ == '__main__':
 
   # Extract Parameters
   parser = argparse.ArgumentParser(description= 'Visualises reprojection errors on scatter diagrams. You can plot multiple datasets on a single plot, and plot multiple plots at the same time')
-  parser.add_argument('directories', nargs='+', help='For each plot, specify the title (Spaces in underscores), then the .txt file directories of the datasets, separated by commas. Individual plots are separated by spaces')
-  args = parser.parse_args()
+  parser.add_argument('-directories', nargs=1, help='For each plot, specify the title (Spaces in underscores), then the .txt file directories of the datasets, separated by commas. Individual plots are separated by spaces')
+  args = parser.parse_known_args()[0]
   
-  all_directories = args.directories
+  all_directories = args.directories[0].split(' ')
 
   # Initialise Plot
   fig = plt.figure()  

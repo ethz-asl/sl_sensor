@@ -1,6 +1,6 @@
 <launch>
 
-  <node pkg="sl_sensor_calibration" type="run_bundle_adjustment_node" name="run_bundle_adjustment_node" output="screen">
+  <node pkg="sl_sensor_calibration" type="run_bundle_adjustment_node" name="run_bundle_adjustment_node" output="screen" required="true" >
 
     <param name="input_ba_problem_file" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
     <param name="output_ba_problem_file" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem_final.txt" />
