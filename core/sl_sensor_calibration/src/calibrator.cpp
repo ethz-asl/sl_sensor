@@ -124,15 +124,19 @@ void Calibrator::Clear()
   sequence_label_storage_.clear();
 }
 
-std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
+bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params,
+                           std::vector<double>& projector_residuals, std::vector<double>& camera_residuals)
 {
+  camera_residuals.clear();
+  projector_residuals.clear();
+
   int number_calibration_sequences = corner_3d_coordinates_storage_.size();
 
   // If no calibration sequences, we return default calibration data
   if (number_calibration_sequences <= 0)
   {
     std::cout << "[Calibrator] No calibration sequences found, could not start calibration" << std::endl;
-    return std::make_pair(ProjectorParameters(), CameraParameters());
+    return false;
   }
 
   // Calibrate camera
@@ -212,6 +216,9 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
     {
       cv::Point2f d = corner_camera_coordinates_storage_[i][j] - qc_proj[j];
       err += cv::sqrt(d.x * d.x + d.y * d.y);
+
+      camera_residuals.push_back(d.x);
+      camera_residuals.push_back(d.y);
     }
     cam_error_per_view[i] = (float)err / number_corners_this_sequence;
 
@@ -224,6 +231,9 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
     {
       cv::Point2f d = corner_projector_coordinates_storage_[i][j] - qp_proj[j];
       err += cv::sqrt(d.x * d.x + d.y * d.y);
+
+      projector_residuals.push_back(d.x);
+      projector_residuals.push_back(d.y);
     }
     proj_error_per_view[i] = (float)err / number_corners_this_sequence;
 
@@ -231,11 +241,11 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
               << "):\n\tcam:" << cam_error_per_view[i] << " proj:" << proj_error_per_view[i] << std::endl;
   }
 
-  ProjectorParameters proj_params(intrinsic_proj, lens_distortion_proj, proj_error, resolution_x_proj_,
-                                  resolution_y_proj_);
+  proj_params =
+      ProjectorParameters(intrinsic_proj, lens_distortion_proj, proj_error, resolution_x_proj_, resolution_y_proj_);
 
-  CameraParameters cam_params(intrinsic_cam, lens_distortion_cam, cam_error, resolution_x_cam_, resolution_y_cam_,
-                              extrinsic_rot, extrinsic_trans, stereo_error);
+  cam_params = CameraParameters(intrinsic_cam, lens_distortion_cam, cam_error, resolution_x_cam_, resolution_y_cam_,
+                                extrinsic_rot, extrinsic_trans, stereo_error);
 
   // Display Calibration Results
   // Print results
@@ -248,7 +258,14 @@ std::pair<ProjectorParameters, CameraParameters> Calibrator::Calibrate()
   std::cout << "Calibrated camera parameters: " << std::endl;
   std::cout << cam_params << std::endl;
 
-  return std::make_pair(proj_params, cam_params);
+  return true;
+}
+
+bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params)
+{
+  std::vector<double> camera_residuals;
+  std::vector<double> projector_residuals;
+  return Calibrate(proj_params, cam_params, camera_residuals, projector_residuals);
 }
 
 }  // namespace calibration

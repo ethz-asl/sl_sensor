@@ -234,7 +234,7 @@ int main(int argc, char** argv)
   {
     WriteResidualTextFiles(
         std::string(residuals_save_folder),
-        { "pri_cam_residuals_initial.txt", "proj_residuals_initial.txt", "sec_cam_residuals_initial.txt" },
+        { "pri_cam_residuals_pre_ba.txt", "proj_residuals_pre_bal.txt", "sec_cam_residuals_pre_ba.txt" },
         initial_residuals, camera_indices);
   }
 
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
   if (!std::string(residuals_save_folder).empty())
   {
     WriteResidualTextFiles(std::string(residuals_save_folder),
-                           { "pri_cam_residuals_final.txt", "proj_residuals_final.txt", "sec_cam_residuals_final.txt" },
+                           { "pri_cam_residuals_ba.txt", "proj_residuals_ba.txt", "sec_cam_residuals_ba.txt" },
                            final_residuals, camera_indices);
   }
 

@@ -112,7 +112,7 @@ cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::M
 }
 
 void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
-                            const std::vector<double> residuals, const std::vector<int>& camera_indices)
+                            const std::vector<double>& residuals, const std::vector<int>& camera_indices)
 {
   assert((camera_indices == residuals.size() / 2) && "Number of residual entries do not match number of camera indices "
                                                      "provided");
@@ -156,6 +156,14 @@ void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output
 
   inverted_rotation_mat.copyTo(output_transformation_matrix(cv::Range(0, 3), cv::Range(0, 3)));
   inverted_translation_vec.copyTo(output_transformation_matrix(cv::Range(0, 3), cv::Range(3, 4)));
+}
+
+void WriteResidualTextFile(const std::string& directory, const std::string& filename,
+                           const std::vector<double>& residuals)
+{
+  size_t number_points = residuals.size() / 2;
+  WriteResidualTextFiles(directory, std::vector<std::string>{ filename }, residuals,
+                         std::vector<int>(number_points, 0));
 }
 
 }  // namespace calibration

@@ -23,8 +23,11 @@ bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coord
 cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::Mat& intrinsic_matrix,
                                  const cv::Mat& lens_distortion_coefficients);
 
+void WriteResidualTextFile(const std::string& directory, const std::string& filename,
+                           const std::vector<double>& residuals);
+
 void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
-                            const std::vector<double> residuals, const std::vector<int>& camera_indices);
+                            const std::vector<double>& residuals, const std::vector<int>& camera_indices);
 
 void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output_transformation_matrix);
 

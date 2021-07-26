@@ -24,8 +24,10 @@ public:
   void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
   bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask, const cv::Mat& up,
                                     const cv::Mat& vp, const std::string& label = "");
+  bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params);
 
-  std::pair<ProjectorParameters, CameraParameters> Calibrate();
+  bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params,
+                 std::vector<double>& projector_residuals, std::vector<double>& camera_residuals);
   void Clear();
 
 private:

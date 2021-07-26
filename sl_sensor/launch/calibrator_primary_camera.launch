@@ -36,6 +36,9 @@
     <param name="window_radius" type="int" value="10" />
     <param name="minimum_valid_pixels" type="int" value="50" />
 
+    <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
+    <param name="residuals_file_label" type="string" value="pri_cam_calib" />
+
   </node>
 
 

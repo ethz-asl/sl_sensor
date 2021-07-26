@@ -13,6 +13,7 @@
 #include <sl_sensor_projector/projector_utils.hpp>
 
 #include "sl_sensor_calibration/calibration_option.hpp"
+#include "sl_sensor_calibration/calibration_utils.hpp"
 #include "sl_sensor_calibration/calibrator.hpp"
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
@@ -79,6 +80,8 @@ int main(int argc, char** argv)
   std::string projector_yaml_directory = "";
   std::string output_camera_parameters_filename = "";
   std::string output_projector_parameters_filename = "";
+  std::string residuals_save_folder = "";
+  std::string residuals_file_label = "";
 
   unsigned int projector_cols = 0;
   unsigned int projector_rows = 0;
@@ -142,6 +145,9 @@ int main(int argc, char** argv)
                                 output_camera_parameters_filename);
   private_nh.param<std::string>("output_projector_parameters_filename", output_projector_parameters_filename,
                                 output_projector_parameters_filename);
+
+  private_nh.param<std::string>("residuals_save_folder", residuals_save_folder, residuals_save_folder);
+  private_nh.param<std::string>("residuals_file_label", residuals_file_label, residuals_file_label);
 
   CameraParameters camera_calibration_data_init;
 
@@ -276,33 +282,54 @@ int main(int argc, char** argv)
   }
 
   // Perform calibration and save to calibration file
-  auto calibration_results = calibrator.Calibrate();
 
-  ProjectorParameters projector_parameters = calibration_results.first;
-  CameraParameters camera_parameters = calibration_results.second;
+  ProjectorParameters projector_parameters;
+  CameraParameters camera_parameters;
+  std::vector<double> cam_residuals;
+  std::vector<double> proj_residuals;
 
-  if (!projector_calibration_option.fix_values)
+  bool calibration_success =
+      calibrator.Calibrate(projector_parameters, camera_parameters, proj_residuals, cam_residuals);
+
+  bool save_residuals = (!residuals_save_folder.empty() && !residuals_file_label.empty());
+
+  if (calibration_success)
   {
-    if (projector_parameters.Save(output_projector_parameters_filename))
+    ROS_INFO("[CalibratorNode] Calibration was successful");
+
+    if (!projector_calibration_option.fix_values)
     {
-      ROS_INFO("[CalibratorNode] Projector parameters saved");
+      if (projector_parameters.Save(output_projector_parameters_filename))
+      {
+        ROS_INFO("[CalibratorNode] Projector parameters saved");
+      }
+      else
+      {
+        ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
+      }
     }
-    else
+
+    if (!camera_calibration_option.fix_values)
     {
-      ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
+      if (camera_parameters.Save(output_camera_parameters_filename))
+      {
+        ROS_INFO("[CalibratorNode] Camera parameters saved");
+      }
+      else
+      {
+        ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
+      }
+    }
+
+    if (save_residuals)
+    {
+      WriteResidualTextFile(residuals_save_folder, "cam_residuals_" + residuals_file_label + ".txt", cam_residuals);
+      WriteResidualTextFile(residuals_save_folder, "proj_residuals_" + residuals_file_label + ".txt", proj_residuals);
     }
   }
-
-  if (!camera_calibration_option.fix_values)
+  else
   {
-    if (camera_parameters.Save(output_camera_parameters_filename))
-    {
-      ROS_INFO("[CalibratorNode] Camera parameters saved");
-    }
-    else
-    {
-      ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
-    }
+    ROS_INFO("[CalibratorNode] Calibration was unsuccessful");
   }
 
   return 0;

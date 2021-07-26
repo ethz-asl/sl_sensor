@@ -11,7 +11,7 @@
     <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
     <param name="camera_fix_principle_point" type="bool" value="0" />
-    <param name="camera_fix_aspect_ratio" type="bool" value="1" />
+    <param name="camera_fix_aspect_ratio" type="bool" value="0" />
     <param name="camera_fix_k2" type="bool" value="0" />
     <param name="camera_fix_k3" type="bool" value="0" />
     <param name="camera_zero_tangential_distortion" type="bool" value="0" />
@@ -34,6 +34,9 @@
 
     <param name="window_radius" type="int" value="10" />
     <param name="minimum_valid_pixels" type="int" value="50" />
+
+    <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
+    <param name="residuals_file_label" type="string" value="sec_cam_calib" />
 
   </node>
 
