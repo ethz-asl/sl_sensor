@@ -165,9 +165,6 @@ int main(int argc, char** argv)
   {
     projector_calibration_option.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
     projector_calibration_option.lens_distortion_init = projector_calibration_data_init.lens_distortion();
-
-    std::cout << projector_calibration_option.intrinsics_init << std::endl;
-    std::cout << projector_calibration_option.lens_distortion_init << std::endl;
   }
 
   std::string delimiter = " ";

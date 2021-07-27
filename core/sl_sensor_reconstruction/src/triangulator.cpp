@@ -8,13 +8,13 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
-std::pair<calibration::ProjectorParameters, calibration::CameraParameters> Triangulator::GetCalibrationParams()
+std::pair<ProjectorParameters, CameraParameters> Triangulator::GetCalibrationParams()
 {
   return std::make_pair(projector_parameters_, camera_parameters_);
 }
 
-Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters,
-                           calibration::CameraParameters camera_parameters)
+Triangulator::Triangulator(const calibration::ProjectorParameters &projector_parameters,
+                           const calibration::CameraParameters &camera_parameters)
   : projector_parameters_(projector_parameters), camera_parameters_(camera_parameters)
 {
   // Precompute uc_, vc_ maps
@@ -34,7 +34,8 @@ Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters
   projection_matrix_camera_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
   cv::Mat(camera_parameters_.intrinsic_mat()).copyTo(projection_matrix_camera_(cv::Range(0, 3), cv::Range(0, 3)));
 
-  projection_matrix_projector_ = camera_parameters_.GetTransformationMatrix();
+  projection_matrix_projector_ =
+      cv::Mat(projector_parameters_.intrinsic_mat()) * camera_parameters_.GetProjectionMatrix();
 
   // Precompute determinant tensor
   int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
@@ -63,7 +64,7 @@ Triangulator::Triangulator(calibration::ProjectorParameters projector_parameters
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
   cv::initUndistortRectifyMap(camera_parameters_.intrinsic_mat(), camera_parameters_.lens_distortion(), eye,
                               camera_parameters_.intrinsic_mat(),
-                              cv::Size(camera_parameters_.resolution_y(), camera_parameters_.resolution_x()), CV_16SC2,
+                              cv::Size(camera_parameters_.resolution_x(), camera_parameters_.resolution_y()), CV_16SC2,
                               lens_map_1_, lens_map_2_);
 
   // Precompute parts of xyzw

@@ -5,16 +5,16 @@
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    2.26161768e+03 0. 8.48989868e+02 0. 2.26161768e+03 1.16814014e+03 0.
+    2.27287451e+03 0. 8.51024109e+02 0. 2.25986255e+03 1.13889038e+03 0.
     0. 1.</data></intrinsic_mat>
 <lens_distortion type_id="opencv-matrix">
   <rows>5</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    9.06553715e-02 -2.45320648e-01 3.12078249e-04 -1.46781921e-03
-    1.84139848e-01</data></lens_distortion>
-<calibration_error>3.4770350899513225e-01</calibration_error>
+    8.35642219e-02 -2.63884515e-01 -4.97564347e-03 -1.32374256e-03
+    2.18459725e-01</data></lens_distortion>
+<calibration_error>3.2724971931446545e-01</calibration_error>
 <resolution_x>1824</resolution_x>
 <resolution_y>1140</resolution_y>
 </opencv_storage>

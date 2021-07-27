@@ -6,7 +6,8 @@
 <arg name="save_point_cloud" doc="Save point clouds" default="false" />
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam2_new2.xml" />
+<arg name="camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+<arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
@@ -37,13 +38,14 @@
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
   <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   <param name="number_phases" type="int" value="12" />
-  <param name="shading_threshold" type="int" value="55" />
+  <param name="shading_threshold" type="int" value="80" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <param name="input_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="output_topic" type="string" value="/triangulator/point_cloud" />
-  <param name="calibration_file" type="string" value="$(arg calibration_filename)" />
+  <param name="camera_parameters_filename" type="string" value="$(arg camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
   <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   <param name="apply_crop_box" type="bool" value="true"/>
   <param name="crop_box_x_min" type="double" value="-500.0" />

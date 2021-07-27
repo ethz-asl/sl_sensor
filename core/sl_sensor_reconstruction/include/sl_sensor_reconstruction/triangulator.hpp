@@ -22,15 +22,15 @@ public:
   /**
    * @brief Construct a new Triangulator object
    *
-   * @param projector_parameters projector parameters
    * @param camera_parameters  camera parameters
    */
-  Triangulator(calibration::ProjectorParameters projector_parameters, calibration::CameraParameters camera_parameters);
+  Triangulator(const calibration::ProjectorParameters &projector_parameters,
+               const calibration::CameraParameters &camera_parameters);
 
   /**
-   * @brief Get the Calibration Data
+   * @brief Get the Projector and Camera Parameters used for triangulation
    *
-   * @return calibration::CalibrationData
+   * @return calibration::ProjectorParameters and calibration::CameraParameters
    */
   std::pair<calibration::ProjectorParameters, calibration::CameraParameters> GetCalibrationParams();
 

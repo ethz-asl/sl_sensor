@@ -41,20 +41,6 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<float>("crop_box_y_max", crop_box_y_max_, crop_box_y_max_);
   private_nh_.param<float>("crop_box_z_max", crop_box_z_max_, crop_box_z_max_);
 
-  // Load Projector Data
-  ProjectorParameters projector_parameters;
-  if (projector_parameters.Load(projector_parameters_filename_))
-  {
-    ROS_INFO("[TriangulatorNodelet] Projector parameters loaded successfully.");
-  }
-  else
-  {
-    ROS_ERROR("[TriangulatorNodelet] Failed to load projector parameters!");
-  }
-
-  std::cout << "Projector parameters: " << std::endl;
-  std::cout << projector_parameters << std::endl;
-
   // Load Camera Calibration Data
   CameraParameters camera_parameters;
   if (camera_parameters.Load(camera_parameters_filename_))
@@ -66,8 +52,21 @@ void TriangulatorNodelet::onInit()
     ROS_ERROR("[TriangulatorNodelet] Failed to load camera parameters!");
   }
 
-  std::cout << "Camera parameters: " << std::endl;
+  ROS_INFO("[TriangulatorNodelet] Loaded Camera parameters: ");
   std::cout << camera_parameters << std::endl;
+
+  ProjectorParameters projector_parameters;
+  if (projector_parameters.Load(projector_parameters_filename_))
+  {
+    ROS_INFO("[TriangulatorNodelet] Projector parameters loaded successfully.");
+  }
+  else
+  {
+    ROS_ERROR("[TriangulatorNodelet] Failed to load projector parameters!");
+  }
+
+  ROS_INFO("[TriangulatorNodelet] Loaded projector parameters: ");
+  std::cout << projector_parameters << std::endl;
 
   // Setup Triangulator
   triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, camera_parameters);

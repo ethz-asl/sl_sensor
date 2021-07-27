@@ -81,5 +81,8 @@ int main(int argc, char** argv)
     cv::imwrite(cv::format(format_str.c_str(), i), current_pattern);
   }
 
+  std::string info = "[GeneratePatternsNode] Patterns from encoder " + encoder_name + " generated successfully";
+  ROS_INFO("%s", info.c_str());
+
   return 0;
 }

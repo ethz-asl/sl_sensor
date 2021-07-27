@@ -56,6 +56,8 @@ bool IntrinsicParameters::Save(const std::string& filename)
 
 bool IntrinsicParameters::Load(const std::string& filename)
 {
+  std::cout << filename << std::endl;
+
   cv::FileStorage fs(filename, cv::FileStorage::READ);
   if (!fs.isOpened())
   {

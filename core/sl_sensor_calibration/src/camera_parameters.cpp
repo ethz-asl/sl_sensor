@@ -126,7 +126,7 @@ bool CameraParameters::Load(const std::string& filename)
 cv::Mat CameraParameters::GetTransformationMatrix() const
 {
   cv::Mat transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
-  GetExtrinsicMatrix().copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(0, 4)));
+  GetProjectionMatrix().copyTo(transformation_matrix(cv::Range(0, 3), cv::Range(0, 4)));
   return transformation_matrix;
 }
 
@@ -137,7 +137,7 @@ cv::Mat CameraParameters::GetInverseTransformationMatrix() const
   return inverted_transformation_matrix;
 }
 
-cv::Mat CameraParameters::GetExtrinsicMatrix() const
+cv::Mat CameraParameters::GetProjectionMatrix() const
 {
   cv::Mat extrinsic_matrix = cv::Mat::zeros(3, 4, CV_32F);
   cv::Mat(this->extrinsic_rot()).copyTo(extrinsic_matrix(cv::Range(0, 3), cv::Range(0, 3)));

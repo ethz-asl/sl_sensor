@@ -105,8 +105,12 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   {
     ceres::CostFunction* cost_function =
         SnavelyReprojectionError::Create(fixed_observations[2 * i + 0], fixed_observations[2 * i + 1]);
-    ceres::LossFunction* loss_function = new ceres::ScaledLoss(
-        new ceres::HuberLoss(1), (double)num_observations / num_fixed_observations, ceres::TAKE_OWNERSHIP);
+
+    // This is the original loss function
+    // ceres::LossFunction* loss_function = new ceres::ScaledLoss(
+    //    new ceres::HuberLoss(1), (double)num_observations / num_fixed_observations, ceres::TAKE_OWNERSHIP);
+
+    ceres::LossFunction* loss_function = new ceres::HuberLoss(1);
     double* mutable_camera = ba_problem.mutable_camera_for_fixed_observation(i);
     double* fixed_point = ba_problem.fixed_point_for_observation(i);
     problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6, fixed_point);
@@ -117,6 +121,7 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   double* cameras = ba_problem.mutable_cameras();
 
   // We set extrinsics for first camera to be fixed
+
   problem.SetParameterBlockConstant(cameras);
 
   for (int i = 0; i < num_cameras; ++i)
@@ -205,7 +210,7 @@ int main(int argc, char** argv)
                                 output_proj_parameters_file);
 
   bool constrain = !(intrinsic_adjustment == "unconstrained");
-  bool two_pass = (intrinsic_adjustment == "two_pass");
+  bool two_pass = (intrinsic_adjustment == "two pass");
 
   // Create BAProblem
   std::cout << "open file " << input_ba_problem_file << "\n";

@@ -27,7 +27,7 @@ DualCameraCalibrationPreparator::DualCameraCalibrationPreparator(
   cv::Mat(pri_cam_params.intrinsic_mat()).copyTo(projection_matrix_pri_cam_(cv::Range(0, 3), cv::Range(0, 3)));
 
   // Compute Projection Matrix of Projector wrt Primary Cam
-  projection_matrix_projector_ = cv::Mat(proj_params_.intrinsic_mat()) * pri_cam_params_.GetExtrinsicMatrix();
+  projection_matrix_projector_ = cv::Mat(proj_params_.intrinsic_mat()) * pri_cam_params_.GetProjectionMatrix();
 
   // Compute Projection Matrix of Secondary Cam wrt Primary Cam
   cv::Mat transformation_matrix_sec_cam_to_projector = sec_cam_params_.GetInverseTransformationMatrix();
@@ -328,8 +328,13 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
   }
 
   // 1) First line of file is number of cameras, number of points, number of fixed points, number of observations,
-  // number of fixed observations. Note that we do not have any fixed points / observations
+  // number of fixed observations.
+
+  // Points to be optimisation variables
   ba_file << 3 << " " << number_points << " " << 0 << " " << number_points * 3 << " " << 0 << "\n";
+
+  // Fix all points
+  // ba_file << 3 << " " << 0 << " " << number_points << " " << 0 << " " << number_points * 3 << "\n";
 
   // 2) Next n_obs rows are [camera index, point id, camera coord x, camera coord y]
   int point_id = 0;
