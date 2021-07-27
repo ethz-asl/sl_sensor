@@ -46,10 +46,13 @@ int main(int argc, char** argv)
   if (projector_parameters.Load(projector_parameters_file))
   {
     ROS_INFO("Projector parameters successfully loaded");
+    std::cout << "Projector parameters: " << std::endl;
+    std::cout << projector_parameters << std::endl;
   }
   else
   {
     ROS_INFO("Failed to load projector parameters");
+    return 0;
   }
 
   cv::Mat map1, map2;
@@ -81,7 +84,8 @@ int main(int argc, char** argv)
     cv::imwrite(cv::format(format_str.c_str(), i), current_pattern);
   }
 
-  std::string info = "[GeneratePatternsNode] Patterns from encoder " + encoder_name + " generated successfully";
+  std::string info = "[GeneratePatternsNode] Patterns from encoder " + encoder_name +
+                     " generated successfully to folder " + save_folder + ".";
   ROS_INFO("%s", info.c_str());
 
   return 0;

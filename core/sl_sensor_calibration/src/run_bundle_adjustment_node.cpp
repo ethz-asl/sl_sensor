@@ -326,6 +326,19 @@ int main(int argc, char** argv)
                                   initial_sec_cam_params.resolution_y(), sec_cam_rot_mat, sec_cam_trans, 0);
   sec_cam_params.Save(output_sec_cam_parameters_file);
 
+  /**
+  cv::Mat T_c1_c2_initial =
+      initial_pri_cam_params.GetInverseTransformationMatrix() * initial_sec_cam_params.GetTransformationMatrix();
+
+  cv::Mat T_c1_c2_ba = pri_cam_params.GetInverseTransformationMatrix() * sec_cam_params.GetTransformationMatrix();
+
+  std::cout << "Initial" << std::endl;
+  std::cout << T_c1_c2_initial << std::endl;
+
+  std::cout << "BA" << std::endl;
+  std::cout << T_c1_c2_ba << std::endl;
+  **/
+
   // Clean up
   delete problem;
 
