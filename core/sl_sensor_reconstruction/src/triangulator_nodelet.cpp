@@ -92,8 +92,8 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
   // Triangulate (currently only supports one camera for now)
-  auto pc_ptr = triangulator_ptr_->Triangulate(cv_img_ptr_vec[0]->image, cv_img_ptr_vec[1]->image,
-                                               cv_img_ptr_vec[2]->image, cv_img_ptr_vec[3]->image);
+  auto pc_ptr = triangulator_ptr_->TriangulateMonochrome(cv_img_ptr_vec[0]->image, cv_img_ptr_vec[1]->image,
+                                                         cv_img_ptr_vec[2]->image, cv_img_ptr_vec[3]->image);
 
   // Apply box filter if specified (point cloud will no longer be organised!)
   if (apply_crop_box_)

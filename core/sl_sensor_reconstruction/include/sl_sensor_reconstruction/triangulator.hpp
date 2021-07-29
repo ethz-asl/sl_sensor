@@ -43,8 +43,8 @@ public:
    * @param shading - Shading information
    * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud
    */
-  pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
-                                                   const cv::Mat &shading);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+                                                             const cv::Mat &shading);
 
 private:
   /**
@@ -71,6 +71,10 @@ private:
    * @param xyz
    */
   void TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv::Mat &xyz);
+
+  pcl::PointCloud<pcl::PointXYZI>::Ptr ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz, const cv::Mat &shading);
+
+  void Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading, cv::Mat &xyz);
 
   calibration::ProjectorParameters projector_parameters_;
   calibration::CameraParameters camera_parameters_;

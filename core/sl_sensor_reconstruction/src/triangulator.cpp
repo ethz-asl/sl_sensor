@@ -87,8 +87,9 @@ Triangulator::Triangulator(const calibration::ProjectorParameters &projector_par
   vc_.reshape(0, 1).copyTo(proj_points_cam_.row(1));
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp,
-                                                               const cv::Mat &mask, const cv::Mat &shading)
+void Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading,
+                               cv::Mat &xyz)
+
 {
   cv::Mat up_undistorted;
   cv::Mat vp_undistorted;
@@ -109,7 +110,6 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up
   cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
 
   // Triangulate
-  cv::Mat xyz;
   if (!up.empty() && vp.empty())
   {
     TriangulateFromUp(up_undistorted, xyz);
@@ -126,23 +126,37 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up
   // Apply Mask
   cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
   xyz.copyTo(masked_xyz, mask_undistorted);
+}
 
-  // Convert to pcl dense point cloud
+pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp,
+                                                                         const cv::Mat &mask, const cv::Mat &shading)
+{
+  // Perform triangulation
+  cv::Mat xyz;
+  Triangulate(up, vp, mask, shading, xyz);
+
+  // Convert coordinates to point cloud, with shading as intensity values
+  return ConvertToMonochomePCLPointCLoud(xyz, shading);
+}
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz,
+                                                                                   const cv::Mat &shading)
+{
   pcl::PointCloud<pcl::PointXYZI>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>());
 
-  pcl_pc_ptr->width = masked_xyz.cols;
-  pcl_pc_ptr->height = masked_xyz.rows;
+  pcl_pc_ptr->width = xyz.cols;
+  pcl_pc_ptr->height = xyz.rows;
   pcl_pc_ptr->is_dense = true;
 
-  pcl_pc_ptr->points.resize(masked_xyz.rows * masked_xyz.cols);
+  pcl_pc_ptr->points.resize(xyz.rows * xyz.cols);
 
-  for (int row = 0; row < masked_xyz.rows; row++)
+  for (int row = 0; row < xyz.rows; row++)
   {
     int offset = row * pcl_pc_ptr->width;
-    for (int col = 0; col < masked_xyz.cols; col++)
+    for (int col = 0; col < xyz.cols; col++)
     {
-      const cv::Vec3f point_coords = masked_xyz.at<cv::Vec3f>(row, col);
-      unsigned char shade = shading_undistorted.at<unsigned char>(row, col);
+      const cv::Vec3f point_coords = xyz.at<cv::Vec3f>(row, col);
+      unsigned char shade = shading.at<unsigned char>(row, col);
       pcl::PointXYZI point;
       point.x = point_coords[0];
       point.y = point_coords[1];
