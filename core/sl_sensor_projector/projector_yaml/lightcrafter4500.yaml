@@ -13,39 +13,39 @@ patterns:
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-    imageIndices: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
-    channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
-    invertPatterns: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    imageIndex: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
+    channelNumber: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invertPattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   pspTpuHorizontal:
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8, 8]
-    imageIndices: [7, 7, 7, 8, 8, 8]
-    channelNumbers: [0, 1, 2, 0, 1, 2]
-    invertPatterns: [0, 0, 0, 0, 0, 0]
+    imageIndex: [7, 7, 7, 8, 8, 8]
+    channelNumber: [0, 1, 2, 0, 1, 2]
+    invertPattern: [0, 0, 0, 0, 0, 0]
   pspTpuVertical:
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8, 8]
-    imageIndices: [9, 9, 9, 10, 10, 10]
-    channelNumbers: [0, 1, 2, 0, 1, 2]
-    invertPatterns: [0, 0, 0, 0, 0, 0]
+    imageIndex: [9, 9, 9, 10, 10, 10]
+    channelNumber: [0, 1, 2, 0, 1, 2]
+    invertPattern: [0, 0, 0, 0, 0, 0]
   pspTpuVerticalColour:
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8, 8, 1]
-    imageIndices: [9, 9, 9, 10, 10, 10, 0]
-    channelNumbers: [0, 1, 2, 0, 1, 2, 24]
-    invertPatterns: [0, 0, 0, 0, 0, 0, 1]
+    imageIndex: [9, 9, 9, 10, 10, 10, 0]
+    channelNumber: [0, 1, 2, 0, 1, 2, 24]
+    invertPattern: [0, 0, 0, 0, 0, 0, 1]
   pspTpuBoth:
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-    imageIndices: [7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10]
-    channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
-    invertPatterns: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    imageIndex: [7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10]
+    channelNumber: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invertPattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
