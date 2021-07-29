@@ -9,30 +9,45 @@ defaultSettings:
 
 patterns:
   calibrationPattern:
-    bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
+    bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
     imageIndices: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
     channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invertPatterns: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   pspTpuHorizontal:
     bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
+    bitDepth: [8, 8, 8, 8, 8, 8]
     imageIndices: [7, 7, 7, 8, 8, 8]
     channelNumbers: [0, 1, 2, 0, 1, 2]
+    invertPatterns: [0, 0, 0, 0, 0, 0]
   pspTpuVertical:
-    bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
+    bitDepth: [8, 8, 8, 8, 8, 8]
     imageIndices: [9, 9, 9, 10, 10, 10]
     channelNumbers: [0, 1, 2, 0, 1, 2]
+    invertPatterns: [0, 0, 0, 0, 0, 0]
+  pspTpuVerticalColour:
+    rgb: *defaultRgb
+    exposureUs: *defaultExposureUs
+    displayColour: *defaultDisplayColour
+    bitDepth: [8, 8, 8, 8, 8, 8, 1]
+    imageIndices: [9, 9, 9, 10, 10, 10, 0]
+    channelNumbers: [0, 1, 2, 0, 1, 2, 24]
+    invertPatterns: [0, 0, 0, 0, 0, 0, 1]
   pspTpuBoth:
     bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
+    bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
     imageIndices: [7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10]
     channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invertPatterns: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+

@@ -121,7 +121,7 @@ bool Lightcrafter4500::PatternExists(const YAML::Node& config, const std::string
 
   for (YAML::const_iterator it = config["patterns"].begin(); it != config["patterns"].end(); ++it)
   {
-    if (it->first.as<std::string>() == it->first.as<std::string>())
+    if (pattern_name == it->first.as<std::string>())
     {
       pattern_exists = true;
       break;
@@ -252,8 +252,8 @@ std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(cons
                            proj_config_["patterns"][pattern_name]["imageIndices"][i].as<int>() :
                            backup_single_pattern_.image_indice;
 
-    int bit_depth = proj_config_["patterns"][pattern_name]["bitDepth"] ?
-                        proj_config_["patterns"][pattern_name]["bitDepth"].as<int>() :
+    int bit_depth = proj_config_["patterns"][pattern_name]["bitDepth"][i] ?
+                        proj_config_["patterns"][pattern_name]["bitDepth"][i].as<int>() :
                         backup_single_pattern_.bit_depth;
 
     int pattern_number = proj_config_["patterns"][pattern_name]["channelNumbers"][i] ?
@@ -264,13 +264,17 @@ std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(cons
                          proj_config_["patterns"][pattern_name]["displayColour"].as<int>() :
                          backup_single_pattern_.led_select;
 
+    bool invert_pattern = proj_config_["patterns"][pattern_name]["invertPatterns"][i] ?
+                              proj_config_["patterns"][pattern_name]["invertPatterns"][i].as<bool>() :
+                              backup_single_pattern_.invert_pattern;
+
     LightcrafterSinglePattern temp1;
     temp1.trigger_type = (i == 0) ? 1 : 3;  // First pattern is hardware triggered, the rest are internal timer based
     temp1.pattern_number = pattern_number;
     temp1.bit_depth = bit_depth;
     temp1.led_select = led_select;
     temp1.image_indice = image_indice;
-    temp1.invert_pattern = false;
+    temp1.invert_pattern = invert_pattern;
     temp1.insert_black_frame = false;
     temp1.buffer_swap = (prev_image_indice != image_indice) ? true : false;
     temp1.trigger_out_prev = false;
@@ -282,7 +286,7 @@ std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(cons
     temp2.bit_depth = bit_depth;
     temp2.led_select = led_select;
     temp2.image_indice = image_indice;
-    temp2.invert_pattern = false;
+    temp2.invert_pattern = invert_pattern;
     temp2.insert_black_frame = false;
     temp2.buffer_swap = false;
     temp2.trigger_out_prev = false;
