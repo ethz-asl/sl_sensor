@@ -17,7 +17,6 @@ patterns:
     channelNumbers: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
     invertPatterns: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   pspTpuHorizontal:
-    bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
@@ -42,7 +41,6 @@ patterns:
     channelNumbers: [0, 1, 2, 0, 1, 2, 24]
     invertPatterns: [0, 0, 0, 0, 0, 0, 1]
   pspTpuBoth:
-    bitDepth: 8
     rgb: *defaultRgb
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
