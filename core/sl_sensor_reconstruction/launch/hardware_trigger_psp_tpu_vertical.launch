@@ -25,7 +25,7 @@
   <param name="input_topic" type="string" value="/image_synchroniser/grouped_images" />
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
-  <param name="number_cameras" type="int" value="$(arg number_cameras)" />
+  <param name="cameras_to_decode_indices" type="int" value="0" />
   <param name="number_phases" type="int" value="12" />
   <param name="shading_threshold" type="int" value="55" />
 </node>		  
