@@ -129,8 +129,15 @@ void Triangulator::UndistortImages(const cv::Mat &up, const cv::Mat &vp, const c
     cv::remap(vp, vp_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   }
 
-  cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
-  cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  if (!mask.empty())
+  {
+    cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  }
+
+  if (!shading.empty())
+  {
+    cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  }
 }
 
 void Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, cv::Mat &xyz)
@@ -174,11 +181,12 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::TriangulateMonochrome(const c
 }
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::TriangulateColour(const cv::Mat &up, const cv::Mat &vp,
-                                                                       const cv::Mat &mask, const cv::Mat &shading)
+                                                                       const cv::Mat &mask,
+                                                                       const cv::Mat &colour_shading)
 {
   if (!colour_shading_enabled_)
   {
-    std::cerr << "[Triangulator] Error: TriangulateColour called when Triangulat was not configured to generate "
+    std::cerr << "[Triangulator] Error: TriangulateColour called when Triangulator was not configured to generate "
                  "coloured point cloud. Returning empty pointer!"
               << std::endl;
     return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
@@ -189,14 +197,14 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::TriangulateColour(const cv:
   cv::Mat vp_undistorted;
   cv::Mat mask_undistorted;
   cv::Mat shading_undistorted;
-  UndistortImages(up, vp, mask, shading, up_undistorted, vp_undistorted, mask_undistorted, shading_undistorted);
+  UndistortImages(up, vp, mask, cv::Mat(), up_undistorted, vp_undistorted, mask_undistorted, shading_undistorted);
 
   // Perform triangulation
   cv::Mat xyz;
   Triangulate(up_undistorted, vp_undistorted, mask_undistorted, xyz);
 
   // Convert coordinates to point cloud, with shading as intensity values
-  return ConvertToColourPCLPointCloud(xyz, mask_undistorted, shading_undistorted);
+  return ConvertToColourPCLPointCloud(xyz, mask_undistorted, colour_shading);
 }
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::ConvertToColourPCLPointCloud(const cv::Mat &xyz,

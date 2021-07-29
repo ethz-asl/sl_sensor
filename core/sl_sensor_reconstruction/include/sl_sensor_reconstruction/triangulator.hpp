@@ -56,7 +56,7 @@ public:
                                                              const cv::Mat &shading);
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr TriangulateColour(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
-                                                           const cv::Mat &shading);
+                                                           const cv::Mat &colour_shading);
 
 private:
   /**
