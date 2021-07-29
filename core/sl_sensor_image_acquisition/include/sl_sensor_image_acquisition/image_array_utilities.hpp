@@ -20,7 +20,7 @@ namespace image_acquisition
  * @param frame_id - Frame ID for message header
  */
 void PublishImageArray(ros::Publisher& publisher, const std::vector<sensor_msgs::ImageConstPtr>& image_ptr_vec,
-                       const ros::Time& timestamp, const std::string& frame_id);
+                       const ros::Time& timestamp, const std::string& frame_id, int number_cameras = 0);
 
 /**
  * @brief Convert an Image array message to a vector of cvImage for processing

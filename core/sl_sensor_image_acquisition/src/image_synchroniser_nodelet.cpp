@@ -234,7 +234,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     ClearAllProjectorTimingsFromBufferBeforeTiming(successful_projector_time);
 
     // Clear image buffers in image groupers
-    for (int i = 0; i < (int)image_grouper_ptrs_.size(); i++)
+    for (size_t i = 0; i < image_grouper_ptrs_.size(); i++)
     {
       image_grouper_ptrs_[i]->ClearAllImagesFromBufferBeforeTiming(nested_img_ptr_vec[i].back()->header.stamp);
     }
@@ -270,7 +270,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
                                                             std::vector<sensor_msgs::ImageConstPtr>());
 
   // For each pattern
-  for (int i = 0; i < synchroniser_state_.number_images_per_scan; i++)
+  for (size_t i = 0; i < (size_t)synchroniser_state_.number_images_per_scan; i++)
   {
     // Command projector to display pattern
     SendProjectorCommand(synchroniser_state_.pattern_name, i);
@@ -279,7 +279,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
     ros::Duration(synchroniser_state_.delay + image_trigger_period_).sleep();
 
     // For each camera, get the latest image in the buffer
-    for (int j = 0; j < (int)image_grouper_ptrs_.size(); j++)
+    for (size_t j = 0; j < image_grouper_ptrs_.size(); j++)
     {
       auto img_ptr = image_grouper_ptrs_[j]->GetLatestImageAndClearBuffer();
 
@@ -298,7 +298,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
   // Merge all vectors together and publish
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
-  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_);
+  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_, (int)image_grouper_ptrs_.size());
 
   return true;
 }

@@ -5,13 +5,14 @@ namespace sl_sensor
 namespace image_acquisition
 {
 void PublishImageArray(ros::Publisher& publisher, const std::vector<sensor_msgs::ImageConstPtr>& image_vec,
-                       const ros::Time& timestamp, const std::string& frame_id)
+                       const ros::Time& timestamp, const std::string& frame_id, int number_cameras)
 {
   sl_sensor_image_acquisition::ImageArrayPtr img_arr_ptr =
       boost::make_shared<sl_sensor_image_acquisition::ImageArray>();
 
   img_arr_ptr->header.stamp = timestamp;
   img_arr_ptr->header.frame_id = frame_id;
+  img_arr_ptr->number_cameras = number_cameras;
 
   for (const auto img_ptr : image_vec)
   {
