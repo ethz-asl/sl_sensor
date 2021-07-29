@@ -38,7 +38,11 @@ private:
 
   std::unique_ptr<Decoder> decoder_ptr_;
 
-  int number_cameras_;
+  std::vector<int> cameras_to_decode_indices_;
+
+  bool colour_shading_enabled_ = false;
+  int colour_image_index_ = 0;
+  int colour_camera_index_ = 0;
 };
 
 }  // namespace codec
