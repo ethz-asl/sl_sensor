@@ -2,6 +2,8 @@
 
 #include <ros/ros.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "sl_sensor_codec/decoder.hpp"
 #include "sl_sensor_codec/encoder.hpp"
@@ -25,11 +27,11 @@ public:
   {
     std::unique_ptr<Encoder> output_ptr;
 
-    if (encoder_name == "PhaseShiftWithTpu")
+    if (encoder_name == codec_names_[0])
     {
       output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(nh);
     }
-    else if (encoder_name == "TwoPlusOneWithTpu")
+    else if (encoder_name == codec_names_[1])
     {
       output_ptr = std::make_unique<TwoPlusOneWithTpuEncoder>(nh);
     }
@@ -45,11 +47,11 @@ public:
   {
     std::unique_ptr<Decoder> output_ptr;
 
-    if (decoder_name == "PhaseShiftWithTpu")
+    if (decoder_name == codec_names_[0])
     {
       output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(nh);
     }
-    else if (decoder_name == "TwoPlusOneWithTpu")
+    else if (decoder_name == codec_names_[1])
     {
       output_ptr = std::make_unique<TwoPlusOneWithTpuDecoder>(nh);
     }
@@ -60,7 +62,17 @@ public:
 
     return std::move(output_ptr);
   };
+
+  static std::vector<std::string> GetAllCodecNames()
+  {
+    return codec_names_;
+  }
+
+private:
+  static const std::vector<std::string> codec_names_;
 };
+
+const std::vector<std::string> CodecFactory::codec_names_ = { "PhaseShiftWithTpu", "TwoPlusOneWithTpu" };
 
 }  // namespace codec
 }  // namespace sl_sensor

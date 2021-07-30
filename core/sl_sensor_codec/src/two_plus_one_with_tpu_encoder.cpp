@@ -64,7 +64,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
   if (direction_ == CodecDirection::kVertical || direction_ == CodecDirection::kBoth)
   {
     // Precompute vertically encoding patterns_
-    for (unsigned int i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 2; i++)
     {
       float phase = M_PI / 2.0 * i;
       float pitch = (float)screen_rows_ / (float)number_phases_;
@@ -74,7 +74,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
     }
 
     // Precompute vertically phase cue patterns_
-    for (unsigned int i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 2; i++)
     {
       float phase = M_PI / 2.0 * i;
       float pitch = screen_rows_;

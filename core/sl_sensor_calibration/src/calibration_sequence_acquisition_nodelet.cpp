@@ -57,7 +57,7 @@ void CalibrationSequenceAcquisitionNodelet::onInit()
   {
     std::string number = std::to_string(i + 1);
 
-    image_pubs_.push_back({});
+    image_pubs_.push_back(std::vector<ros::Publisher>{});
 
     std::string shading_topic_name = "calibration_data_acquisition_nodelet/cam" + number + "/shading";
     image_pubs_[i].push_back(nh_.advertise<sensor_msgs::Image>(shading_topic_name, 10));
@@ -232,11 +232,17 @@ bool DirectoryExists(const char* path)
   struct stat info;
 
   if (stat(path, &info) != 0)
+  {
     return false;
+  }
   else if (info.st_mode & S_IFDIR)
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 };
 
 bool CalibrationSequenceAcquisitionNodelet::GenerateDataFolders()

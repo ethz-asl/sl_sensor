@@ -35,16 +35,20 @@ void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& m
 
   if (direction_ == CodecDirection::kHorizontal)
   {
-    ComputePhase(frames_[0], frames_[1], frames_[2], frames_[3], frames_[4], screen_cols_, number_phases_, up);
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
+                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_, up);
   }
   else if (direction_ == CodecDirection::kVertical)
   {
-    ComputePhase(frames_[0], frames_[1], frames_[2], frames_[3], frames_[4], screen_rows_, number_phases_, vp);
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
+                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_rows_, number_phases_, vp);
   }
   else
   {
-    ComputePhase(frames_[0], frames_[1], frames_[2], frames_[3], frames_[4], screen_cols_, number_phases_, up);
-    ComputePhase(frames_[5], frames_[1], frames_[6], frames_[7], frames_[8], screen_rows_, number_phases_, vp);
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
+                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_, up);
+    ComputePhase(cv::Mat_<float>(frames_[5]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[6]),
+                 cv::Mat_<float>(frames_[7]), cv::Mat_<float>(frames_[8]), screen_rows_, number_phases_, vp);
   }
 
   // Calculate modulation
