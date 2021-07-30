@@ -36,12 +36,13 @@ void PointCloudLoggerNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPt
 {
   pcl::PCLPointCloud2 pcl_pc2;
   pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
-  pcl::PointCloud<pcl::PointXYZI>::Ptr pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
-  pcl::fromPCLPointCloud2(pcl_pc2, *pc_ptr);
+
   std::string array_time = std::to_string(pc_msg_ptr->header.stamp.toNSec());
   std::string final_pc_full_directory =
       save_folder_ + header_ + "_" + array_time + "_" + std::to_string(counter_) + ".pcd";
-  pcl::io::savePCDFileASCII(final_pc_full_directory, *pc_ptr);
+
+  pcl::PCDWriter file_writer;
+  file_writer.write(final_pc_full_directory, pcl_pc2);
 
   counter_++;
 };

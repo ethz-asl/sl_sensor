@@ -9,6 +9,8 @@
 #include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
+#include <pcl/visualization/cloud_viewer.h>  // for debugging
+
 using namespace sl_sensor::calibration;
 using namespace sl_sensor::image_acquisition;
 
@@ -131,6 +133,9 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     {
       ApplyCropBox<pcl::PointXYZRGB>(pc_ptr);
     }
+
+    pcl::PCDWriter file_writer;
+    file_writer.write("/home/ltf/test.pcd,", *pc_ptr);
 
     // Publish point cloud
     PublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);

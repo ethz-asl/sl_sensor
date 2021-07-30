@@ -96,6 +96,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
     {
       frames.emplace_back(cv_img_ptr_vec.at(cameras_to_decode_indices_[i] * images_required_for_decoder + j)->image);
     }
+
     decoder_ptr_->SetFrames(frames);
     decoder_ptr_->DecodeFrames(decoder_results.at(i * 4), decoder_results.at(i * 4 + 1), decoder_results.at(i * 4 + 2),
                                decoder_results.at(i * 4 + 3));
@@ -110,7 +111,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   // Construct output image format vector
   std::vector<std::string> output_image_format_vec = {};
 
-  for (uint8_t i = 0; i < image_array_ptr->number_cameras; i++)
+  for (uint8_t i = 0; i < cameras_to_decode_indices_.size(); i++)
   {
     output_image_format_vec.push_back("32FC1");
     output_image_format_vec.push_back("32FC1");

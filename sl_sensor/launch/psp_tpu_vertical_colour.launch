@@ -1,0 +1,88 @@
+<launch>
+
+<arg name="frame_id" doc="sl_sensor's frame id" default="sl_sensor" />
+<arg name="number_cameras" doc="Number Cameras" default="1" />
+<arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
+<arg name="save_point_cloud" doc="Save point clouds" default="true" />
+<arg name="save_images" doc="Save images" default="false" />
+<arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
+<arg name="primary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+<arg name="secondary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
+<arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+
+<node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
+
+<include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
+
+<node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
+  <param name="num_worker_threads" value="10" />
+</node>
+
+<node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
+  <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
+  <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
+  <param name="frame_id" type="string" value="$(arg frame_id)" />
+  <param name="lower_bound_tol" type="double" value="0.0166667" />
+  <param name="upper_bound_tol" type="double" value="0.0166667" />
+  <param name="image_trigger_period" type="double" value="0.03333333" />
+  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
+  <param name="projector_service_name" type="string" value="/command_projector"/>    
+  <param name="image_topics" type="string" value="/versavis/cam2/image_raw /versavis/cam1/image_raw" />
+  <param name="fixed_pattern_name" type="string" value="pspTpuVerticalColour" />
+</node>		  
+
+<node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
+  <param name="input_topic" type="string" value="/image_synchroniser/grouped_images" />
+  <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
+  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="string" value="vertical" />
+  <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
+  <param name="cameras_to_decode_indices" type="string" value="0" />
+  <param name="number_phases" type="int" value="12" />
+  <param name="shading_threshold" type="int" value="80" />
+
+  <param name="colour_shading_enabled" type="bool" value="true" />
+  <param name="colour_image_index" type="int" value="6" />
+  <param name="colour_camera_index" type="int" value="1" />
+</node>		  
+
+<node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
+  <param name="input_topic" type="string" value="/image_synchroniser/decoded_images" />
+  <param name="output_topic" type="string" value="/triangulator/point_cloud" />
+  <param name="primary_camera_parameters_filename" type="string" value="$(arg primary_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
+  <param name="number_cameras" type="int" value="$(arg number_cameras)" />
+  <param name="apply_crop_box" type="bool" value="true"/>
+  <param name="crop_box_x_min" type="double" value="-500.0" />
+  <param name="crop_box_y_min" type="double" value="-500.0" />
+  <param name="crop_box_z_min" type="double" value="0.0" />
+  <param name="crop_box_x_max" type="double" value="500.0" />
+  <param name="crop_box_y_max" type="double" value="500.0" />
+  <param name="crop_box_z_max" type="double" value="2000.0" />  
+
+  <param name="colour_shading_enabled" type="bool" value="true" />
+  <param name="secondary_camera_parameters_filename" type="string" value="$(arg secondary_camera_parameters_filename)" />
+
+</node>		  
+
+<group if="$(arg visualise_point_cloud)">
+  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/show_pc.rviz" />	  
+</group>
+
+<group if="$(arg save_point_cloud)">
+  <node pkg="nodelet" type="nodelet" name="visualiser" args="load sl_sensor_reconstruction/PointCloudLoggerNodelet standalone_nodelet" output="screen">
+    <param name="input_topic" type="string" value="/triangulator/point_cloud" />
+    <param name="save_folder" type="string" value="/home/ltf/Desktop/saved_pc/" />
+    <param name="header" type="string" value="pc" />
+  </node>	
+</group>
+
+<group if="$(arg save_images)">
+  <node pkg="nodelet" type="nodelet" name="image_array_logger" args="load sl_sensor_image_acquisition/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
+    <param name="log_directory" type="string" value="/home/ltf/Desktop/logged_data/" />
+    <param name="file_header" type="string" value="test" />
+    <param name="log_topic" type="string" value="/image_synchroniser/grouped_images" />
+  </node>
+</group>
+
+</launch>

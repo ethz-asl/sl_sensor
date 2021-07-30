@@ -35,8 +35,18 @@ void Triangulator::InitColouringParameters()
 {
   colour_shading_enabled_ = true;
 
-  cv::Rodrigues(secondary_camera_parameters_.extrinsic_rot(), colour_camera_parameters_.rvec);
-  colour_camera_parameters_.tvec = cv::Mat(secondary_camera_parameters_.extrinsic_trans());
+  cv::Mat transform_p_c1 = primary_camera_parameters_.GetTransformationMatrix();
+  cv::Mat transform_c2_p = secondary_camera_parameters_.GetInverseTransformationMatrix();
+  cv::Mat transform_c2_c1 = transform_c2_p * transform_p_c1;
+
+  cv::Mat rot = cv::Mat(3, 3, CV_32F);
+  cv::Mat trans = cv::Mat(3, 1, CV_32F);
+
+  transform_c2_c1(cv::Range(0, 3), cv::Range(0, 3)).copyTo(rot);
+  transform_c2_c1(cv::Range(0, 3), cv::Range(3, 4)).copyTo(trans);
+
+  cv::Rodrigues(rot, colour_camera_parameters_.rvec);
+  colour_camera_parameters_.tvec = trans;
   colour_camera_parameters_.lens_distortion = secondary_camera_parameters_.lens_distortion();
   colour_camera_parameters_.intrinsic_mat = secondary_camera_parameters_.intrinsic_mat();
 }
@@ -244,13 +254,13 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::ConvertToColourPCLPointClou
 
           const int coord_x = std::floor(output_point.x);
           const int coord_y = std::floor(output_point.y);
-          pcl::PointXYZRGB point(colour_shading.at<unsigned char>(coord_y, coord_x, 2),
-                                 colour_shading.at<unsigned char>(coord_y, coord_x, 1),
-                                 colour_shading.at<unsigned char>(coord_y, coord_x, 0));
+          pcl::PointXYZRGB &point = pcl_pc_ptr->points[offset + col];
           point.x = point_coords[0];
           point.y = point_coords[1];
           point.z = point_coords[2];
-          pcl_pc_ptr->points[offset + col] = point;
+          point.r = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[2];
+          point.g = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[1];
+          point.b = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[0];
         }
       }
     }
