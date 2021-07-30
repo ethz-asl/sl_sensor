@@ -22,6 +22,8 @@ cs_add_library(${PROJECT_NAME}
   src/decoder_nodelet.cpp
   src/phase_shift_with_tpu_encoder.cpp
   src/phase_shift_with_tpu_decoder.cpp
+  src/two_plus_one_with_tpu_encoder.cpp
+  src/two_plus_one_with_tpu_decoder.cpp
   )
   
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")

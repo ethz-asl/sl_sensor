@@ -7,6 +7,8 @@
 #include "sl_sensor_codec/encoder.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_decoder.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_encoder.hpp"
+#include "sl_sensor_codec/two_plus_one_with_tpu_decoder.hpp"
+#include "sl_sensor_codec/two_plus_one_with_tpu_encoder.hpp"
 
 namespace sl_sensor
 {
@@ -27,6 +29,10 @@ public:
     {
       output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(nh);
     }
+    else if (encoder_name == "TwoPlusOneWithTpu")
+    {
+      output_ptr = std::make_unique<TwoPlusOneWithTpuEncoder>(nh);
+    }
     else
     {
       ROS_INFO("[CodecFactory] Invalid Encoder name, returning empty pointer");
@@ -42,6 +48,10 @@ public:
     if (decoder_name == "PhaseShiftWithTpu")
     {
       output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(nh);
+    }
+    else if (decoder_name == "TwoPlusOneWithTpu")
+    {
+      output_ptr = std::make_unique<TwoPlusOneWithTpuDecoder>(nh);
     }
     else
     {
