@@ -134,9 +134,6 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
       ApplyCropBox<pcl::PointXYZRGB>(pc_ptr);
     }
 
-    pcl::PCDWriter file_writer;
-    file_writer.write("/home/ltf/test.pcd,", *pc_ptr);
-
     // Publish point cloud
     PublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);
   }
