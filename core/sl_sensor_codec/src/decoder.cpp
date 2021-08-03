@@ -16,12 +16,12 @@ Decoder::Decoder(ros::NodeHandle nh)
   InitFromRosNodeHandle(nh);
 }
 
-unsigned int Decoder::GetNumberPatterns()
+unsigned int Decoder::GetNumberPatterns() const
 {
   return number_patterns_;
 }
 
-CodecDirection Decoder::GetDirection()
+CodecDirection Decoder::GetDirection() const
 {
   return direction_;
 }

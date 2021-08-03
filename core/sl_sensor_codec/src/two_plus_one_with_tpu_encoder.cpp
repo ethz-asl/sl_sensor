@@ -12,13 +12,13 @@ TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(unsigned int screen_cols, uns
                                                    CodecDirection dir, unsigned int number_phases)
   : Encoder(screen_cols, screen_rows, dir), number_phases_(number_phases)
 {
-  number_patterns_ = (direction_ == CodecDirection::kBoth) ? 9 : 5;
+  number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
   GeneratePatterns();
 }
 
 TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(ros::NodeHandle nh) : Encoder(nh)
 {
-  number_patterns_ = (direction_ == CodecDirection::kBoth) ? 9 : 5;
+  number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
 
   nh.param<int>("number_phases", number_phases_, number_phases_);
   nh.param<double>("average_value", average_value_, average_value_);
@@ -31,7 +31,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
 {
   // Initialise flat pattern
   cv::Mat flat_pattern(5, 5, CV_8UC3);
-  flat_pattern.setTo(0.6 * 255.0);
+  flat_pattern.setTo(average_value_ * 255.0);
 
   if (direction_ == CodecDirection::kHorizontal || direction_ == CodecDirection::kBoth)
   {
@@ -83,18 +83,8 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
       patterns_.push_back(pattern);
     }
 
-    // Insert flat pattern only if pattern is vertical. If both directions, flat pattern has already been added when
-    // processing horizontal pattern
-    if (direction_ == CodecDirection::kVertical)
-    {
-      patterns_.insert(patterns_.end() - 3, flat_pattern);
-    }
+    patterns_.insert(patterns_.end() - 3, flat_pattern);
   }
-}
-
-cv::Mat TwoPlusOneWithTpuEncoder::GetEncodingPattern(size_t depth)
-{
-  return patterns_[depth];
 }
 
 }  // namespace codec

@@ -78,10 +78,5 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
   }
 }
 
-cv::Mat PhaseShiftWithTpuEncoder::GetEncodingPattern(size_t depth)
-{
-  return patterns_[depth];
-}
-
 }  // namespace codec
 }  // namespace sl_sensor

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <omp.h>
 #include <iostream>
 #include "sl_sensor_reconstruction/triangulator.hpp"
 
@@ -231,6 +232,7 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::ConvertToColourPCLPointClou
 
   pcl_pc_ptr->points.resize(xyz.rows * xyz.cols);
 
+#pragma omp parallel for
   for (int row = 0; row < xyz.rows; row++)
   {
     int offset = row * pcl_pc_ptr->width;
@@ -283,6 +285,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::ConvertToMonochomePCLPointCLo
 
   pcl_pc_ptr->points.resize(xyz.rows * xyz.cols);
 
+#pragma omp parallel for
   for (int row = 0; row < xyz.rows; row++)
   {
     int offset = row * pcl_pc_ptr->width;
@@ -362,6 +365,8 @@ void Triangulator::TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv:
                         xyzw);
 
   xyz.create(3, number_pixels_, CV_32F);
+
+#pragma omp parallel for
   for (int i = 0; i < number_pixels_; i++)
   {
     xyz.at<float>(0, i) = xyzw.at<float>(0, i) / xyzw.at<float>(3, i);

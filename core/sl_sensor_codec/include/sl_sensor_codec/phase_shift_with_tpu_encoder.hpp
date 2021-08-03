@@ -17,10 +17,8 @@ public:
   PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
                            unsigned int number_phases);
   PhaseShiftWithTpuEncoder(ros::NodeHandle nh);
-  virtual cv::Mat GetEncodingPattern(size_t depth) override;
 
 private:
-  std::vector<cv::Mat> patterns_;
   int number_phases_ = 1;
   double average_value_ = 0.5;
   double modulation_intensity_ = 0.5;

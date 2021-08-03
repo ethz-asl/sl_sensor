@@ -242,7 +242,9 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     // Process and publish image array
     std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
     MergeNestedVectors(nested_img_ptr_vec, imgs_to_publish);
-    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_);
+
+    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_,
+                      (int)image_grouper_ptrs_.size());
   }
 
   return success;

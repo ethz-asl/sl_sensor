@@ -38,14 +38,14 @@ public:
    *
    * @return unsigned int
    */
-  unsigned int GetNumberPatterns();
+  unsigned int GetNumberPatterns() const;
 
   /**
    * @brief Get direction of pattern
    *
    * @return CodecDirection
    */
-  CodecDirection GetDirection();
+  CodecDirection GetDirection() const;
 
   /**
    * @brief Set an image to be decoded

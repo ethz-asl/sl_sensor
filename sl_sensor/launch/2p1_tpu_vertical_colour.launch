@@ -6,6 +6,7 @@
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="primary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+<arg name="secondary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
@@ -25,7 +26,7 @@
   <param name="image_trigger_period" type="double" value="0.03333333" />
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
   <param name="projector_service_name" type="string" value="/command_projector"/>    
-  <param name="image_topics" type="string" value="/versavis/cam2/image_raw" />
+  <param name="image_topics" type="string" value="/versavis/cam2/image_raw /versavis/cam1/image_raw" />
   <param name="fixed_pattern_name" type="string" value="twoPlusOneTpuVertical" />
 </node>		  
 
@@ -38,8 +39,10 @@
   <param name="cameras_to_decode_indices" type="string" value="0" />
   <param name="number_phases" type="int" value="12" />
   <param name="shading_threshold" type="int" value="55" />
-
-  <param name="colour_shading_enabled" type="bool" value="false" />
+  
+  <param name="colour_shading_enabled" type="bool" value="true" />
+  <param name="colour_image_index" type="int" value="1" />
+  <param name="colour_camera_index" type="int" value="1" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
@@ -53,10 +56,10 @@
   <param name="crop_box_z_min" type="double" value="0.0" />
   <param name="crop_box_x_max" type="double" value="500.0" />
   <param name="crop_box_y_max" type="double" value="500.0" />
-  <param name="crop_box_z_max" type="double" value="2000.0" />  
+  <param name="crop_box_z_max" type="double" value="2000.0" />
 
-  <param name="colour_shading_enabled" type="bool" value="false" />
-
+  <param name="colour_shading_enabled" type="bool" value="true" />
+  <param name="secondary_camera_parameters_filename" type="string" value="$(arg secondary_camera_parameters_filename)" />  
 </node>		  
 
 <group if="$(arg visualise_point_cloud)">

@@ -38,14 +38,14 @@ public:
    *
    * @return unsigned int
    */
-  unsigned int GetNumberPatterns();
+  unsigned int GetNumberPatterns() const;
 
   /**
    * @brief Get direction of pattern
    *
    * @return CodecDirection
    */
-  CodecDirection GetDirection();
+  CodecDirection GetDirection() const;
 
   /**
    * @brief Get a Encoding Pattern with indice depth
@@ -53,14 +53,14 @@ public:
    * @param depth
    * @return cv::Mat
    */
-  virtual cv::Mat GetEncodingPattern(size_t depth) = 0;
+  cv::Mat GetEncodingPattern(size_t depth) const;
 
   /**
    * @brief Get all patterns in a sequence
    *
    * @return std::vector<cv::Mat>
    */
-  std::vector<cv::Mat> GetEncodingPatterns();
+  std::vector<cv::Mat> GetEncodingPatterns() const;
 
   /**
    * @brief Downsample a pattern if they have a diamond pixel arrangement
@@ -90,6 +90,7 @@ protected:
   unsigned int number_patterns_ = 0;
   unsigned int screen_cols_, screen_rows_;
   CodecDirection direction_;
+  std::vector<cv::Mat> patterns_;
 
   /**
    * @brief Retrieves basic Encoder information using ROS node handles

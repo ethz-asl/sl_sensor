@@ -16,17 +16,22 @@ Encoder::Encoder(ros::NodeHandle nh)
   InitFromRosNodeHandle(nh);
 }
 
-unsigned int Encoder::GetNumberPatterns()
+unsigned int Encoder::GetNumberPatterns() const
 {
   return number_patterns_;
 }
 
-CodecDirection Encoder::GetDirection()
+CodecDirection Encoder::GetDirection() const
 {
   return direction_;
 }
 
-std::vector<cv::Mat> Encoder::GetEncodingPatterns()
+cv::Mat Encoder::GetEncodingPattern(size_t depth) const
+{
+  return patterns_[depth];
+}
+
+std::vector<cv::Mat> Encoder::GetEncodingPatterns() const
 {
   std::vector<cv::Mat> result = {};
 

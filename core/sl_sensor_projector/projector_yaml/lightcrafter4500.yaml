@@ -61,6 +61,6 @@ patterns:
     exposureUs: *defaultExposureUs
     displayColour: *defaultDisplayColour
     bitDepth: [8, 8, 8, 8, 8]
-    imageIndex: [12, 11, 13, 13, 13]
-    channelNumber: [2, 1, 0, 1, 2]
+    imageIndex: [13, 13, 13, 14, 14]
+    channelNumber: [0, 1, 2, 0, 1]
     invertPattern: [0, 0, 0, 0, 0]

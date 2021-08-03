@@ -98,6 +98,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
     }
 
     decoder_ptr_->SetFrames(frames);
+
     decoder_ptr_->DecodeFrames(decoder_results.at(i * 4), decoder_results.at(i * 4 + 1), decoder_results.at(i * 4 + 2),
                                decoder_results.at(i * 4 + 3));
   }
