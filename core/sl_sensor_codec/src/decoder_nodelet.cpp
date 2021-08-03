@@ -127,8 +127,6 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   // Publish results
   image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array_ptr->header.frame_id,
                                      image_array_ptr->header.stamp, ros::Time::now(), output_image_format_vec);
-
-  std::cout << "Published" << std::endl;
 };
 
 }  // namespace codec

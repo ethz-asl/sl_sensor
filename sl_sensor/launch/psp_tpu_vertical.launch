@@ -36,7 +36,7 @@
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
   <param name="direction" type="string" value="vertical" />
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
-  <param name="cameras_to_decode_indices" type="int" value="0" />
+  <param name="cameras_to_decode_indices" type="string" value="0" />
   <param name="number_phases" type="int" value="12" />
   <param name="shading_threshold" type="int" value="80" />
 </node>		  

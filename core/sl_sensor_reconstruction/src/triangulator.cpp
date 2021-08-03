@@ -295,7 +295,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::ConvertToMonochomePCLPointCLo
         point.x = point_coords[0];
         point.y = point_coords[1];
         point.z = point_coords[2];
-        point.intensity = shading.at<float>(row, col);
+        point.intensity = shading.at<unsigned char>(row, col);
         pcl_pc_ptr->points[offset + col] = point;
       }
     }
