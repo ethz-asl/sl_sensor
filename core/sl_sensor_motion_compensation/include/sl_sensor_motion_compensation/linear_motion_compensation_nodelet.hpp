@@ -7,6 +7,8 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
+#include "sl_sensor_motion_compensation/phase_correlation_utilities.hpp"
+
 namespace sl_sensor
 {
 namespace motion_compensation
@@ -22,6 +24,8 @@ private:
 
   std::string sub_topic_ = "/image_array_input";
   std::string pub_topic_ = "/image_array_output";
+  std::string pattern_direction_ = "both";
+  ShiftingOption shifting_option_ = ShiftingOption::kBothDirectionsShifting;
 
   double subsample_factor_ = 1.0f;
   int reference_indice_ = 1;

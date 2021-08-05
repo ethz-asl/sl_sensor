@@ -7,6 +7,7 @@
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="primary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector_ba.xml" />
+<arg name="pattern_direction" doc="Direction of pattern used" default="vertical" />
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
@@ -34,13 +35,14 @@
   <param name="output_topic" type="string" value="/linear_motion_compensation/aligned_images" />
   <param name="reference_indice" type="int" value="1" />
   <param name="subsample_factor" type="double" value="1.0" />
+  <param name="pattern_direction" type="string" value="$(arg pattern_direction)" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <param name="input_topic" type="string" value="/linear_motion_compensation/aligned_images" />
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="vertical" />
+  <param name="direction" type="string" value="$(arg pattern_direction)" />
   <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
   <param name="cameras_to_decode_indices" type="string" value="0" />
   <param name="number_phases" type="int" value="12" />

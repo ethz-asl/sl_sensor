@@ -1,4 +1,4 @@
-#include "sl_sensor_motion_compensation/phase_correlation_utils.hpp"
+#include "sl_sensor_motion_compensation/phase_correlation_utilities.hpp"
 
 namespace sl_sensor
 {
@@ -6,11 +6,11 @@ namespace motion_compensation
 {
 void PhaseCorrelateAlignImageSequence(const std::vector<cv::Mat> &input_image_sequence,
                                       std::vector<cv::Mat> &output_image_sequence, int reference_indice,
-                                      double subsample_factor)
+                                      double subsample_factor, ShiftingOption shifting_option)
 {
   std::vector<cv::Point2d> shifts;
   PhaseCorrelateRegisterImageSequence(input_image_sequence, reference_indice, shifts, subsample_factor);
-  ApplyShiftsToImageSequence(input_image_sequence, output_image_sequence, shifts);
+  ApplyShiftsToImageSequence(input_image_sequence, output_image_sequence, shifts, shifting_option);
 }
 
 void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
@@ -76,19 +76,22 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
 }
 
 void ApplyShiftsToImageSequence(const std::vector<cv::Mat> &input_image_sequence,
-                                std::vector<cv::Mat> &output_image_sequence, const std::vector<cv::Point2d> &shifts)
+                                std::vector<cv::Mat> &output_image_sequence, const std::vector<cv::Point2d> &shifts,
+                                ShiftingOption shifting_option)
 {
+  const float stationary_tol =
+      0.1f;  // Within this amount of pixel shift, we consider image to be stationary in that direction
+
   output_image_sequence.clear();
+  output_image_sequence.resize(input_image_sequence.size(), cv::Mat());
 
   for (int i = 0; i < (int)shifts.size(); i++)
   {
-    output_image_sequence.push_back(cv::Mat::zeros(input_image_sequence[i].size(), input_image_sequence[i].depth()));
+    float x = (shifting_option == ShiftingOption::kVerticalShiftingOnly) ? 0.0f : shifts[i].x;
+    float y = (shifting_option == ShiftingOption::kHorizontalShiftingOnly) ? 0.0f : shifts[i].y;
 
-    float x = shifts[i].x;
-    // float y = shifts[i].y;
-    float y = 0.0f;  // Temporary testing
-
-    bool non_zero_shift = !(x == 0.0f && y == 0.0f);
+    bool non_zero_shift =
+        !(x < stationary_tol && x > -1.0 * stationary_tol && y < stationary_tol && y > -1.0 * stationary_tol);
 
     // std::cout << "Shifts: " << x << " | " << y << std::endl;
 

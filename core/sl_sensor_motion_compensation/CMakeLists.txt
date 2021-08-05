@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS "-lstdc++fs" )
 # LIBRARIES #
 #############
 cs_add_library(${PROJECT_NAME}
-  src/phase_correlation_utils.cpp
+  src/phase_correlation_utilities.cpp
   src/linear_motion_compensation_nodelet.cpp
   )
 

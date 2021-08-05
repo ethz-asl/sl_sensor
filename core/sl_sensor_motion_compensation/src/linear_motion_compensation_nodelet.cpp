@@ -1,7 +1,5 @@
 #include "sl_sensor_motion_compensation/linear_motion_compensation_nodelet.hpp"
 
-#include "sl_sensor_motion_compensation/phase_correlation_utils.hpp"
-
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
 using namespace sl_sensor::image_acquisition;
@@ -23,8 +21,28 @@ void LinearMotionCompensationNodelet::onInit()
   // Get key information from ROS params
   private_nh_.param<std::string>("input_topic", sub_topic_, sub_topic_);
   private_nh_.param<std::string>("output_topic", pub_topic_, pub_topic_);
+  private_nh_.param<std::string>("pattern_direction", pattern_direction_, pattern_direction_);
   private_nh_.param<int>("reference_indice", reference_indice_, reference_indice_);
   private_nh_.param<double>("subsample_factor", subsample_factor_, subsample_factor_);
+
+  // Note: We apply shifts only in the direction perpendicular to the projected pattern
+  if (pattern_direction_ == "horizontal")
+  {
+    shifting_option_ = ShiftingOption::kVerticalShiftingOnly;
+  }
+  else if (pattern_direction_ == "vertical")
+  {
+    shifting_option_ = ShiftingOption::kHorizontalShiftingOnly;
+  }
+  else if (pattern_direction_ == "both")
+  {
+    shifting_option_ = ShiftingOption::kBothDirectionsShifting;
+  }
+  else
+  {
+    ROS_WARN("[LinearMotionCompensationNodelet] Invalid/No pattern direction provided! Defaulting "
+             "to apply both horizontal and vertical shifting");
+  }
 
   // Setup subscribers / publishers
   input_sub_ = nh_.subscribe(sub_topic_, 10, &LinearMotionCompensationNodelet::ImageArrayCb, this);
@@ -44,7 +62,8 @@ void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisi
 
   // Align images
   std::vector<cv::Mat> aligned_images = {};
-  PhaseCorrelateAlignImageSequence(unaligned_images, aligned_images, reference_indice_, subsample_factor_);
+  PhaseCorrelateAlignImageSequence(unaligned_images, aligned_images, reference_indice_, subsample_factor_,
+                                   shifting_option_);
 
   // Publish aligned images
   std::vector<std::string> encoding_vec;

@@ -38,6 +38,8 @@
   <param name="cameras_to_decode_indices" type="string" value="0" />
   <param name="number_phases" type="int" value="12" />
   <param name="shading_threshold" type="int" value="80" />
+
+  <param name="colour_shading_enabled" type="bool" value="false" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
@@ -52,6 +54,8 @@
   <param name="crop_box_x_max" type="double" value="500.0" />
   <param name="crop_box_y_max" type="double" value="500.0" />
   <param name="crop_box_z_max" type="double" value="2000.0" />  
+
+  <param name="colour_shading_enabled" type="bool" value="false" />
 </node>		  
 
 <group if="$(arg visualise_point_cloud)">
