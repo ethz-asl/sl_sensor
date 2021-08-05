@@ -36,7 +36,7 @@ void ConvertImgArrToCvPtrVec(const sl_sensor_image_acquisition::ImageArrayConstP
 
 void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_mat_vec, const std::string& frame_id,
                      const ros::Time& array_timestamp, const ros::Time& image_timestamp,
-                     const std::vector<std::string>& encodings_vec)
+                     const std::vector<std::string>& encodings_vec, int number_cameras)
 {
   sl_sensor_image_acquisition::ImageArrayPtr output_message_ptr =
       boost::make_shared<sl_sensor_image_acquisition::ImageArray>();
@@ -44,6 +44,7 @@ void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_m
   output_message_ptr->header.stamp = array_timestamp;
   output_message_ptr->header.frame_id = frame_id;
   output_message_ptr->data.resize(cv_mat_vec.size(), sensor_msgs::Image());
+  output_message_ptr->number_cameras = number_cameras;
 
   std_msgs::Header image_header;
   image_header.stamp = image_timestamp;

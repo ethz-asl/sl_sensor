@@ -2,7 +2,7 @@
 
 <arg name="frame_id" doc="sl_sensor's frame id" default="sl_sensor" />
 <arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
-<arg name="save_point_cloud" doc="Save point clouds" default="false" />
+<arg name="save_point_cloud" doc="Save point clouds" default="true" />
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="primary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
@@ -63,7 +63,7 @@
 </node>		  
 
 <group if="$(arg visualise_point_cloud)">
-  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/show_pc.rviz" />	  
+  <include file="$(find sl_sensor)/launch/scaning_gui.launch" />
 </group>
 
 <group if="$(arg save_point_cloud)">

@@ -51,7 +51,6 @@
   <param name="output_topic" type="string" value="/triangulator/point_cloud" />
   <param name="primary_camera_parameters_filename" type="string" value="$(arg primary_camera_parameters_filename)" />
   <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
-  <param name="number_cameras" type="int" value="$(arg number_cameras)" />
   <param name="apply_crop_box" type="bool" value="true"/>
   <param name="crop_box_x_min" type="double" value="-500.0" />
   <param name="crop_box_y_min" type="double" value="-500.0" />

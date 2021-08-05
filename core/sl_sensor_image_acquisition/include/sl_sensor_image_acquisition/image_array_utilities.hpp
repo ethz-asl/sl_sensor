@@ -20,7 +20,7 @@ namespace image_acquisition
  * @param frame_id - Frame ID for message header
  */
 void PublishImageArray(ros::Publisher& publisher, const std::vector<sensor_msgs::ImageConstPtr>& image_ptr_vec,
-                       const ros::Time& timestamp, const std::string& frame_id, int number_cameras = 0);
+                       const ros::Time& timestamp, const std::string& frame_id, int number_cameras = 1);
 
 /**
  * @brief Convert an Image array message to a vector of cvImage for processing
@@ -44,7 +44,7 @@ void ConvertImgArrToCvPtrVec(const sl_sensor_image_acquisition::ImageArrayConstP
  */
 void PublishCvMatVec(ros::Publisher& publisher, const std::vector<cv::Mat>& cv_mat_vec, const std::string& frame_id,
                      const ros::Time& array_timestamp, const ros::Time& image_timestamp,
-                     const std::vector<std::string>& encodings_vec);
+                     const std::vector<std::string>& encodings_vec, int number_cameras = 1);
 
 }  // namespace image_acquisition
 

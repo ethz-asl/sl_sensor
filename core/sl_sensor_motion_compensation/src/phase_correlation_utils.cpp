@@ -85,7 +85,9 @@ void ApplyShiftsToImageSequence(const std::vector<cv::Mat> &input_image_sequence
     output_image_sequence.push_back(cv::Mat::zeros(input_image_sequence[i].size(), input_image_sequence[i].depth()));
 
     float x = shifts[i].x;
-    float y = shifts[i].y;
+    // float y = shifts[i].y;
+    float y = 0.0f;  // Temporary testing
+
     bool non_zero_shift = !(x == 0.0f && y == 0.0f);
 
     // std::cout << "Shifts: " << x << " | " << y << std::endl;
