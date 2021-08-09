@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen"
+        args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui.perspective">
+  </node>
+
+</launch>
