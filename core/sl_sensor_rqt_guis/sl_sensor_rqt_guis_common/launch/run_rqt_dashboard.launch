@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="perspective" default="mabi"/>
+
+  <node name="rqt_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen"
+        args="--perspective-file $(find mabi_rqt_guis_common)/rqt_perspectives/$(arg perspective).perspective">
+    <param name="/mabi_rqt_guis/log_topic" value="mabi_rqt_guis_log"/>
+    <param name="~control_frame" value="arm_mount"/>
+    <param name="~end_effector_frame" value="ENDEFFECTOR"/>
+  </node>
+
+</launch>

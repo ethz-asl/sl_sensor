@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+import sys
+
+from scanning_gui.my_module import MyPlugin
+from rqt_gui.main import Main
+
+plugin = 'scanning_gui'
+main = Main(filename=plugin)
+sys.exit(main.main(standalone=plugin))

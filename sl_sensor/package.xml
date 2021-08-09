@@ -20,6 +20,7 @@
   <depend>sl_sensor_projector</depend>	
   <depend>sl_sensor_reconstruction</depend>
   <depend>sl_sensor_registration</depend>	
+  <depend>sl_sensor_rqt_guis_common</depend>
   <depend>sl_sensor_slstudio</depend>
   <depend>sl_sensor_timer</depend>
   <depend>sl_sensor_visualise</depend>
