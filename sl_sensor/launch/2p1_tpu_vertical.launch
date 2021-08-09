@@ -37,7 +37,7 @@
   <param name="decoder_name" type="string" value="TwoPlusOneWithTpu" />
   <param name="cameras_to_decode_indices" type="string" value="0" />
   <param name="number_phases" type="int" value="12" />
-  <param name="shading_threshold" type="int" value="55" />
+  <param name="shading_threshold" type="int" value="100" />
 
   <param name="colour_shading_enabled" type="bool" value="false" />
 </node>		  

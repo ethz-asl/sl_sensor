@@ -1,0 +1,40 @@
+
+<launch>
+
+  <arg name="rviz" default="true" />
+  <arg name="start_delay" default="5.0" />  
+  <arg name="frame_id" doc="sl_sensor's frame id" default="sl_sensor" />
+
+  <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
+
+  <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
+
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
+    <param name="num_worker_threads" value="10" />
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
+    <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
+    <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="frame_id" type="string" value="$(arg frame_id)" />
+    <param name="lower_bound_tol" type="double" value="0.0166667" />
+    <param name="upper_bound_tol" type="double" value="0.0166667" />
+    <param name="image_trigger_period" type="double" value="0.03333333" />
+    <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
+    <param name="projector_service_name" type="string" value="/command_projector"/>    
+    <param name="image_topics" type="string" value="/versavis/cam2/image_raw" />
+    <!--param name="fixed_pattern_name" type="string" value="twoPlusOneTpuVertical" /-->
+    <param name="fixed_pattern_name" type="string" value="pspTpuVertical" />
+  </node>		  
+
+  <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
+
+  <node pkg="rosbag" type="record" name="rosbag_record"
+    args="record -o /home/ltf/rosbags/ /tf_static /tf /image_synchroniser/grouped_images" 
+    launch-prefix="bash -c 'sleep $(arg start_delay); $0 $@' "/>
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/record.rviz" />
+  </group>
+
+</launch>
