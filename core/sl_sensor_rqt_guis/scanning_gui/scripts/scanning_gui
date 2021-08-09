@@ -2,7 +2,7 @@
 
 import sys
 
-from scanning_gui.my_module import MyPlugin
+from scanning_gui.scanning import ScanningPlugin
 from rqt_gui.main import Main
 
 plugin = 'scanning_gui'

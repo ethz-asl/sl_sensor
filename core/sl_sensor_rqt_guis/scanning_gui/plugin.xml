@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="My Plugin" type="scanning_gui.my_module.MyPlugin" base_class_type="rqt_gui_py::Plugin">
+  <class name="Scanning GUI" type="scanning_gui.scanning.ScanningPlugin" base_class_type="rqt_gui_py::Plugin">
     <description>
       An example Python GUI plugin to create a great user interface.
     </description>
@@ -15,11 +15,10 @@
       <group>
         <label>SL Sensor</label>
         <icon type="theme">folder</icon>
-        <statustip>Plugins for SL Sensor.</statustip>
+        <statustip>Plugins for SL Sensor</statustip>
       </group>
-      <label>My first Python Plugin</label>
-      <icon type="theme">system-help</icon>
-      <statustip>Great user interface to provide real value.</statustip>
+      <label>Simple interface for scanning</label>
+      <icon type="theme">media-playback-start</icon>
     </qtgui>
   </class>
 </library>

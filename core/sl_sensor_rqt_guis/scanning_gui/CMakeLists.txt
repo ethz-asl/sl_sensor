@@ -3,6 +3,7 @@ project(scanning_gui)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  rqt_gui
   rqt_gui_py
 )
 
