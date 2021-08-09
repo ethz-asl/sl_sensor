@@ -3,19 +3,16 @@
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
-#include <boost/thread/thread.hpp>
 
-#include "sl_sensor_image_acquisition/ImageArray.h"
+#include <sl_sensor_image_acquisition/ImageArray.h>
+
+#include "sl_sensor_logger/logger_nodelet.hpp"
 
 namespace sl_sensor
 {
-namespace image_acquisition
+namespace logger
 {
-/**
- * @brief Nodelet that saves the images in the image array that it receives
- *
- */
-class ImageArrayLoggerNodelet : public nodelet::Nodelet
+class ImageArrayLoggerNodelet : public sl_sensor::logger::LoggerNodelet
 {
 public:
   ImageArrayLoggerNodelet();
@@ -27,15 +24,12 @@ private:
   std::string file_header_ = "";
   const std::string file_format_ = ".bmp";
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
-
-  virtual void onInit();
+  virtual void onInit() override;
 
   void ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr image_arr_ptr);
 };
 
-}  // namespace image_acquisition
+}  // namespace logger
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::image_acquisition::ImageArrayLoggerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::ImageArrayLoggerNodelet, sl_sensor::logger::LoggerNodelet);

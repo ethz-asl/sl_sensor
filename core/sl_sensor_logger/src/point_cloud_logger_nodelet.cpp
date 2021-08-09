@@ -1,4 +1,4 @@
-#include "sl_sensor_reconstruction/point_cloud_logger_nodelet.hpp"
+#include "sl_sensor_logger/point_cloud_logger_nodelet.hpp"
 
 #include <cv_bridge/cv_bridge.h>
 #include <pcl/filters/crop_box.h>
@@ -13,15 +13,14 @@ using namespace sl_sensor::image_acquisition;
 
 namespace sl_sensor
 {
-namespace reconstruction
+namespace logger
 {
 PointCloudLoggerNodelet::PointCloudLoggerNodelet(){};
 
 void PointCloudLoggerNodelet::onInit()
 {
-  // Get node handles
-  nh_ = getNodeHandle();
-  private_nh_ = getPrivateNodeHandle();
+  // Call Base class onInit()
+  LoggerNodelet::onInit();
 
   // Obtain information from private node handle
   private_nh_.param<std::string>("input_topic", pc_sub_topic_, pc_sub_topic_);
@@ -34,18 +33,21 @@ void PointCloudLoggerNodelet::onInit()
 
 void PointCloudLoggerNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr)
 {
-  pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
+  if (enabled_)
+  {
+    pcl::PCLPointCloud2 pcl_pc2;
+    pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
 
-  std::string array_time = std::to_string(pc_msg_ptr->header.stamp.toNSec());
-  std::string final_pc_full_directory =
-      save_folder_ + header_ + "_" + array_time + "_" + std::to_string(counter_) + ".pcd";
+    std::string array_time = std::to_string(pc_msg_ptr->header.stamp.toNSec());
+    std::string final_pc_full_directory =
+        save_folder_ + header_ + "_" + array_time + "_" + std::to_string(counter_) + ".pcd";
 
-  pcl::PCDWriter file_writer;
-  file_writer.write(final_pc_full_directory, pcl_pc2);
+    pcl::PCDWriter file_writer;
+    file_writer.write(final_pc_full_directory, pcl_pc2);
 
-  counter_++;
+    counter_++;
+  }
 };
 
-}  // namespace reconstruction
+}  // namespace logger
 }  // namespace sl_sensor

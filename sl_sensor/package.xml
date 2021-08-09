@@ -16,6 +16,7 @@
   <depend>sl_sensor_conversions</depend>
   <depend>sl_sensor_image_acquisition</depend>	
   <depend>sl_sensor_io</depend>
+  <depend>sl_sensor_logger</depend>	
   <depend>sl_sensor_motion_compensation</depend>	
   <depend>sl_sensor_projector</depend>	
   <depend>sl_sensor_reconstruction</depend>

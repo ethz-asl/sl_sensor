@@ -1,31 +1,25 @@
 #pragma once
 
-#include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <memory>
 
+#include "sl_sensor_logger/logger_nodelet.hpp"
+
 namespace sl_sensor
 {
-namespace reconstruction
+namespace logger
 {
-/**
- * @brief Nodelet that saves point clouds
- *
- */
-class PointCloudLoggerNodelet : public nodelet::Nodelet
+class PointCloudLoggerNodelet : public sl_sensor::logger::LoggerNodelet
 {
 public:
   PointCloudLoggerNodelet();
 
 private:
-  virtual void onInit();
+  virtual void onInit() override;
 
   void PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr);
-
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
 
   ros::Subscriber pc_sub_;
 
@@ -36,7 +30,7 @@ private:
   unsigned int counter_ = 0;
 };
 
-}  // namespace reconstruction
+}  // namespace logger
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::reconstruction::PointCloudLoggerNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::PointCloudLoggerNodelet, sl_sensor::logger::LoggerNodelet);
