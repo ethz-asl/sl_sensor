@@ -7,11 +7,11 @@
     <param name="service_name" type="string" value="/enable_log_pc" />
     <param name="log_topic" type="string" value="/triangulator/point_cloud" />
     <param name="initially_enabled" type="bool" value="$(arg save_point_cloud)" />
-    <param name="log_directory" type="string" value="$(find sl_sensor)/saved_point_cloud/" />
+    <param name="log_directory" type="string" value="$(find sl_sensor)/saved_point_clouds/" />
     <param name="file_header" type="string" value="$(arg save_header)" />
   </node>		  
 
-  <node pkg="nodelet" type="nodelet" name="image_array_logger" args="load sl_sensor_logger/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
+  <node pkg="nodelet" type="nodelet" name="image_logger" args="load sl_sensor_logger/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
     <param name="service_name" type="string" value="/enable_log_image" />
     <param name="log_topic" type="string" value="/image_synchroniser/grouped_images" />
     <param name="initially_enabled" type="bool" value="$(arg save_images)" />

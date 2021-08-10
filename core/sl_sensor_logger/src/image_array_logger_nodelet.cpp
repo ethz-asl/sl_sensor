@@ -18,9 +18,9 @@ void ImageArrayLoggerNodelet::onInit()
   LoggerNodelet::onInit();
 
   // Get key information from ROS params
-  private_nh_.param<std::string>("save_folder", log_directory_, log_directory_);
-  private_nh_.param<std::string>("header", file_header_, file_header_);
-  private_nh_.param<std::string>("input_topic", image_array_sub_topic_, image_array_sub_topic_);
+  private_nh_.param<std::string>("log_directory", log_directory_, log_directory_);
+  private_nh_.param<std::string>("file_header", file_header_, file_header_);
+  private_nh_.param<std::string>("log_topic", image_array_sub_topic_, image_array_sub_topic_);
 
   // Set up subscriber
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &ImageArrayLoggerNodelet::ImageArrayCb, this);

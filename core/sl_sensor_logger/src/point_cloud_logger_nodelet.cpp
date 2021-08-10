@@ -23,9 +23,9 @@ void PointCloudLoggerNodelet::onInit()
   LoggerNodelet::onInit();
 
   // Obtain information from private node handle
-  private_nh_.param<std::string>("input_topic", pc_sub_topic_, pc_sub_topic_);
-  private_nh_.param<std::string>("save_folder", save_folder_, save_folder_);
-  private_nh_.param<std::string>("header", header_, header_);
+  private_nh_.param<std::string>("log_topic", pc_sub_topic_, pc_sub_topic_);
+  private_nh_.param<std::string>("log_directory", save_folder_, save_folder_);
+  private_nh_.param<std::string>("file_header", header_, header_);
 
   // Setup publisher and subscriber
   pc_sub_ = nh_.subscribe(pc_sub_topic_, 10, &PointCloudLoggerNodelet::PointCloudCb, this);
