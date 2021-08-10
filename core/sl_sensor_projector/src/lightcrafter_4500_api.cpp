@@ -5,7 +5,6 @@
 #include <dlpc350_firmware.h>
 #include <dlpc350_usb.h>
 #include <dlpc350_version.h>
-#include <usb.h>
 
 #include <chrono>
 #include <thread>
