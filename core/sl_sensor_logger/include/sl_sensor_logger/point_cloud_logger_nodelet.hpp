@@ -1,5 +1,6 @@
 #pragma once
 
+#include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -33,4 +34,4 @@ private:
 }  // namespace logger
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::PointCloudLoggerNodelet, sl_sensor::logger::LoggerNodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::PointCloudLoggerNodelet, nodelet::Nodelet);

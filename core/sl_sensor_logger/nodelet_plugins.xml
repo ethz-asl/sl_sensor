@@ -11,7 +11,7 @@
 <library path="lib/libsl_sensor_logger">
   <class name="sl_sensor_logger/ImageArrayLoggerNodelet"
          type="sl_sensor::logger::ImageArrayLoggerNodelet"
-         base_class_type="sl_sensor::logger::LoggerNodelet">
+         base_class_type="nodelet::Nodelet">
   </class>
   <description>
   Frame Array Logger nodelet.
@@ -21,7 +21,7 @@
 <library path="lib/libsl_sensor_logger">
   <class name="sl_sensor_logger/PointCloudLoggerNodelet"
          type="sl_sensor::logger::PointCloudLoggerNodelet"
-         base_class_type="sl_sensor::logger::LoggerNodelet">
+         base_class_type="nodelet::Nodelet">
   </class>
   <description>
   Point Cloud Logger nodelet.

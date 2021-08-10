@@ -38,7 +38,6 @@
   <param name="pattern_direction" type="string" value="$(arg pattern_direction)" />
 </node>		  
 
-
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <param name="input_topic" type="string" value="/linear_motion_compensation/aligned_images" />
   <param name="output_topic" type="string" value="/image_synchroniser/decoded_images" />

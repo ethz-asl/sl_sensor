@@ -32,4 +32,4 @@ private:
 }  // namespace logger
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::ImageArrayLoggerNodelet, sl_sensor::logger::LoggerNodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::ImageArrayLoggerNodelet, nodelet::Nodelet);
