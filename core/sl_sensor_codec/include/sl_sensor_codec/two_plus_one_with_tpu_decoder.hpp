@@ -16,7 +16,7 @@ class TwoPlusOneWithTpuDecoder : public Decoder
 public:
   TwoPlusOneWithTpuDecoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
                            unsigned int number_phases);
-  TwoPlusOneWithTpuDecoder(ros::NodeHandle nh);
+  TwoPlusOneWithTpuDecoder(const YAML::Node& node);
   virtual void DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& mask, cv::Mat& shading) override;
 
 private:
@@ -25,6 +25,7 @@ private:
 
   int number_phases_ = 1;
   int shading_threshold_ = 55;
+  int average_value_ = 0.6;
 };
 }  // namespace codec
 }  // namespace sl_sensor

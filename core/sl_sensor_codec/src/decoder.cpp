@@ -11,9 +11,9 @@ Decoder::Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirect
 {
 }
 
-Decoder::Decoder(ros::NodeHandle nh)
+Decoder::Decoder(const YAML::Node& node)
 {
-  InitFromRosNodeHandle(nh);
+  InitFromYAMLNode(node);
 }
 
 unsigned int Decoder::GetNumberPatterns() const
@@ -31,9 +31,9 @@ void Decoder::SetFrames(std::vector<cv::Mat>& frames)
   frames_ = std::move(frames);
 }
 
-void Decoder::InitFromRosNodeHandle(ros::NodeHandle nh)
+void Decoder::InitFromYAMLNode(const YAML::Node& node)
 {
-  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
+  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromYAMLNode(node);
   screen_rows_ = std::get<0>(result);
   screen_cols_ = std::get<1>(result);
   direction_ = std::get<2>(result);

@@ -11,9 +11,10 @@ Encoder::Encoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirect
 {
 }
 
-Encoder::Encoder(ros::NodeHandle nh)
+Encoder::Encoder(const YAML::Node &node)
+
 {
-  InitFromRosNodeHandle(nh);
+  InitFromYAMLNode(node);
 }
 
 unsigned int Encoder::GetNumberPatterns() const
@@ -43,9 +44,9 @@ std::vector<cv::Mat> Encoder::GetEncodingPatterns() const
   return result;
 }
 
-void Encoder::InitFromRosNodeHandle(ros::NodeHandle nh)
+void Encoder::InitFromYAMLNode(const YAML::Node &node)
 {
-  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
+  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromYAMLNode(node);
   screen_rows_ = std::get<0>(result);
   screen_cols_ = std::get<1>(result);
   direction_ = std::get<2>(result);

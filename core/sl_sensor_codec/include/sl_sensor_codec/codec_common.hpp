@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <yaml-cpp/yaml.h>
 
 namespace sl_sensor
 {
@@ -14,7 +14,7 @@ enum class CodecDirection
   kBoth = kHorizontal | kVertical
 };
 
-std::tuple<unsigned int, unsigned int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros::NodeHandle nh);
+std::tuple<unsigned int, unsigned int, CodecDirection> GetBasicCodecInformationFromYAMLNode(const YAML::Node& node);
 
 }  // namespace codec
 }  // namespace sl_sensor

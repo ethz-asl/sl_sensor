@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,17 +22,17 @@ namespace codec
 class CodecFactory
 {
 public:
-  static std::unique_ptr<Encoder> GetInstanceEncoder(const std::string& encoder_name, ros::NodeHandle nh)
+  static std::unique_ptr<Encoder> GetInstanceEncoder(const std::string& encoder_name, const YAML::Node& node)
   {
     std::unique_ptr<Encoder> output_ptr;
 
     if (encoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(nh);
+      output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(node);
     }
     else if (encoder_name == codec_names_[1])
     {
-      output_ptr = std::make_unique<TwoPlusOneWithTpuEncoder>(nh);
+      output_ptr = std::make_unique<TwoPlusOneWithTpuEncoder>(node);
     }
     else
     {
@@ -43,17 +42,17 @@ public:
     return std::move(output_ptr);
   };
 
-  static std::unique_ptr<Decoder> GetInstanceDecoder(const std::string& decoder_name, ros::NodeHandle nh)
+  static std::unique_ptr<Decoder> GetInstanceDecoder(const std::string& decoder_name, const YAML::Node& node)
   {
     std::unique_ptr<Decoder> output_ptr;
 
     if (decoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(nh);
+      output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(node);
     }
     else if (decoder_name == codec_names_[1])
     {
-      output_ptr = std::make_unique<TwoPlusOneWithTpuDecoder>(nh);
+      output_ptr = std::make_unique<TwoPlusOneWithTpuDecoder>(node);
     }
     else
     {

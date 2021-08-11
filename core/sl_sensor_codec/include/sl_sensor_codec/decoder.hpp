@@ -26,12 +26,7 @@ public:
    */
   Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir = CodecDirection::kHorizontal);
 
-  /**
-   * @brief Constructor using a ROS node handle
-   *
-   * @param nh
-   */
-  Decoder(ros::NodeHandle nh);
+  Decoder(const YAML::Node &node);
 
   /**
    * @brief Get number of patterns in the sequence
@@ -85,7 +80,7 @@ protected:
    *
    * @param nh
    */
-  void InitFromRosNodeHandle(ros::NodeHandle nh);
+  void InitFromYAMLNode(const YAML::Node &node);
 };
 
 }  // namespace codec

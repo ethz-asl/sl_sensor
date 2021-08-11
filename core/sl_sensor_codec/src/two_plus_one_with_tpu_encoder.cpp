@@ -16,13 +16,14 @@ TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(unsigned int screen_cols, uns
   GeneratePatterns();
 }
 
-TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(ros::NodeHandle nh) : Encoder(nh)
+TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(const YAML::Node &node) : Encoder(node)
 {
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
 
-  nh.param<int>("number_phases", number_phases_, number_phases_);
-  nh.param<double>("average_value", average_value_, average_value_);
-  nh.param<double>("modulation_intensity", modulation_intensity_, modulation_intensity_);
+  number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
+  average_value_ = (node["average_value"]) ? node["average_value"].as<double>() : average_value_;
+  modulation_intensity_ =
+      (node["modulation_intensity"]) ? node["modulation_intensity"].as<double>() : modulation_intensity_;
 
   GeneratePatterns();
 }

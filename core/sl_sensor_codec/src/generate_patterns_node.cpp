@@ -10,6 +10,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <yaml-cpp/yaml.h>
 #include <experimental/filesystem>
 
 using namespace sl_sensor::codec;
@@ -31,12 +32,22 @@ int main(int argc, char** argv)
 
   std::string projector_yaml_directory;
   std::string save_folder;
+  std::string codec_yaml_directory;
   std::string projector_parameters_file;
   std::vector<std::string> encoder_names = CodecFactory::GetAllCodecNames();
 
   private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
   private_nh.param<std::string>("save_folder", save_folder, save_folder);
   private_nh.param<std::string>("projector_parameters_file", projector_parameters_file, projector_parameters_file);
+  private_nh.param<std::string>("codec_yaml_directory", codec_yaml_directory, codec_yaml_directory);
+
+  // Load YAML node and set some information from private node handle required to set up a decoder
+  YAML::Node node = YAML::LoadFile(codec_yaml_directory);
+
+  if (!node)
+  {
+    ROS_WARN("[GeneratePatternsNode] Failed to load YAML file with codec information");
+  }
 
   // Load Projector params
   unsigned int screen_cols, screen_rows;
@@ -81,10 +92,12 @@ int main(int argc, char** argv)
     // for one direction). The rationale is that if you want to perform hardware triggering, the less BGR images you
     // have to load, the better.
 
-    private_nh.setParam("direction", "horizontal");
-    auto horz_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, private_nh);
-    private_nh.setParam("direction", "vertical");
-    auto vert_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, private_nh);
+    node[encoder_name]["projector_yaml_directory"] = projector_yaml_directory;
+
+    node[encoder_name]["direction"] = "horizontal";
+    auto horz_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node);
+    node[encoder_name]["direction"] = "vertical";
+    auto vert_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node);
 
     if (!horz_encoder_ptr || !vert_encoder_ptr)
     {

@@ -16,7 +16,7 @@ class PhaseShiftWithTpuEncoder : public Encoder
 public:
   PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
                            unsigned int number_phases);
-  PhaseShiftWithTpuEncoder(ros::NodeHandle nh);
+  PhaseShiftWithTpuEncoder(const YAML::Node &node);
 
 private:
   int number_phases_ = 1;

@@ -16,7 +16,7 @@ class TwoPlusOneWithTpuEncoder : public Encoder
 public:
   TwoPlusOneWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
                            unsigned int number_phases);
-  TwoPlusOneWithTpuEncoder(ros::NodeHandle nh);
+  TwoPlusOneWithTpuEncoder(const YAML::Node &node);
 
 private:
   int number_phases_ = 1;

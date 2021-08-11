@@ -3,6 +3,7 @@
 #include "sl_sensor_codec/codec_factory.hpp"
 
 #include <cv_bridge/cv_bridge.h>
+#include <yaml-cpp/yaml.h>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
 namespace sl_sensor
@@ -53,9 +54,32 @@ void DecoderNodelet::onInit()
   private_nh_.param<bool>("colour_shading_enabled", colour_shading_enabled_, colour_shading_enabled_);
   private_nh_.param<int>("colour_image_index", colour_image_index_, colour_image_index_);
   private_nh_.param<int>("colour_camera_index", colour_camera_index_, colour_camera_index_);
+  private_nh_.param<std::string>("codec_yaml_directory", codec_yaml_directory_, codec_yaml_directory_);
+  private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
+  private_nh_.param<std::string>("direction", direction_, direction_);
+
+  // Load YAML node and set some information from private node handle required to set up a decoder
+  YAML::Node node = YAML::LoadFile(codec_yaml_directory_);
+
+  if (!node)
+  {
+    ROS_WARN("[DecoderNodelet] Failed to load YAML file with codec information");
+  }
+  else
+  {
+    if (!node[decoder_name_])
+    {
+      std::string warning =
+          "[DecoderNodelet] Codec YAML file does not have an entry with the decoder name " + decoder_name_;
+      ROS_WARN("%s", warning.c_str());
+    }
+
+    node[decoder_name_]["direction"] = direction_;
+    node[decoder_name_]["projector_yaml_directory"] = projector_yaml_directory_;
+  }
 
   // Generate Decoder
-  decoder_ptr_ = CodecFactory::GetInstanceDecoder(decoder_name_, private_nh_);
+  decoder_ptr_ = CodecFactory::GetInstanceDecoder(decoder_name_, node);
 
   // Setup publisher and subscriber
   decoded_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(decoded_pub_topic_, 10);

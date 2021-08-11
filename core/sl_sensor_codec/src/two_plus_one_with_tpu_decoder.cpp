@@ -16,10 +16,11 @@ TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(unsigned int screen_cols, uns
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
 }
 
-TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(ros::NodeHandle nh) : Decoder(nh)
+TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(const YAML::Node& node) : Decoder(node)
 {
-  nh.param<int>("number_phases", number_phases_, number_phases_);
-  nh.param<int>("shading_threshold", shading_threshold_, shading_threshold_);
+  number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
+  shading_threshold_ = (node["shading_threshold"]) ? node["shading_threshold"].as<double>() : shading_threshold_;
+  average_value_ = (node["average_value"]) ? node["average_value"].as<double>() : average_value_;
 
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
@@ -52,7 +53,7 @@ void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& m
   }
 
   // Calculate modulation
-  shading = 2.0f * frames_[1];
+  shading = (1.0f / average_value_) * frames_[1];
 
   // Generate shading
   mask = shading > shading_threshold_;

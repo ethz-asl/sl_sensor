@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <yaml-cpp/yaml.h>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
@@ -26,12 +26,7 @@ public:
    */
   Encoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection direction_ = CodecDirection::kHorizontal);
 
-  /**
-   * @brief Constructor using a ROS node handle
-   *
-   * @param nh
-   */
-  Encoder(ros::NodeHandle nh);
+  Encoder(const YAML::Node &node);
 
   /**
    * @brief Get number of patterns in the sequence
@@ -92,12 +87,7 @@ protected:
   CodecDirection direction_;
   std::vector<cv::Mat> patterns_;
 
-  /**
-   * @brief Retrieves basic Encoder information using ROS node handles
-   *
-   * @param nh
-   */
-  void InitFromRosNodeHandle(ros::NodeHandle nh);
+  void InitFromYAMLNode(const YAML::Node &node);
 };
 
 }  // namespace codec

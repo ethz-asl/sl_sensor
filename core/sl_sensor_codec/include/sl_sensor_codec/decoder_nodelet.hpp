@@ -35,6 +35,9 @@ private:
   std::string image_array_sub_topic_ = "/grouped_images_input";
   std::string decoded_pub_topic_ = "/decoded_images_output";
   std::string decoder_name_ = "";
+  std::string codec_yaml_directory_ = "";
+  std::string direction_ = "";
+  std::string projector_yaml_directory_ = "";
 
   std::unique_ptr<Decoder> decoder_ptr_;
 
