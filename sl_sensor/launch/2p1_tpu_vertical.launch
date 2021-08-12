@@ -17,16 +17,11 @@
 </node>
 
 <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
-  <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
-  <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
   <param name="frame_id" type="string" value="$(arg frame_id)" />
-  <param name="lower_bound_tol" type="double" value="0.0166667" />
-  <param name="upper_bound_tol" type="double" value="0.0166667" />
-  <param name="image_trigger_period" type="double" value="0.03333333" />
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
-  <param name="projector_service_name" type="string" value="/command_projector"/>    
   <param name="image_topics" type="string" value="/versavis/cam2/image_raw" />
   <param name="fixed_pattern_name" type="string" value="two_plus_one_tpu_vertical" />
+  <rosparam command="load" file="$(find sl_sensor_image_synchroniser)/param/default_parameters.yaml" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
@@ -36,27 +31,13 @@
   <param name="direction" type="string" value="vertical" />
   <param name="decoder_name" type="string" value="TwoPlusOneWithTpu" />
   <param name="cameras_to_decode_indices" type="string" value="0" />
-  <param name="number_phases" type="int" value="12" />
-  <param name="shading_threshold" type="int" value="100" />
-
   <param name="colour_shading_enabled" type="bool" value="false" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
-  <param name="input_topic" type="string" value="/image_synchroniser/decoded_images" />
-  <param name="output_topic" type="string" value="/triangulator/point_cloud" />
   <param name="primary_camera_parameters_filename" type="string" value="$(arg primary_camera_parameters_filename)" />
   <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
-  <param name="apply_crop_box" type="bool" value="true"/>
-  <param name="crop_box_x_min" type="double" value="-500.0" />
-  <param name="crop_box_y_min" type="double" value="-500.0" />
-  <param name="crop_box_z_min" type="double" value="0.0" />
-  <param name="crop_box_x_max" type="double" value="500.0" />
-  <param name="crop_box_y_max" type="double" value="500.0" />
-  <param name="crop_box_z_max" type="double" value="2000.0" />  
-
-  <param name="colour_shading_enabled" type="bool" value="false" />
-
+  <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
 </node>		  
 
 <group if="$(arg visualise_point_cloud)">

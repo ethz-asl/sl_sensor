@@ -1,0 +1,10 @@
+input_topic: "/image_synchroniser/decoded_images"
+output_topic: "/triangulator/point_cloud"
+apply_crop_box: true
+crop_box_x_min: -500.0
+crop_box_y_min: -500.0
+crop_box_z_min: 0.0
+crop_box_x_max: 500.0
+crop_box_y_max: 500.0
+crop_box_z_max: 2000.0
+colour_shading_enabled: false

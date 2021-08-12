@@ -1,0 +1,5 @@
+projector_topic: "/versavis/projector/image_time" 
+output_topic: "/image_synchroniser/grouped_images"
+lower_bound_tol: 0.0166667
+upper_bound_tol: 0.0166667
+image_trigger_period: 0.03333333

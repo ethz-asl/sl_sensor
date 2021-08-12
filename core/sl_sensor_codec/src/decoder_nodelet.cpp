@@ -79,7 +79,7 @@ void DecoderNodelet::onInit()
   }
 
   // Generate Decoder
-  decoder_ptr_ = CodecFactory::GetInstanceDecoder(decoder_name_, node);
+  decoder_ptr_ = CodecFactory::GetInstanceDecoder(decoder_name_, node[decoder_name_]);
 
   // Setup publisher and subscriber
   decoded_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(decoded_pub_topic_, 10);

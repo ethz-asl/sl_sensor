@@ -1,0 +1,5 @@
+input_topic: "/image_synchroniser/grouped_images"
+output_topic: "/linear_motion_compensation/aligned_images"
+reference_indice: 1 # Align all images to the second one in the sequence
+subsample_factor: 1.0 # Amount to subsample images before applying phase correlation image registration
+

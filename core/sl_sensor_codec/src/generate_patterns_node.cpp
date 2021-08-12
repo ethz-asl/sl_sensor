@@ -95,9 +95,9 @@ int main(int argc, char** argv)
     node[encoder_name]["projector_yaml_directory"] = projector_yaml_directory;
 
     node[encoder_name]["direction"] = "horizontal";
-    auto horz_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node);
+    auto horz_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node[encoder_name]);
     node[encoder_name]["direction"] = "vertical";
-    auto vert_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node);
+    auto vert_encoder_ptr = CodecFactory::GetInstanceEncoder(encoder_name, node[encoder_name]);
 
     if (!horz_encoder_ptr || !vert_encoder_ptr)
     {
