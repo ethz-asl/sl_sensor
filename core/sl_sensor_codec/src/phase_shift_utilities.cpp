@@ -8,7 +8,7 @@ namespace sl_sensor
 namespace codec
 {
 // Cosine function vector (3-channel)
-cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_value,
+cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_intensity,
                            double modulation_intensity)
 {
   cv::Mat phase_vector(length, 1, CV_8UC3);
@@ -17,7 +17,7 @@ cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double
   for (int i = 0; i < phase_vector.rows; i++)
   {
     float amp =
-        std::clamp((float)(average_value + modulation_intensity * cos(2 * M_PI * i / pitch - phase)), 0.0f, 1.0f);
+        std::clamp((float)(average_intensity + modulation_intensity * cos(2 * M_PI * i / pitch - phase)), 0.0f, 1.0f);
     phase_vector.at<cv::Vec3b>(i, 0) = cv::Vec3b(255.0 * amp, 255.0 * amp, 255.0 * amp);
   }
 

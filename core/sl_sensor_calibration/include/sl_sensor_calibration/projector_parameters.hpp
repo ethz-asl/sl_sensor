@@ -8,5 +8,4 @@ namespace calibration
 {
 typedef IntrinsicParameters ProjectorParameters;
 }  // namespace calibration
-
 }  // namespace sl_sensor

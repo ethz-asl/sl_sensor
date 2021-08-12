@@ -20,7 +20,7 @@ public:
 
 private:
   int number_phases_ = 1;
-  double average_value_ = 0.5;
+  double average_intensity_ = 0.5;
   double modulation_intensity_ = 0.5;
   void GeneratePatterns();
 };

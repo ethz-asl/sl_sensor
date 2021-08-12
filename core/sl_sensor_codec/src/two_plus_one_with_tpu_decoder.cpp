@@ -20,7 +20,7 @@ TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(const YAML::Node& node) : Dec
 {
   number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
   shading_threshold_ = (node["shading_threshold"]) ? node["shading_threshold"].as<double>() : shading_threshold_;
-  average_value_ = (node["average_value"]) ? node["average_value"].as<double>() : average_value_;
+  average_intensity_ = (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
 
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
@@ -53,7 +53,7 @@ void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& m
   }
 
   // Calculate modulation
-  shading = (1.0f / average_value_) * frames_[1];
+  shading = (1.0f / average_intensity_) * frames_[1];
 
   // Generate shading
   mask = shading > shading_threshold_;

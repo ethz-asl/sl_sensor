@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "sl_sensor_codec/calibration_decoder.hpp"
+#include "sl_sensor_codec/calibration_encoder.hpp"
 #include "sl_sensor_codec/decoder.hpp"
 #include "sl_sensor_codec/encoder.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_decoder.hpp"
@@ -28,15 +30,19 @@ public:
 
     if (encoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(node);
+      output_ptr = std::make_unique<CalibrationEncoder>(node);
     }
     else if (encoder_name == codec_names_[1])
+    {
+      output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(node);
+    }
+    else if (encoder_name == codec_names_[2])
     {
       output_ptr = std::make_unique<TwoPlusOneWithTpuEncoder>(node);
     }
     else
     {
-      ROS_INFO("[CodecFactory] Invalid Encoder name, returning empty pointer");
+      std::cout << "[CodecFactory] Invalid Encoder name, returning empty pointer" << std::endl;
     }
 
     return std::move(output_ptr);
@@ -48,15 +54,19 @@ public:
 
     if (decoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(node);
+      output_ptr = std::make_unique<CalibrationDecoder>(node);
     }
     else if (decoder_name == codec_names_[1])
+    {
+      output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(node);
+    }
+    else if (decoder_name == codec_names_[2])
     {
       output_ptr = std::make_unique<TwoPlusOneWithTpuDecoder>(node);
     }
     else
     {
-      ROS_INFO("[CodecFactory] Invalid Decoder name, returning empty pointer");
+      std::cout << "[CodecFactory] Invalid Decoder name, returning empty pointer" << std::endl;
     }
 
     return std::move(output_ptr);
@@ -71,7 +81,8 @@ private:
   static const std::vector<std::string> codec_names_;
 };
 
-const std::vector<std::string> CodecFactory::codec_names_ = { "PhaseShiftWithTpu", "TwoPlusOneWithTpu" };
+const std::vector<std::string> CodecFactory::codec_names_ = { "calibration", "phase_shift_with_tpu",
+                                                              "two_plus_one_with_tpu" };
 
 }  // namespace codec
 }  // namespace sl_sensor

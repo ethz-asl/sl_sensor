@@ -21,7 +21,7 @@ TwoPlusOneWithTpuEncoder::TwoPlusOneWithTpuEncoder(const YAML::Node &node) : Enc
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
 
   number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
-  average_value_ = (node["average_value"]) ? node["average_value"].as<double>() : average_value_;
+  average_intensity_ = (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
   modulation_intensity_ =
       (node["modulation_intensity"]) ? node["modulation_intensity"].as<double>() : modulation_intensity_;
 
@@ -32,7 +32,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
 {
   // Initialise flat pattern
   cv::Mat flat_pattern(5, 5, CV_8UC3);
-  flat_pattern.setTo(average_value_ * 255.0);
+  flat_pattern.setTo(average_intensity_ * 255.0);
 
   if (direction_ == CodecDirection::kHorizontal || direction_ == CodecDirection::kBoth)
   {
@@ -42,7 +42,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
       float phase = M_PI / 2.0 * i;
       float pitch = (float)screen_cols_ / (float)number_phases_;
       cv::Mat pattern(1, 1, CV_8U);
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_value_, modulation_intensity_);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_intensity_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -53,7 +53,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
       float phase = M_PI / 2.0 * i;
       float pitch = screen_cols_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_value_, modulation_intensity_);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_intensity_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -70,7 +70,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
       float phase = M_PI / 2.0 * i;
       float pitch = (float)screen_rows_ / (float)number_phases_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_value_, modulation_intensity_);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_intensity_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
 
@@ -80,7 +80,7 @@ void TwoPlusOneWithTpuEncoder::GeneratePatterns()
       float phase = M_PI / 2.0 * i;
       float pitch = screen_rows_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_value_, modulation_intensity_);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_intensity_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
 

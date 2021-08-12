@@ -25,7 +25,7 @@ private:
 
   int number_phases_ = 1;
   int shading_threshold_ = 55;
-  int average_value_ = 0.6;
+  int average_intensity_ = 0.6;
 };
 }  // namespace codec
 }  // namespace sl_sensor
