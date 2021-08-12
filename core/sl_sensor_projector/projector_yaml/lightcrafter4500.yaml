@@ -1,6 +1,7 @@
 properties:
     diamond_pixel: true
     resolution: [912, 1140]
+    service_name: "/command_projector"
 
 default_settings:
   default_rgb: &default_rgb [200, 200, 200]

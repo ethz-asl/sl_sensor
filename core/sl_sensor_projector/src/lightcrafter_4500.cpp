@@ -194,8 +194,6 @@ bool Lightcrafter4500::ProjectSinglePattern(const std::string& pattern_name, int
                                        proj_config_["patterns"][pattern_name]["exposure_us"].as<unsigned int>() :
                                        backup_exposure_period_us_;
 
-  // std::cout << "Exposure: " << exposure_period << std::endl;
-
   int status = projector_.PlayPatternSequence(pattern_vec, exposure_period, frame_period);
 
   return (status < 0) ? false : true;
@@ -211,17 +209,6 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
   SetLed(pattern_name);
 
   std::vector<LightcrafterSinglePattern> pattern_vec = GetPatternSequence(pattern_name);
-
-  /**
-  int counter = 0;
-  for (const auto& pattern : pattern_vec)
-  {
-    counter++;
-
-    std::cout << counter << ")" << std::endl;
-    std::cout << pattern << std::endl;
-  }
-  **/
 
   unsigned int exposure_period, frame_period;
   exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposure_us"] ?
@@ -333,6 +320,16 @@ LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& 
   // std::cout << single_pattern << std::endl;
 
   return single_pattern;
+}
+
+std::string Lightcrafter4500::GetServiceName()
+{
+  return GetServiceName(proj_config_);
+}
+
+std::string Lightcrafter4500::GetServiceName(const YAML::Node& config)
+{
+  return (config["properties"]["service_name"]) ? config["properties"]["service_name"].as<std::string>() : "";
 }
 
 }  // namespace projector

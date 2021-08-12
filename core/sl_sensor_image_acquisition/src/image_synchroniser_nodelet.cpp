@@ -32,7 +32,6 @@ void ImageSynchroniserNodelet::onInit()
   private_nh_.param<std::string>("frame_id", frame_id_, frame_id_);
 
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
-  private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
 
   private_nh_.param<std::string>("fixed_pattern_name", fixed_pattern_name_, fixed_pattern_name_);
 
@@ -50,9 +49,9 @@ void ImageSynchroniserNodelet::onInit()
   // Setup and initialise ImageGroupers, one for each camera / image topic provided
   for (const auto& topic : image_topics)
   {
+    // We set images per group to 1 for now, will be set based on service request message
     auto temp_grouper_ptr =
         std::make_unique<ImageGrouper>(topic, 1, image_trigger_period_, lower_bound_tol_, upper_bound_tol_);
-    // We set images per group to 1 for now, will be set based on service request message
     image_grouper_ptrs_.push_back(std::move(temp_grouper_ptr));
   }
 
@@ -64,7 +63,12 @@ void ImageSynchroniserNodelet::onInit()
   // Load Projector Config
   projector_config_ = YAML::LoadFile(projector_yaml_directory_);
 
-  // Init Service Client to projector
+  // Init Service Client to projector, the projector service name is retrieved from the Projector YAML file
+  projector_service_name_ = projector::Lightcrafter4500::GetServiceName(projector_config_);
+  if (projector_service_name_.empty())
+  {
+    ROS_INFO("[ImageSynchroniserNodelet] Empty projector service name, service may not be set up correctly!");
+  }
   projector_client_ = nh_.serviceClient<sl_sensor_projector::CommandProjector>(projector_service_name_);
   SendProjectorCommand("black", 0);
 

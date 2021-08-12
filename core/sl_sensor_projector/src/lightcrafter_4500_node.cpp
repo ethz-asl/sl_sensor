@@ -57,24 +57,30 @@ int main(int argc, char **argv)
   std::string projector_yaml_directory;
   nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
 
-  ros::ServiceServer service = nh.advertiseService("command_projector", CommandProjector);
-
   projector.LoadYaml(projector_yaml_directory);
   bool init_success = projector.Init();
 
+  std::string service_name = projector.GetServiceName();
+  bool empty_service_name = service_name.empty();
+
   if (!init_success)
   {
-    ROS_INFO("Projector initialisation failed! Terminating node.");
-    return 0;
+    ROS_WARN("[Lightcrafter4500Node] Projector initialisation failed! Terminating node.");
+  }
+  else if (empty_service_name)
+  {
+    ROS_WARN("[Lightcrafter4500Node] No projector service name provided in YAML file! Terminating node.");
   }
   else
   {
-    ROS_INFO("Projector initialisation succeeded! You can start sending commands");
-  }
+    ros::ServiceServer service = nh.advertiseService(service_name, CommandProjector);
 
-  while (ros::ok())
-  {
-    ros::spinOnce();
+    ROS_INFO("[Lightcrafter4500Node] Projector initialisation succeeded! You can start sending commands");
+
+    while (ros::ok())
+    {
+      ros::spinOnce();
+    }
   }
 
   return 0;
