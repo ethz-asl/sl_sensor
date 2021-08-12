@@ -1,66 +1,66 @@
 properties:
-    diamondPixel: true
+    diamond_pixel: true
     resolution: [912, 1140]
 
-defaultSettings:
-  defaultRgb: &defaultRgb [200, 200, 200]
-  defaultDisplayColour: &defaultDisplayColour 7
-  defaultExposureUs: &defaultExposureUs 16667
+default_settings:
+  default_rgb: &default_rgb [200, 200, 200]
+  default_display_colour: &default_display_colour 7
+  default_exposure_us: &default_exposure_us 16667
 
 patterns:
-  calibrationPattern:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-    imageIndex: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
-    channelNumber: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
-    invertPattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  pspTpuHorizontal:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8, 8]
-    imageIndex: [7, 7, 7, 8, 8, 8]
-    channelNumber: [0, 1, 2, 0, 1, 2]
-    invertPattern: [0, 0, 0, 0, 0, 0]
-  pspTpuVertical:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8, 8]
-    imageIndex: [9, 9, 9, 10, 10, 10]
-    channelNumber: [0, 1, 2, 0, 1, 2]
-    invertPattern: [0, 0, 0, 0, 0, 0]
-  pspTpuVerticalColour:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8, 8, 1]
-    imageIndex: [9, 9, 9, 10, 10, 10, 0]
-    channelNumber: [0, 1, 2, 0, 1, 2, 24]
-    invertPattern: [0, 0, 0, 0, 0, 0, 1]
-  pspTpuBoth:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-    imageIndex: [7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10]
-    channelNumber: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
-    invertPattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  twoPlusOneTpuHorizontal:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8]
-    imageIndex: [11, 11, 11, 12, 12]
-    channelNumber: [0, 1, 2, 0, 1]
-    invertPattern: [0, 0, 0, 0, 0]
-  twoPlusOneTpuVertical:
-    rgb: *defaultRgb
-    exposureUs: *defaultExposureUs
-    displayColour: *defaultDisplayColour
-    bitDepth: [8, 8, 8, 8, 8]
-    imageIndex: [13, 13, 13, 14, 14]
-    channelNumber: [0, 1, 2, 0, 1]
-    invertPattern: [0, 0, 0, 0, 0]
+  calibration_pattern:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+    image_index: [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
+    channel_number: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invert_pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  psp_tpu_horizontal:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8, 8]
+    image_index: [7, 7, 7, 8, 8, 8]
+    channel_number: [0, 1, 2, 0, 1, 2]
+    invert_pattern: [0, 0, 0, 0, 0, 0]
+  psp_tpu_vertical:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8, 8]
+    image_index: [9, 9, 9, 10, 10, 10]
+    channel_number: [0, 1, 2, 0, 1, 2]
+    invert_pattern: [0, 0, 0, 0, 0, 0]
+  psp_tpu_vertical_colour:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8, 8, 1]
+    image_index: [9, 9, 9, 10, 10, 10, 0]
+    channel_number: [0, 1, 2, 0, 1, 2, 24]
+    invert_pattern: [0, 0, 0, 0, 0, 0, 1]
+  psp_tpu_both:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+    image_index: [7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10]
+    channel_number: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2]
+    invert_pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  two_plus_one_tpu_horizontal:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8]
+    image_index: [11, 11, 11, 12, 12]
+    channel_number: [0, 1, 2, 0, 1]
+    invert_pattern: [0, 0, 0, 0, 0]
+  two_plus_one_tpu_vertical:
+    rgb: *default_rgb
+    exposure_us: *default_exposure_us
+    display_colour: *default_display_colour
+    bit_depth: [8, 8, 8, 8, 8]
+    image_index: [13, 13, 13, 14, 14]
+    channel_number: [0, 1, 2, 0, 1]
+    invert_pattern: [0, 0, 0, 0, 0]

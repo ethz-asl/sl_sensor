@@ -23,7 +23,7 @@
     <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
     <param name="projector_service_name" type="string" value="/command_projector"/>    
     <param name="image_topics" type="string" value="/versavis/cam1/image_raw" />
-    <param name="fixed_pattern_name" type="string" value="pspTpuHorizontal" />
+    <param name="fixed_pattern_name" type="string" value="psp_tpu_horizontal" />
   </node>		  
 
   <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />

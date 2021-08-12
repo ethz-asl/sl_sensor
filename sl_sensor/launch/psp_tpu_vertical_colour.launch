@@ -28,7 +28,7 @@
   <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
   <param name="projector_service_name" type="string" value="/command_projector"/>    
   <param name="image_topics" type="string" value="/versavis/cam2/image_raw /versavis/cam1/image_raw" />
-  <param name="fixed_pattern_name" type="string" value="pspTpuVerticalColour" />
+  <param name="fixed_pattern_name" type="string" value="psp_tpu_vertical_colour" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">

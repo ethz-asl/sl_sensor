@@ -48,8 +48,8 @@ bool Lightcrafter4500::Close()
 
 unsigned int Lightcrafter4500::GetDefaultExposurePeriod()
 {
-  return static_cast<unsigned int>(proj_config_["defaultExposureUs"] ? proj_config_["defaultExposureUs"].as<int>() :
-                                                                       backup_exposure_period_us_);
+  return static_cast<unsigned int>(proj_config_["default_exposure_us"] ? proj_config_["default_exposure_us"].as<int>() :
+                                                                         backup_exposure_period_us_);
 }
 
 bool Lightcrafter4500::DisplayWhite()
@@ -163,11 +163,12 @@ bool Lightcrafter4500::SetLed(const std::string& pattern_name)
       return false;
     }
   }
-  else if (proj_config_["defaultSettings"]["defaultRgb"] && proj_config_["defaultSettings"]["defaultRgb"].size() == 3)
+  else if (proj_config_["default_settings"]["default_rgb"] &&
+           proj_config_["default_settings"]["default_rgb"].size() == 3)
   {
-    rgb[0] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][0].as<int>();
-    rgb[1] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][1].as<int>();
-    rgb[2] = (unsigned char)proj_config_["defaultSettings"]["defaultRgb"][2].as<int>();
+    rgb[0] = (unsigned char)proj_config_["default_settings"]["default_rgb"][0].as<int>();
+    rgb[1] = (unsigned char)proj_config_["default_settings"]["default_rgb"][1].as<int>();
+    rgb[2] = (unsigned char)proj_config_["default_settings"]["default_rgb"][2].as<int>();
   }
 
   int status = projector_.SetLedCurrents(rgb[0], rgb[1], rgb[2]);
@@ -189,8 +190,8 @@ bool Lightcrafter4500::ProjectSinglePattern(const std::string& pattern_name, int
   pattern_vec.push_back(single_pattern);
 
   unsigned int exposure_period, frame_period;
-  exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?
-                                       proj_config_["patterns"][pattern_name]["exposureUs"].as<unsigned int>() :
+  exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposure_us"] ?
+                                       proj_config_["patterns"][pattern_name]["exposure_us"].as<unsigned int>() :
                                        backup_exposure_period_us_;
 
   // std::cout << "Exposure: " << exposure_period << std::endl;
@@ -223,8 +224,8 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
   **/
 
   unsigned int exposure_period, frame_period;
-  exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposureUs"] ?
-                                       proj_config_["patterns"][pattern_name]["exposureUs"].as<unsigned int>() :
+  exposure_period = frame_period = proj_config_["patterns"][pattern_name]["exposure_us"] ?
+                                       proj_config_["patterns"][pattern_name]["exposure_us"].as<unsigned int>() :
                                        backup_exposure_period_us_;
 
   int status = projector_.PlayPatternSequence(pattern_vec, exposure_period, frame_period);
@@ -235,7 +236,7 @@ bool Lightcrafter4500::ProjectFullPattern(const std::string& pattern_name)
 int Lightcrafter4500::GetNumberProjections(const YAML::Node& config, const std::string& pattern_name)
 {
   return (PatternExists(config, pattern_name)) ?
-             static_cast<int>(config["patterns"][pattern_name]["channelNumber"].size()) :
+             static_cast<int>(config["patterns"][pattern_name]["channel_number"].size()) :
              -1;
 }
 
@@ -248,24 +249,24 @@ std::vector<LightcrafterSinglePattern> Lightcrafter4500::GetPatternSequence(cons
 
   for (int i = 0; i < number_projections; i++)
   {
-    int image_indice = proj_config_["patterns"][pattern_name]["imageIndex"][i] ?
-                           proj_config_["patterns"][pattern_name]["imageIndex"][i].as<int>() :
+    int image_indice = proj_config_["patterns"][pattern_name]["image_index"][i] ?
+                           proj_config_["patterns"][pattern_name]["image_index"][i].as<int>() :
                            backup_single_pattern_.image_indice;
 
-    int bit_depth = proj_config_["patterns"][pattern_name]["bitDepth"][i] ?
-                        proj_config_["patterns"][pattern_name]["bitDepth"][i].as<int>() :
+    int bit_depth = proj_config_["patterns"][pattern_name]["bit_depth"][i] ?
+                        proj_config_["patterns"][pattern_name]["bit_depth"][i].as<int>() :
                         backup_single_pattern_.bit_depth;
 
-    int pattern_number = proj_config_["patterns"][pattern_name]["channelNumber"][i] ?
-                             proj_config_["patterns"][pattern_name]["channelNumber"][i].as<int>() :
+    int pattern_number = proj_config_["patterns"][pattern_name]["channel_number"][i] ?
+                             proj_config_["patterns"][pattern_name]["channel_number"][i].as<int>() :
                              backup_single_pattern_.pattern_number;
 
-    int led_select = proj_config_["patterns"][pattern_name]["displayColour"] ?
-                         proj_config_["patterns"][pattern_name]["displayColour"].as<int>() :
+    int led_select = proj_config_["patterns"][pattern_name]["display_colour"] ?
+                         proj_config_["patterns"][pattern_name]["display_colour"].as<int>() :
                          backup_single_pattern_.led_select;
 
-    bool invert_pattern = (bool)proj_config_["patterns"][pattern_name]["invertPattern"][i] ?
-                              proj_config_["patterns"][pattern_name]["invertPattern"][i].as<int>() :
+    bool invert_pattern = (bool)proj_config_["patterns"][pattern_name]["invert_pattern"][i] ?
+                              proj_config_["patterns"][pattern_name]["invert_pattern"][i].as<int>() :
                               backup_single_pattern_.invert_pattern;
 
     LightcrafterSinglePattern temp1;
@@ -304,25 +305,25 @@ LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& 
 
   single_pattern.trigger_type = 0;
   single_pattern.pattern_number =
-      proj_config_["patterns"][pattern_name]["channelNumber"][pattern_indice] ?
-          proj_config_["patterns"][pattern_name]["channelNumber"][pattern_indice].as<int>() :
+      proj_config_["patterns"][pattern_name]["channel_number"][pattern_indice] ?
+          proj_config_["patterns"][pattern_name]["channel_number"][pattern_indice].as<int>() :
           backup_single_pattern_.pattern_number;
 
-  single_pattern.bit_depth = proj_config_["patterns"][pattern_name]["bitDepth"][pattern_indice] ?
-                                 proj_config_["patterns"][pattern_name]["bitDepth"][pattern_indice].as<int>() :
+  single_pattern.bit_depth = proj_config_["patterns"][pattern_name]["bit_depth"][pattern_indice] ?
+                                 proj_config_["patterns"][pattern_name]["bit_depth"][pattern_indice].as<int>() :
                                  backup_single_pattern_.bit_depth;
 
-  single_pattern.led_select = proj_config_["patterns"][pattern_name]["displayColour"] ?
-                                  proj_config_["patterns"][pattern_name]["displayColour"].as<int>() :
+  single_pattern.led_select = proj_config_["patterns"][pattern_name]["display_colour"] ?
+                                  proj_config_["patterns"][pattern_name]["display_colour"].as<int>() :
                                   backup_single_pattern_.led_select;
 
-  single_pattern.image_indice = proj_config_["patterns"][pattern_name]["imageIndex"][pattern_indice] ?
-                                    proj_config_["patterns"][pattern_name]["imageIndex"][pattern_indice].as<int>() :
+  single_pattern.image_indice = proj_config_["patterns"][pattern_name]["image_index"][pattern_indice] ?
+                                    proj_config_["patterns"][pattern_name]["image_index"][pattern_indice].as<int>() :
                                     backup_single_pattern_.image_indice;
 
   single_pattern.invert_pattern =
-      (bool)proj_config_["patterns"][pattern_name]["invertPattern"][pattern_indice] ?
-          proj_config_["patterns"][pattern_name]["invertPattern"][pattern_indice].as<int>() :
+      (bool)proj_config_["patterns"][pattern_name]["invert_pattern"][pattern_indice] ?
+          proj_config_["patterns"][pattern_name]["invert_pattern"][pattern_indice].as<int>() :
           backup_single_pattern_.image_indice;
 
   single_pattern.insert_black_frame = backup_single_pattern_.insert_black_frame;

@@ -292,7 +292,7 @@ void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequenc
   sl_sensor_image_acquisition::CommandImageSynchroniser srv;
 
   srv.request.command = "start";
-  srv.request.pattern_name = "calibrationPattern";
+  srv.request.pattern_name = "calibration_pattern";
   srv.request.is_hardware_trigger = false;
   srv.request.number_scans = 1;
   srv.request.delay_ms =
