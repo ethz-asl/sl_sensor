@@ -1,43 +1,17 @@
 <launch>
+  <arg name="open_dashboard" value="true" />
 
-<arg name="frame_id" doc="sl_sensor's frame id" default="sl_sensor" />
-<arg name="number_cameras" doc="Number Cameras" default="1" />
-<arg name="visualise_point_cloud" doc="Whether to visualise point clouds" default="true" />
-<arg name="save_images" doc="Save images" default="true" />
-<arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="calibration_filename" doc="calibration xml file" default="$(find sl_sensor_calibration)/calibration_files/cam1_proj_fixed_new2.xml" />
+  <arg name="save_point_cloud" value="false" />
+  <arg name="save_images" value="false" />
+  <arg name="save_header" value="log" />
 
-<node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
+  <arg name="primary_camera_parameters_filename"  value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+  <arg name="projector_parameters_filename" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+  <arg name="camera_name" value="cam2"/>
+  <arg name="projector_pattern_name" value="psp_tpu_both" />
+  <arg name="decoder_name" value="phase_shift_with_tpu" />
+  <arg name="pattern_direction" value="both" />
+  <arg name="enable_linear_motion_compensation" value="true" />
 
-<include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
-
-<node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
-  <param name="num_worker_threads" value="10" />
-</node>
-
-<node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
-  <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
-  <param name="output_topic" type="string" value="/image_synchroniser/grouped_images" />
-  <param name="frame_id" type="string" value="$(arg frame_id)" />
-  <param name="lower_bound_tol" type="double" value="0.0166667" />
-  <param name="upper_bound_tol" type="double" value="0.0166667" />
-  <param name="image_trigger_period" type="double" value="0.03333333" />
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
-  <param name="projector_service_name" type="string" value="/command_projector"/>    
-  <param name="image_topics" type="string" value="/versavis/cam1/image_raw /versavis/cam2/image_raw"  />
-  <param name="fixed_pattern_name" type="string" value="psp_tpu_both" />
-</node>		  
-
-<group if="$(arg visualise_point_cloud)">
-  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/show_pc.rviz" /> 
-</group>
-
-<group if="$(arg save_images)">
-  <node pkg="nodelet" type="nodelet" name="image_array_logger" args="load sl_sensor_image_acquisition/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
-    <param name="log_directory" type="string" value="/home/ltf/Desktop/logged_data/" />
-    <param name="file_header" type="string" value="test" />
-    <param name="log_topic" type="string" value="/image_synchroniser/grouped_images" />
-  </node>
-</group>
-
+  <include file="$(find sl_sensor)/launch/single_camera_projector_scanning.launch" pass_all_args="true"/>
 </launch>

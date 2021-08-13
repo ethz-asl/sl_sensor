@@ -119,7 +119,7 @@ void Triangulator::InitTriangulationParameters()
   }
 
   // Precompute camera coordinates matrix in UpVpTriangulate
-  int number_pixels_ = primary_camera_parameters_.resolution_y() * primary_camera_parameters_.resolution_x();
+  number_pixels_ = primary_camera_parameters_.resolution_y() * primary_camera_parameters_.resolution_x();
   proj_points_cam_ = cv::Mat(2, number_pixels_, CV_32F);
 
   uc_.reshape(0, 1).copyTo(proj_points_cam_.row(0));
