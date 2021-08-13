@@ -91,9 +91,9 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   // We expect an equal number of images for each camera, and the number of images per camera should be equal or larger
   // (in the case there might be an additional image for colour) to the number of images required for the decoder to
   // operate
-  bool equal_number_images_per_camera = ((int)image_array_ptr->data.size() % (int)image_array_ptr->number_cameras) == 0;
-  int images_per_camera = (int)image_array_ptr->data.size() / (int)image_array_ptr->number_cameras;
-  int images_required_for_decoder = decoder_ptr_->GetNumberPatterns();
+  bool equal_number_images_per_camera = (image_array_ptr->data.size() % (size_t)image_array_ptr->number_cameras) == 0;
+  size_t images_per_camera = image_array_ptr->data.size() / image_array_ptr->number_cameras;
+  size_t images_required_for_decoder = (size_t)decoder_ptr_->GetNumberPatterns();
 
   // Do not continue if image array does not contain the expected number of images
   if (!equal_number_images_per_camera || images_per_camera < images_required_for_decoder)
@@ -108,7 +108,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   image_acquisition::ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
   // Decode pattern sequence for each camera, store results
-  int number_output_images = cameras_to_decode_indices_.size() * 4 + ((colour_shading_enabled_) ? 1 : 0);
+  size_t number_output_images = cameras_to_decode_indices_.size() * 4 + ((colour_shading_enabled_) ? 1 : 0);
   std::vector<cv::Mat> decoder_results(number_output_images, cv::Mat());
 
   for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
@@ -134,19 +134,19 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   }
 
   // Construct output image format vector
-  std::vector<std::string> output_image_format_vec = {};
+  std::vector<std::string> output_image_format_vec(number_output_images, "");
 
-  for (uint8_t i = 0; i < cameras_to_decode_indices_.size(); i++)
+  for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
   {
-    output_image_format_vec.push_back("32FC1");
-    output_image_format_vec.push_back("32FC1");
-    output_image_format_vec.push_back("8UC1");
-    output_image_format_vec.push_back("8UC1");
+    output_image_format_vec[i * 4] = "32FC1";
+    output_image_format_vec[i * 4 + 1] = "32FC1";
+    output_image_format_vec[i * 4 + 2] = "8UC1";
+    output_image_format_vec[i * 4 + 3] = "8UC1";
   }
 
   if (colour_shading_enabled_)
   {
-    output_image_format_vec.push_back("bgr8");
+    output_image_format_vec.back() = "bgr8";
   }
 
   // Publish results
