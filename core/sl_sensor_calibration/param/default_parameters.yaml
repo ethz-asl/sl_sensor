@@ -1,0 +1,9 @@
+image_array_sub_topic: "/decoder/decoded_images"
+
+# Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)
+checkerboard_num_rows: 14
+checkerboard_num_cols: 12
+
+# Local homography calibration settings
+window_radius: 10
+minimum_valid_pixels: 50

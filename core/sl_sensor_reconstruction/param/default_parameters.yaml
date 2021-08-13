@@ -1,4 +1,4 @@
-input_topic: "/image_synchroniser/decoded_images"
+input_topic: "/decoder/decoded_images"
 output_topic: "/triangulator/point_cloud"
 apply_crop_box: true
 crop_box_x_min: -500.0

@@ -9,7 +9,7 @@ default_settings:
   default_exposure_us: &default_exposure_us 16667
 
 patterns:
-  calibration_pattern:
+  calibration:
     rgb: *default_rgb
     exposure_us: *default_exposure_us
     display_colour: *default_display_colour

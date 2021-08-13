@@ -1,9 +1,10 @@
 <launch>
 
-  <arg name="number_cameras" doc="Number Cameras" default="2" />
-  <arg name="grouped_image_topic" doc="/image_synchroniser/grouped_images" default="/image_synchroniser/grouped_images" />
-  <arg name="decoded_image_topic" doc="/decoder/decoded_images" default="/decoder/decoded_images" />
+  <arg name="save_filename" doc="Name of folder where images will be saved" default="testing" />
+  <arg name="save_directory" doc="Directory where folder will with images will be generated" default="$(find sl_sensor_calibration)/calibration_sessions/" />
   <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
+  <arg name="primary_camera_name" doc="Name of camera as declared in in versavis, used for triangulation" default="cam2"/>
+  <arg name="secondary_camera_name" doc="Name of camera as declared in in versavis, that will be used for colour shading" default="cam1"/>
 
   <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
 
@@ -12,42 +13,34 @@
   </node>
 
   <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
-    <param name="image_topics" type="string" value="/versavis/cam1/image_raw /versavis/cam2/image_raw" />    
-    <param name="projector_topic" type="string" value="/versavis/projector/image_time" />
-    <param name="output_topic" type="string" value="$(arg grouped_image_topic)" />
+    <rosparam command="load" file="$(find sl_sensor_image_acquisition)/param/default_parameters.yaml" />
+    <param name="image_topics" type="string" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />    
     <param name="frame_id" type="string" value="sl_sensor" />
-    <param name="lower_bound_tol" type="double" value="0.0166667" />
-    <param name="upper_bound_tol" type="double" value="0.0166667" />
-    <param name="image_trigger_period" type="double" value="0.03333333" />
     <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
-    <param name="projector_service_name" type="string" value="/command_projector"/>    
+    <param name="fixed_pattern_name" type="string" value="calibration" />
   </node>		  
 
   <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
-    <param name="input_topic" type="string" value="$(arg grouped_image_topic)" />
-    <param name="output_topic" type="string" value="$(arg decoded_image_topic)" />
+    <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
+    <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
     <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
     <param name="direction" type="string" value="both" />
-    <param name="decoder_name" type="string" value="PhaseShiftWithTpu" />
-    <param name="cameras_to_decode_indices" type="int" value="0 1" />
-    <param name="number_phases" type="int" value="16" />
-    <param name="shading_threshold" type="int" value="5" />
+    <param name="decoder_name" type="string" value="calibration" />
+    <param name="cameras_to_decode_indices" type="string" value="0 1" />
   </node>	
 
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
-    <param name="image_array_sub_topic" type="string" value="$(arg decoded_image_topic)" />
-    <param name="save_directory" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/" />
-    <param name="save_filename" type="string" value="cam2" />
+    <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
+    <param name="save_directory" type="string" value="$(arg save_directory)" />
+    <param name="save_filename" type="string" value="$(arg save_filename)" />
+    <param name="number_cameras" type="int" value="2" />
+
+    <!-- TODO Find a better way of accessing these service names -->
     <param name="image_synchroniser_service_name" type="string" value="/command_image_synchroniser" />
     <param name="projector_service_name" type="string" value="/command_projector" />
-    <!--Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)-->
-    <param name="checkerboard_num_rows" type="int" value="14" /> 
-    <param name="checkerboard_num_cols" type="int" value="12" />
-    <param name="number_cameras" type="int" value="$(arg number_cameras)" />
+    
   </node>		  
   
-  <!--node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/calibration_single_display.rviz" /-->
-
   <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" args="--perspective-file $(find sl_sensor_calibration)/rqt/calibration.perspective"/>
 
 </launch>

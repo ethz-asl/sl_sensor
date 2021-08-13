@@ -1,4 +1,4 @@
 input_topic: "/image_synchroniser/grouped_images"
-output_topic: "/image_synchroniser/decoded_images"
+output_topic: "/decoder/decoded_images"
 colour_shading_enabled: false
 cameras_to_decode_indices: "0"
