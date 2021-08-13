@@ -81,6 +81,23 @@ void DecoderNodelet::onInit()
   // Generate Decoder
   decoder_ptr_ = CodecFactory::GetInstanceDecoder(decoder_name_, node[decoder_name_]);
 
+  // Generate output image format vec
+  number_output_images_ = cameras_to_decode_indices_.size() * 4 + ((colour_shading_enabled_) ? 1 : 0);
+  output_image_format_vec_ = std::vector(number_output_images_, std::string());
+
+  for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
+  {
+    output_image_format_vec_[i * 4] = "32FC1";
+    output_image_format_vec_[i * 4 + 1] = "32FC1";
+    output_image_format_vec_[i * 4 + 2] = "8UC1";
+    output_image_format_vec_[i * 4 + 3] = "8UC1";
+  }
+
+  if (colour_shading_enabled_)
+  {
+    output_image_format_vec_.back() = "bgr8";
+  }
+
   // Setup publisher and subscriber
   decoded_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(decoded_pub_topic_, 10);
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &DecoderNodelet::ImageArrayCb, this);
@@ -108,8 +125,7 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
   image_acquisition::ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
   // Decode pattern sequence for each camera, store results
-  size_t number_output_images = cameras_to_decode_indices_.size() * 4 + ((colour_shading_enabled_) ? 1 : 0);
-  std::vector<cv::Mat> decoder_results(number_output_images, cv::Mat());
+  std::vector<cv::Mat> decoder_results(number_output_images_, cv::Mat());
 
   for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
   {
@@ -132,25 +148,9 @@ void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayC
     decoder_results.back() = cv_img_ptr_vec.at(images_per_camera * colour_camera_index_ + colour_image_index_)->image;
   }
 
-  // Construct output image format vector
-  std::vector<std::string> output_image_format_vec(number_output_images, "");
-
-  for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
-  {
-    output_image_format_vec[i * 4] = "32FC1";
-    output_image_format_vec[i * 4 + 1] = "32FC1";
-    output_image_format_vec[i * 4 + 2] = "8UC1";
-    output_image_format_vec[i * 4 + 3] = "8UC1";
-  }
-
-  if (colour_shading_enabled_)
-  {
-    output_image_format_vec.back() = "bgr8";
-  }
-
   // Publish results
   image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array_ptr->header.frame_id,
-                                     image_array_ptr->header.stamp, ros::Time::now(), output_image_format_vec);
+                                     image_array_ptr->header.stamp, ros::Time::now(), output_image_format_vec_);
 };
 
 }  // namespace codec
