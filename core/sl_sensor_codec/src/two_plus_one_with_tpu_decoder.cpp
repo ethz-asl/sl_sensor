@@ -22,8 +22,6 @@ TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(const YAML::Node& node) : Dec
   shading_threshold_ = (node["shading_threshold"]) ? node["shading_threshold"].as<double>() : shading_threshold_;
   average_intensity_ = (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
 
-  std::cout << "average_intensity_ " << average_intensity_ << std::endl;
-
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
 }
