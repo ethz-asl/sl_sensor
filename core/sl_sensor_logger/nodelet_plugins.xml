@@ -1,14 +1,4 @@
 <library path="lib/libsl_sensor_logger">
-  <class name="sl_sensor_logger/LoggerNodelet"
-         type="sl_sensor::logger::LoggerNodelet"
-         base_class_type="nodelet::Nodelet">
-  </class>
-  <description>
-  Logger nodelet. Base class for other loggers in sl_sensor_logger
-  </description>
-</library>
-
-<library path="lib/libsl_sensor_logger">
   <class name="sl_sensor_logger/ImageArrayLoggerNodelet"
          type="sl_sensor::logger::ImageArrayLoggerNodelet"
          base_class_type="nodelet::Nodelet">

@@ -34,5 +34,3 @@ protected:
 
 }  // namespace logger
 }  // namespace sl_sensor
-
-PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::LoggerNodelet, nodelet::Nodelet);

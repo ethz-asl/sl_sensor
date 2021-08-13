@@ -3,7 +3,6 @@
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
-
 #include <sl_sensor_image_acquisition/ImageArray.h>
 
 #include "sl_sensor_logger/logger_nodelet.hpp"
