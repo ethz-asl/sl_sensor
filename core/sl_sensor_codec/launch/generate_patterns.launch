@@ -1,13 +1,10 @@
 <launch>
 
   <node pkg="sl_sensor_codec" type="generate_patterns_node" name="generate_patterns_node" output="screen" required="true">
-      <param name="encoder_name" type="string" value="PhaseShiftWithTpu"/>
       <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
-      <param name="save_folder" type="string" value="/home/ltf/Desktop/patterns/test/"/>
+      <param name="save_folder" type="string" value="$(find sl_sensor_codec)/patterns/"/>
+      <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml"/>
       <param name="projector_parameters_file" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
-      <param name="number_phases" type="int" value="12"/>
-      <param name="average_intensity" type="double" value="0.6"/>
-      <param name="modulation_intensity" type="double" value="0.4"/>
   </node>
 
 </launch>
