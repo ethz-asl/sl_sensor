@@ -62,7 +62,7 @@
 </node>		  
 
 <!-- Loggers -->
-<include file="$(find sl_sensor)/launch/launch_loggers.launch" pass_all_args="true"/>
+<include file="$(find sl_sensor_logger)/launch/launch_loggers.launch" pass_all_args="true"/>
 
 <!-- RQT Scanning Dashboard if desired-->
 <group if="$(arg open_dashboard)">
