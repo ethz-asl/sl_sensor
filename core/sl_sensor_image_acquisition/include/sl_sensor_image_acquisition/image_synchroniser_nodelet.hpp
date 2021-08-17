@@ -41,6 +41,7 @@ private:
   std::string projector_yaml_directory_ = "";
   std::string fixed_pattern_name_ = "";
   std::string image_synchroniser_service_name_ = "command_image_synchroniser";
+  std::string projector_service_name_ = "command_projector";
 
   boost::mutex mutex_;
 
@@ -52,7 +53,6 @@ private:
   std::vector<std::unique_ptr<ImageGrouper>> image_grouper_ptrs_ = {};
 
   YAML::Node projector_config_;
-  std::string projector_service_name_;
   ros::ServiceClient projector_client_;
 
   double lower_bound_tol_ = 0.0f;

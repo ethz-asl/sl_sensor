@@ -25,6 +25,7 @@ void ImageSynchroniserNodelet::onInit()
   // Obtain key information from private node handle
   nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
                          image_synchroniser_service_name_);
+  nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
 
   private_nh_.param<double>("lower_bound_tol", lower_bound_tol_, lower_bound_tol_);
   private_nh_.param<double>("upper_bound_tol", upper_bound_tol_, upper_bound_tol_);
@@ -64,7 +65,6 @@ void ImageSynchroniserNodelet::onInit()
   projector_config_ = YAML::LoadFile(projector_yaml_directory_);
 
   // Init Service Client to projector, the projector service name is retrieved from the Projector YAML file
-  projector_service_name_ = projector::Lightcrafter4500::GetServiceName(projector_config_);
   if (projector_service_name_.empty())
   {
     ROS_INFO("[ImageSynchroniserNodelet] Empty projector service name, service may not be set up correctly!");

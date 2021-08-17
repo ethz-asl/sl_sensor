@@ -121,13 +121,6 @@ public:
   unsigned int GetDefaultExposurePeriod();
 
   /**
-   * @brief Retrieve service name for projector from YAML file
-   *
-   * @return std::string - Service name stored in YAML file, returns empty string if not found
-   */
-  std::string GetServiceName();
-
-  /**
    * @brief Set the Led brightness for a particular pattern
    *
    * @param pattern_name
@@ -154,14 +147,6 @@ public:
    * @return int - Number of projections
    */
   static int GetNumberProjections(const YAML::Node& config, const std::string& pattern_name);
-
-  /**
-   * @brief Get the Service Name for projector from YAML file
-   *
-   * @param config - YAML node
-   * @return std::string - Service name stored in YAML file, returns empty string if not found
-   */
-  static std::string GetServiceName(const YAML::Node& config);
 
 private:
   Lightcrafter4500Api projector_;

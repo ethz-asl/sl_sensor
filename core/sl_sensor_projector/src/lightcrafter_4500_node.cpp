@@ -55,12 +55,13 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   std::string projector_yaml_directory;
+  std::string service_name;
   nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
+  nh.param<std::string>("projector_service_name", service_name, service_name);
 
   projector.LoadYaml(projector_yaml_directory);
   bool init_success = projector.Init();
 
-  std::string service_name = projector.GetServiceName();
   bool empty_service_name = service_name.empty();
 
   if (!init_success)

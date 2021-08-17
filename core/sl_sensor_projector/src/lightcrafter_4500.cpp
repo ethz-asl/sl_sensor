@@ -322,15 +322,5 @@ LightcrafterSinglePattern Lightcrafter4500::GetSinglePattern(const std::string& 
   return single_pattern;
 }
 
-std::string Lightcrafter4500::GetServiceName()
-{
-  return GetServiceName(proj_config_);
-}
-
-std::string Lightcrafter4500::GetServiceName(const YAML::Node& config)
-{
-  return (config["properties"]["service_name"]) ? config["properties"]["service_name"].as<std::string>() : "";
-}
-
 }  // namespace projector
 }  // namespace sl_sensor
