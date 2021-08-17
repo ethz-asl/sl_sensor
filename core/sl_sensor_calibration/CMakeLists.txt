@@ -16,7 +16,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -lstdc++fs")
 # LIBRARIES #
 #############
 cs_add_library(${PROJECT_NAME}
-  src/calibration_data.cpp
   src/calibration_sequence_acquisition_nodelet.cpp
   src/calibrator.cpp 
   src/intrinsic_parameters.cpp
