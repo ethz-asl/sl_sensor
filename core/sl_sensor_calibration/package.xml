@@ -19,6 +19,7 @@
   <depend>sl_sensor_image_acquisition</depend>
   <depend>sl_sensor_projector</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
 
   <!-- These are required for multicamera-calibration -->
   <depend>ceres_catkin</depend>

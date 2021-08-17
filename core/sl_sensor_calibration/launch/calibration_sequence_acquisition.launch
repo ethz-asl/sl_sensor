@@ -6,6 +6,10 @@
   <arg name="primary_camera_name" doc="Name of camera as declared in in versavis, used for triangulation" default="cam2"/>
   <arg name="secondary_camera_name" doc="Name of camera as declared in in versavis, that will be used for colour shading" default="cam1"/>
 
+  <!-- Service Names -->
+  <param name="erase_sequence_service_name" value="erase_calibration_sequence"/>
+  <param name="grab_sequence_service_name" value="grab_calibration_sequence"/>
+
   <!-- Projector -->
   <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
 
@@ -17,7 +21,8 @@
   <!-- Image Synchroniser Nodelet -->
   <include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch" pass_all_args="true">
     <arg name="image_topics" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />
-    <arg name="fixed_pattern_name" value="$(arg projector_pattern_name)" />
+    <arg name="fixed_pattern_name" value="calibration" />
+    <arg name="frame_id" value="sl_sensor" />
   </include>
 
   <!-- Decoder Nodelet -->
@@ -36,10 +41,6 @@
     <param name="save_directory" type="string" value="$(arg save_directory)" />
     <param name="save_filename" type="string" value="$(arg save_filename)" />
     <param name="number_cameras" type="int" value="2" />
-
-    <!-- Acquire services names for image synchroniser and projector -->
-    <rosparam command="load" file="$(find sl_sensor_image_acquisition)/param/image_synchroniser_service_name.yaml" />
-    <rosparam command="load" file="$(find sl_sensor_projector)/param/projector_service_name.yaml" />
   </node>		  
   
   <!-- Visualisation -->
