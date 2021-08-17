@@ -7,6 +7,6 @@
   <license>BSD3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>scanning_gui</depend>
-  <!--depend>calibration_button_gui</depend-->
+  <depend>sl_sensor_scanning_gui</depend>
+  <depend>sl_sensor_calibration_gui</depend>
 </package>

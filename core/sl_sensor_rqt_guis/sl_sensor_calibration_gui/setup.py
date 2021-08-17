@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
-    packages=['scanning_gui'],
+    packages=['sl_sensor_calibration_gui'],
     package_dir={'': 'src'},
     requires=['std_msgs', 'rospy']
 )

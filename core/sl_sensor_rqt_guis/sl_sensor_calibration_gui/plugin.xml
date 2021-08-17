@@ -1,0 +1,17 @@
+<library path="src">
+  <class name="SL Sensor Calibration GUI" type="sl_sensor_calibration_gui.sl_sensor_calibration.SLSensorCalibrationPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      GUI to help with calibration of SL Sensor
+    </description>
+    <qtgui>
+      <group>
+        <label>SL Sensor</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins for SL Sensor</statustip>
+      </group>
+      <label>Calibration Interface</label>
+      <icon type="theme">emblem-system</icon>
+      <statustip>GUI to perform calibrations with SL Sensor</statustip>
+    </qtgui>
+  </class>
+</library>

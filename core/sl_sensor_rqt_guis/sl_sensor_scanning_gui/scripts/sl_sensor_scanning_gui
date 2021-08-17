@@ -2,9 +2,9 @@
 
 import sys
 
-from scanning_gui.scanning import ScanningPlugin
+from sl_sensor_scanning_gui.sl_sensor_scanning import SLSensorScanningPlugin
 from rqt_gui.main import Main
 
-plugin = 'scanning_gui'
+plugin = 'sl_sensor_scanning_gui'
 main = Main(filename=plugin)
 sys.exit(main.main(standalone=plugin))

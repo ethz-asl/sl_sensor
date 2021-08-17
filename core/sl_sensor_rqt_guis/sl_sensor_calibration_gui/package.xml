@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>scanning_gui</name>
+  <name>sl_sensor_calibration_gui</name>
   <version>0.0.0</version>
-  <description>Buttons that send basic commands to image synchroniser to start/stop scanning process</description>
+  <description>Buttons that send calibration sequence acquisition nodelet to get calibration sequences</description>
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
   <license>BSD3</license>
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(scanning_gui)
+project(sl_sensor_scanning_gui)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
@@ -16,7 +16,7 @@ include_directories(
 )
 
 install(PROGRAMS
-  scripts/scanning_gui
+  scripts/sl_sensor_scanning_gui
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

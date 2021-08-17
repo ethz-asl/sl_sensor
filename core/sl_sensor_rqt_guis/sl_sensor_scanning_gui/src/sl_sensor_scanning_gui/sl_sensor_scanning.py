@@ -8,12 +8,12 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget, QPushButton, QSpinBox, QMessageBox, QCheckBox
 from python_qt_binding.QtCore import Qt, Slot
 
-class ScanningPlugin(Plugin):
+class SLSensorScanningPlugin(Plugin):
 
     def __init__(self, context):
-        super(ScanningPlugin, self).__init__(context)
+        super(SLSensorScanningPlugin, self).__init__(context)
         # Give QObjects reasonable names
-        self.setObjectName('ScanningPlugin')
+        self.setObjectName('SLSensorScanningPlugin')
         rp = rospkg.RosPack()
 
         # Create QWidget
@@ -21,7 +21,7 @@ class ScanningPlugin(Plugin):
 
         # Get path to UI file which is a sibling of this file
         # in this example the .ui and .py file are in the same folder
-        ui_file = os.path.join(rp.get_path('scanning_gui'), 'resource', 'Scanning.ui')
+        ui_file = os.path.join(rp.get_path('sl_sensor_scanning_gui'), 'resource', 'Scanning.ui')
 
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self.widget_)
@@ -103,7 +103,7 @@ class ScanningPlugin(Plugin):
                                 "Sending of service request to logger failed")
       except (rosservice.ROSServiceException, rosservice.ROSServiceIOException) as e:
           rospy.logwarn(
-              "[ScanningGui] Could not get class of service %s: %s" %
+              "[SLSensorScanningPlugin] Could not get class of service %s: %s" %
               (service_name, e))
           QMessageBox.warning(self.widget_, "Warning",
                               "Could not send service request to logger, make sure it is running.")
