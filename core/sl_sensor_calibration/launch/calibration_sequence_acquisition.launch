@@ -15,7 +15,7 @@
   </node>
 
   <!-- Image Synchroniser Nodelet -->
-  <include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch">
+  <include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch" pass_all_args="true">
     <arg name="image_topics" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />
     <arg name="fixed_pattern_name" value="$(arg projector_pattern_name)" />
   </include>

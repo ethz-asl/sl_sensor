@@ -1,7 +1,9 @@
 <launch>
 
 <!-- Public ROS param for service name so other nodes can access it -->
-<param name="image_synchroniser_service_name" type="string" value="command_image_synchroniser" />
+<param name="image_synchroniser_service_name" type="str" value="command_image_synchroniser"/>
+
+<arg name="default_param_file" default="$(find sl_sensor_image_acquisition)/param/default_parameters.yaml"/>
 
 <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(arg default_param_file)" />
