@@ -6,20 +6,21 @@
   <arg name="primary_camera_name" doc="Name of camera as declared in in versavis, used for triangulation" default="cam2"/>
   <arg name="secondary_camera_name" doc="Name of camera as declared in in versavis, that will be used for colour shading" default="cam1"/>
 
+  <!-- Projector -->
   <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
 
+  <!-- Nodelet Manager -->
   <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
     <param name="num_worker_threads" value="10" />
   </node>
 
-  <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
-    <rosparam command="load" file="$(find sl_sensor_image_acquisition)/param/default_parameters.yaml" />
-    <param name="image_topics" type="string" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />    
-    <param name="frame_id" type="string" value="sl_sensor" />
-    <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
-    <param name="fixed_pattern_name" type="string" value="calibration" />
-  </node>		  
+  <!-- Image Synchroniser Nodelet -->
+  <include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch">
+    <arg name="image_topics" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />
+    <arg name="fixed_pattern_name" value="$(arg projector_pattern_name)" />
+  </include>
 
+  <!-- Decoder Nodelet -->
   <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
     <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
@@ -29,18 +30,19 @@
     <param name="cameras_to_decode_indices" type="string" value="0 1" />
   </node>	
 
+  <!-- Calibration Sequence Acquisition Nodelet -->
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
     <param name="save_directory" type="string" value="$(arg save_directory)" />
     <param name="save_filename" type="string" value="$(arg save_filename)" />
     <param name="number_cameras" type="int" value="2" />
 
-    <!-- TODO Find a better way of accessing these service names -->
-    <param name="image_synchroniser_service_name" type="string" value="/command_image_synchroniser" />
-    <param name="projector_service_name" type="string" value="/command_projector" />
-    
+    <!-- Acquire services names for image synchroniser and projector -->
+    <rosparam command="load" file="$(find sl_sensor_image_acquisition)/param/image_synchroniser_service_name.yaml" />
+    <rosparam command="load" file="$(find sl_sensor_projector)/param/projector_service_name.yaml" />
   </node>		  
   
+  <!-- Visualisation -->
   <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" args="--perspective-file $(find sl_sensor_calibration)/rqt/calibration.perspective"/>
 
 </launch>

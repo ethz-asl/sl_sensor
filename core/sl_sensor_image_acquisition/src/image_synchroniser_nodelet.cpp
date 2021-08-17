@@ -23,16 +23,16 @@ void ImageSynchroniserNodelet::onInit()
   private_nh_ = getPrivateNodeHandle();
 
   // Obtain key information from private node handle
+  nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
+                         image_synchroniser_service_name_);
+
   private_nh_.param<double>("lower_bound_tol", lower_bound_tol_, lower_bound_tol_);
   private_nh_.param<double>("upper_bound_tol", upper_bound_tol_, upper_bound_tol_);
   private_nh_.param<double>("image_trigger_period", image_trigger_period_, image_trigger_period_);
-
   private_nh_.param<std::string>("projector_topic", projector_timing_sub_topic_, projector_timing_sub_topic_);
   private_nh_.param<std::string>("output_topic", image_array_pub_topic_, image_array_pub_topic_);
   private_nh_.param<std::string>("frame_id", frame_id_, frame_id_);
-
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
-
   private_nh_.param<std::string>("fixed_pattern_name", fixed_pattern_name_, fixed_pattern_name_);
 
   std::string image_topics_full_string = {};
@@ -43,7 +43,7 @@ void ImageSynchroniserNodelet::onInit()
   image_array_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(image_array_pub_topic_, 10);
   projector_timing_sub_ =
       nh_.subscribe(projector_timing_sub_topic_, 10, &ImageSynchroniserNodelet::ProjectorTimeCb, this);
-  synchroniser_service_ = nh_.advertiseService("command_image_synchroniser",
+  synchroniser_service_ = nh_.advertiseService(image_synchroniser_service_name_,
                                                &ImageSynchroniserNodelet::ProcessImageSynchroniserCommand, this);
 
   // Setup and initialise ImageGroupers, one for each camera / image topic provided

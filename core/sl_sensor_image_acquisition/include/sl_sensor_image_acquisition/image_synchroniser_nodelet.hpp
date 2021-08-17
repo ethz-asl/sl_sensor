@@ -38,9 +38,9 @@ private:
   std::string image_array_pub_topic_ = "/image_synchroniser_output";
   std::string projector_timing_sub_topic_ = "/projector_timing";
   std::string frame_id_ = "";
-
   std::string projector_yaml_directory_ = "";
   std::string fixed_pattern_name_ = "";
+  std::string image_synchroniser_service_name_ = "command_image_synchroniser";
 
   boost::mutex mutex_;
 

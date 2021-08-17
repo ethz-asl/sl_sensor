@@ -30,13 +30,10 @@
 </node>
 
 <!-- Image Synchroniser -->
-<node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
-  <rosparam command="load" file="$(find sl_sensor_image_acquisition)/param/default_parameters.yaml" />
-  <param name="frame_id" type="string" value="$(arg frame_id)" />
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
-  <param name="image_topics" type="string" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />
-  <param name="fixed_pattern_name" type="string" value="$(arg projector_pattern_name)" />
-</node>		  
+<include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch">
+  <arg name="image_topics" value="/versavis/$(arg primary_camera_name)/image_raw /versavis/$(arg secondary_camera_name)/image_raw" />
+  <arg name="fixed_pattern_name" value="$(arg projector_pattern_name)" />
+</include>
 
 <!-- Decoder -->
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">

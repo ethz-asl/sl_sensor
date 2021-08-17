@@ -36,11 +36,12 @@ void CalibrationSequenceAcquisitionNodelet::onInit()
   private_nh_ = getPrivateNodeHandle();
 
   // Get key information from ROS params
+  nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
+                         image_synchroniser_service_name_);
+
   private_nh_.param<std::string>("image_array_sub_topic", image_array_sub_topic_, image_array_sub_topic_);
   private_nh_.param<std::string>("save_directory", save_directory_, save_directory_);
   private_nh_.param<std::string>("save_filename", save_filename_, save_filename_);
-  private_nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
-                                 image_synchroniser_service_name_);
   private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
   private_nh_.param<int>("checkerboard_num_rows", checkerboard_num_rows_, checkerboard_num_rows_);
   private_nh_.param<int>("checkerboard_num_cols", checkerboard_num_cols_, checkerboard_num_cols_);

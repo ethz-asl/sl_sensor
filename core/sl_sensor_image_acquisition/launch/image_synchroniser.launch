@@ -1,0 +1,14 @@
+<launch>
+
+<!-- Public ROS param for service name so other nodes can access it -->
+<param name="image_synchroniser_service_name" type="string" value="command_image_synchroniser" />
+
+<node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
+  <rosparam command="load" file="$(arg default_param_file)" />
+  <param name="frame_id" type="string" value="$(arg frame_id)" />
+  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)"/>
+  <param name="image_topics" type="string" value="$(arg image_topics)" />
+  <param name="fixed_pattern_name" type="string" value="$(arg fixed_pattern_name)" />
+</node>		  
+
+</launch>
