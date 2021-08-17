@@ -60,6 +60,9 @@ class ScanningPlugin(Plugin):
             rospy.logerr("Parameter %s is not available. Default values will be used." % e)
         self.widget_.saveImages.setChecked(image_logger_initially_enabled)
 
+        # Get projector and image synchroniser service names
+        self.image_synchroniser_service_name = rospy.get_param("image_synchroniser_service_name", default="command_image_synchroniser")
+
         # Connect tick boxes to events
         self.widget_.savePointClouds.toggled.connect(self.update_point_cloud_logger_state)
         self.widget_.saveImages.toggled.connect(self.update_image_logger_state)
@@ -106,7 +109,7 @@ class ScanningPlugin(Plugin):
                               "Could not send service request to logger, make sure it is running.")
 
     def send_command_image_synchroniser_request(self, command, is_hw_trigger, number_scans, delay_ms):
-      service_name = "/command_image_synchroniser"
+      service_name = self.image_synchroniser_service_name
       try:
         srv_class = rosservice.get_service_class_by_name(service_name)
         srv_client = rospy.ServiceProxy(service_name, srv_class)
