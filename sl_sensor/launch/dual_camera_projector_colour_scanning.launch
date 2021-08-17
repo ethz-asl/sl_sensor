@@ -14,7 +14,7 @@
 <arg name="projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
 <arg name="decoder_name" doc="Name of decoder" default="phase_shift_with_tpu" />
 <arg name="pattern_direction" doc="Pattern direction (vertical/horizontal/both)" default="vertical" />
-<arg name="colour_image_index"  doc="Index of the pattern sequence where the scene is fully illuminated" type="int" default="1" />
+<arg name="colour_image_index"  doc="Index of the pattern sequence where the scene is fully illuminated" default="1" />
 
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
