@@ -56,12 +56,10 @@ class SLSensorCalibrationPlugin(Plugin):
 
     @Slot()
     def erase_previous_sequence(self):
-      rospy.logwarn(self.erase_previous_sequence_service_name)
       self.send_trigger_request(self.erase_previous_sequence_service_name)
 
     @Slot() 
     def grab_next_sequence(self):
-      rospy.logwarn(self.grab_next_sequence_service_name)
       self.send_trigger_request(self.grab_next_sequence_service_name)
 
     def send_trigger_request(self, service_name):
