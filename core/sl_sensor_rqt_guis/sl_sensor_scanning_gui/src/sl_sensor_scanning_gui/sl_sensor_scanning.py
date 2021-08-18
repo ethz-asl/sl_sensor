@@ -61,7 +61,10 @@ class SLSensorScanningPlugin(Plugin):
         self.widget_.saveImages.setChecked(image_logger_initially_enabled)
 
         # Get projector and image synchroniser service names
-        self.image_synchroniser_service_name = rospy.get_param("image_synchroniser_service_name", default="command_image_synchroniser")
+        self.image_synchroniser_service_name = rospy.get_param("image_synchroniser_service_name", default="/command_image_synchroniser")
+
+        if self.image_synchroniser_service_name[0] != "/":
+          self.image_synchroniser_service_name = "/" + self.image_synchroniser_service_name
 
         # Connect tick boxes to events
         self.widget_.savePointClouds.toggled.connect(self.update_point_cloud_logger_state)
