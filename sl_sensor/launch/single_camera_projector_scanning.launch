@@ -68,7 +68,7 @@
 
 <!-- RQT Scanning Dashboard if desired-->
 <group if="$(arg open_dashboard)">
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find sl_sensor)/rviz/scan_rqt_gui.rviz" />	  
+  <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch" />
   <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch" />
 </group>
 
