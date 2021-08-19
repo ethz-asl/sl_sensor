@@ -3,7 +3,7 @@ properties:
     resolution: [912, 1140]
 
 default_settings:
-  default_rgb: &default_rgb [200, 200, 200]
+  default_rgb: &default_rgb [0, 200, 0]
   default_display_colour: &default_display_colour 7
   default_exposure_us: &default_exposure_us 16667
 

@@ -119,7 +119,14 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
   }
 
   // Convert image msg to cv img
-  image_acquisition::ConvertImgArrToCvPtrVec(image_arr_ptr, image_vec_buffer_);
+  std::vector<cv_bridge::CvImageConstPtr> cv_img_const_ptr_vec_buffer;
+  image_acquisition::ConvertImgArrToCvPtrVec(image_arr_ptr, cv_img_const_ptr_vec_buffer);
+
+  image_vec_buffer_.clear();
+  for (const auto& cv : cv_img_const_ptr_vec_buffer)
+  {
+    image_vec_buffer_.emplace_back(cv->image.clone());
+  }
 
   // For each camera try to extract checkerboard from shading
   std::vector<bool> extracted_checkerboard_success_vec;
@@ -128,8 +135,8 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
   for (int i = 0; i < number_cameras_; i++)
   {
     std::vector<cv::Point2f> checkerboard_coordinates;
-    bool success = cv::findChessboardCorners(image_vec_buffer_[i * 4 + 3]->image, checkerboard_size_,
-                                             checkerboard_coordinates, cv::CALIB_CB_ADAPTIVE_THRESH);
+    bool success = cv::findChessboardCorners(image_vec_buffer_[i * 4 + 3], checkerboard_size_, checkerboard_coordinates,
+                                             cv::CALIB_CB_ADAPTIVE_THRESH);
 
     if (!success)
     {
@@ -148,7 +155,7 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
     // Publish shading for visualisation(with corner locations if they are detected)
     sensor_msgs::ImagePtr shading_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat shading_colour;
-    cv::cvtColor(image_vec_buffer_[i * 4 + 3]->image, shading_colour, cv::COLOR_GRAY2RGB);
+    cv::cvtColor(image_vec_buffer_[i * 4 + 3], shading_colour, cv::COLOR_GRAY2RGB);
     cv::drawChessboardCorners(shading_colour, checkerboard_size_, checkerboard_coordinates_vec[i],
                               extracted_checkerboard_success_vec[i]);
     cv_bridge::CvImage(std_msgs::Header(), "rgb8", shading_colour).toImageMsg(*shading_display_ptr);
@@ -156,14 +163,14 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
 
     // Publish mask for visualisation
     sensor_msgs::ImagePtr mask_display_ptr = boost::make_shared<sensor_msgs::Image>();
-    cv_bridge::CvImage(std_msgs::Header(), "8UC1", image_vec_buffer_[i * 4 + 2]->image).toImageMsg(*mask_display_ptr);
+    cv_bridge::CvImage(std_msgs::Header(), "8UC1", image_vec_buffer_[i * 4 + 2]).toImageMsg(*mask_display_ptr);
     image_pubs_[i][1].publish(mask_display_ptr);
 
     // Publish decoded horizontal projector (up) coordinates (first convert float matrix to an 8 bit image for
     // visualisation)
     sensor_msgs::ImagePtr up_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat up_display;
-    ProcessFloatImage(image_vec_buffer_[i * 4]->image, up_display);
+    ProcessFloatImage(image_vec_buffer_[i * 4], up_display);
     cv_bridge::CvImage(std_msgs::Header(), "8UC1", up_display).toImageMsg(*up_display_ptr);
     image_pubs_[i][2].publish(up_display_ptr);
 
@@ -171,7 +178,7 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
     // visualisation)
     sensor_msgs::ImagePtr vp_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat vp_display;
-    ProcessFloatImage(image_vec_buffer_[i * 4 + 1]->image, vp_display);
+    ProcessFloatImage(image_vec_buffer_[i * 4 + 1], vp_display);
     cv_bridge::CvImage(std_msgs::Header(), "8UC1", vp_display).toImageMsg(*vp_display_ptr);
     image_pubs_[i][3].publish(vp_display_ptr);
   }
@@ -265,13 +272,14 @@ void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequenc
   if (!image_vec_buffer_.empty())
   {
     SaveData(image_vec_buffer_);
+    image_vec_buffer_.clear();
   }
 
   // Send image synchroniser command to project calibration pattern
   sl_sensor_image_acquisition::CommandImageSynchroniser srv;
 
   srv.request.command = "start";
-  srv.request.pattern_name = "calibration_pattern";
+  srv.request.pattern_name = "calibration";
   srv.request.is_hardware_trigger = false;
   srv.request.number_scans = 1;
   srv.request.delay_ms =
@@ -295,7 +303,7 @@ void CalibrationSequenceAcquisitionNodelet::SendProjectorCommand(const std::stri
   }
 }
 
-void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv_bridge::CvImageConstPtr>& cv_img_ptr_vec)
+void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv::Mat>& cv_img_ptr_vec)
 {
   std::string status_message = "[CalibrationSequenceAcquisitionNodelet] Saving sequence " + std::to_string(counter_);
   ROS_INFO("%s", status_message.c_str());
@@ -309,30 +317,27 @@ void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv_bridge
     std::string up_directory =
         save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "up" + "/" + counter + ".xml";
     cv::FileStorage up_file(up_directory, cv::FileStorage::WRITE);
-    up_file << "up" << cv_img_ptr_vec[i * 4]->image;
+    up_file << "up" << cv_img_ptr_vec[i * 4];
 
     // Save decoded vertical projector coordinates (vp) to xml file
     std::string vp_directory =
         save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "vp" + "/" + counter + ".xml";
     cv::FileStorage vp_file(vp_directory, cv::FileStorage::WRITE);
-    vp_file << "vp" << cv_img_ptr_vec[i * 4 + 1]->image;
+    vp_file << "vp" << cv_img_ptr_vec[i * 4 + 1];
 
     // Save mask to bmp file
     std::string mask_directory =
         save_directory_ + save_filename_ + "/" + "cam" + number + "/" + "mask" + "/" + counter + ".bmp";
-    cv::imwrite(mask_directory, cv_img_ptr_vec[i * 4 + 2]->image);
+    cv::imwrite(mask_directory, cv_img_ptr_vec[i * 4 + 2]);
 
     // Save shading to bmp file
     std::string shading_directory =
         save_directory_ + save_filename_ + "/" + "cam" + number + "/" + "shading" + "/" + counter + ".bmp";
-    cv::imwrite(shading_directory, cv_img_ptr_vec[i * 4 + 3]->image);
+    cv::imwrite(shading_directory, cv_img_ptr_vec[i * 4 + 3]);
   }
 
   // Increment count for number of sequences saved
   counter_++;
-
-  // Clear sequence buffer
-  image_vec_buffer_.clear();
 }
 
 bool CalibrationSequenceAcquisitionNodelet::ProcessGrabNextSequenceCommand(
@@ -377,6 +382,7 @@ CalibrationSequenceAcquisitionNodelet::~CalibrationSequenceAcquisitionNodelet()
   if (!image_vec_buffer_.empty())
   {
     SaveData(image_vec_buffer_);
+    image_vec_buffer_.clear();
   }
 }
 

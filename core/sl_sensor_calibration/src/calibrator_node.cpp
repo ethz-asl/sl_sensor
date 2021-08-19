@@ -132,8 +132,8 @@ int main(int argc, char** argv)
   private_nh.param<std::string>("projector_calibration_init_yaml", projector_calibration_init_yaml,
                                 projector_calibration_init_yaml);
 
-  private_nh.param<int>("checkerboard_rows", checkerboard_rows, checkerboard_rows);
-  private_nh.param<int>("checkerboard_cols", checkerboard_cols, checkerboard_cols);
+  private_nh.param<int>("checkerboard_num_rows", checkerboard_rows, checkerboard_rows);
+  private_nh.param<int>("checkerboard_num_cols", checkerboard_cols, checkerboard_cols);
   private_nh.param<double>("checkerboard_size", checkerboard_size, checkerboard_size);
 
   private_nh.param<int>("window_radius", window_radius, window_radius);

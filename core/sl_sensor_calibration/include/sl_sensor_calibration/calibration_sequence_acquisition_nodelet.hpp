@@ -49,7 +49,7 @@ private:
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  std::vector<cv_bridge::CvImageConstPtr> image_vec_buffer_;
+  std::vector<cv::Mat> image_vec_buffer_;
 
   std::mutex mutex_;
 
@@ -75,7 +75,7 @@ private:
 
   bool ProcessEraseSequenceCommand(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res);
 
-  void SaveData(const std::vector<cv_bridge::CvImageConstPtr>& cv_img_ptr_vec);
+  void SaveData(const std::vector<cv::Mat>& cv_img_ptr_vec);
 };
 
 }  // namespace calibration

@@ -6,12 +6,12 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
-    <param name="output_projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
+    <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera_calib_io.xml"/>
+    <param name="output_projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector_calib_io.xml"/>
 
     <param name="camera_folder_name" type="string" value="cam2" />
     <param name="projector_folder_name" type="string" value="proj2" />
-    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/cam_2/" />
+    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io_cam2/" />
     <param name="ignore_1" type="string" value="" />
     <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
@@ -36,7 +36,7 @@
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
     <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
-    <param name="residuals_file_label" type="string" value="pri_cam_calib" />
+    <param name="residuals_file_label" type="string" value="pri_cam_calib_io" />
 
   </node>
 
