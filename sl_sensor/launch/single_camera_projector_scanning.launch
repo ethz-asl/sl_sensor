@@ -16,7 +16,6 @@
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
 
-
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
 <!-- Projector Node -->
