@@ -205,7 +205,7 @@ int main(int argc, char** argv)
                                 output_proj_parameters_file);
 
   bool constrain = !(intrinsic_adjustment == "unconstrained");
-  bool two_pass = (intrinsic_adjustment == "two pass");
+  bool two_pass = (intrinsic_adjustment == "two_pass");
 
   // Create BAProblem
   std::cout << "open file " << input_ba_problem_file << "\n";

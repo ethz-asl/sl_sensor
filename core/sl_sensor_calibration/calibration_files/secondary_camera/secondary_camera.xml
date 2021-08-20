@@ -5,15 +5,15 @@
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    9.93039246e+02 0. 360. 0. 9.93039246e+02 270. 0. 0. 1.</data></intrinsic_mat>
+    9.88475769e+02 0. 360. 0. 9.88475769e+02 270. 0. 0. 1.</data></intrinsic_mat>
 <lens_distortion type_id="opencv-matrix">
   <rows>5</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    -3.09918463e-01 -6.92262277e-02 -3.94752808e-03 1.43214944e-03
-    5.31827986e-01</data></lens_distortion>
-<calibration_error>1.2752428930678250e-01</calibration_error>
+    -3.16544145e-01 -1.57304272e-01 6.30148686e-04 -3.47698406e-05
+    9.22227561e-01</data></lens_distortion>
+<calibration_error>1.0139180949033891e-01</calibration_error>
 <resolution_x>720</resolution_x>
 <resolution_y>540</resolution_y>
  <!-- resumed -->
@@ -23,14 +23,14 @@
   <cols>3</cols>
   <dt>f</dt>
   <data>
-    9.74339724e-01 5.81437014e-02 2.17442870e-01 -1.45994509e-02
-    9.80350077e-01 -1.96724579e-01 -2.24608436e-01 1.88502029e-01
-    9.56042886e-01</data></extrinsic_rot>
+    9.75207269e-01 5.81142865e-02 2.13526264e-01 -1.42293554e-02
+    9.79372263e-01 -2.01562777e-01 -2.20835373e-01 1.93527147e-01
+    9.55917895e-01</data></extrinsic_rot>
 <extrinsic_trans type_id="opencv-matrix">
   <rows>3</rows>
   <cols>1</cols>
   <dt>f</dt>
   <data>
-    -1.35387146e+02 -2.47190170e+01 -1.46419706e+01</data></extrinsic_trans>
-<stereo_error>3.5561605946823821e-01</stereo_error>
+    -1.35993469e+02 -2.48043385e+01 -1.54560080e+01</data></extrinsic_trans>
+<stereo_error>2.3901529416274703e-01</stereo_error>
 </opencv_storage>
