@@ -53,7 +53,6 @@
 <!--If linear motion compensation is enabled, we need to reroute the rostopics-->
 <group if="$(arg enable_linear_motion_compensation)">
   <param name="decoder/input_topic" type="string" value="/linear_motion_compensation/aligned_images" />
-  <param name="decoder/output_topic" type="string" value="/image_synchroniser/decoded_images" />
 </group>    
 
 <!-- Triangulator -->
