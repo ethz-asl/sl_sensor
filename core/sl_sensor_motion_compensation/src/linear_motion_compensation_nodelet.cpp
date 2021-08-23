@@ -73,8 +73,10 @@ void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisi
     encoding_vec.push_back(data.encoding);
   }
 
-  PublishCvMatVec(output_pub_, aligned_images, image_arr_ptr->header.frame_id, image_arr_ptr->header.stamp,
-                  ros::Time::now(), encoding_vec);
+  // Note: We tag the output images with the timestamp of the reference image. This is important in matching the
+  // acquisition time of the point cloud to its position it the trajectory
+  PublishCvMatVec(output_pub_, aligned_images, image_arr_ptr->header.frame_id,
+                  image_arr_ptr->data[reference_indice_].header.stamp, ros::Time::now(), encoding_vec);
 }
 
 }  // namespace motion_compensation
