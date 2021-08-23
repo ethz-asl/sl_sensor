@@ -248,7 +248,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     MergeNestedVectors(nested_img_ptr_vec, imgs_to_publish);
 
     PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_,
-                      (int)image_grouper_ptrs_.size());
+                      (int)image_grouper_ptrs_.size(), synchroniser_state_.pattern_name);
   }
 
   return success;
@@ -304,7 +304,8 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
   // Merge all vectors together and publish
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
-  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_, (int)image_grouper_ptrs_.size());
+  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_, (int)image_grouper_ptrs_.size(),
+                    synchroniser_state_.pattern_name);
 
   return true;
 }

@@ -57,6 +57,7 @@ void DecoderNodelet::onInit()
   private_nh_.param<std::string>("codec_yaml_directory", codec_yaml_directory_, codec_yaml_directory_);
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
   private_nh_.param<std::string>("direction", direction_, direction_);
+  private_nh_.param<std::string>("filter_id", filter_id_, filter_id_);
 
   // Load YAML node and set some information from private node handle required to set up a decoder
   YAML::Node node = YAML::LoadFile(codec_yaml_directory_);
@@ -105,52 +106,59 @@ void DecoderNodelet::onInit()
 
 void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
 {
-  // We expect an equal number of images for each camera, and the number of images per camera should be equal or larger
-  // (in the case there might be an additional image for colour) to the number of images required for the decoder to
-  // operate
-  bool equal_number_images_per_camera = (image_array_ptr->data.size() % (size_t)image_array_ptr->number_cameras) == 0;
-  size_t images_per_camera = image_array_ptr->data.size() / image_array_ptr->number_cameras;
-  size_t images_required_for_decoder = (size_t)decoder_ptr_->GetNumberPatterns();
-
-  // Do not continue if image array does not contain the expected number of images
-  if (!equal_number_images_per_camera || images_per_camera < images_required_for_decoder)
+  // If a filter id is specified, make sure that the id from the message is correct before continuing with processing
+  if (!filter_id_.empty() && filter_id_ == image_array_ptr->id)
   {
-    ROS_INFO("[DecoderNodelet] Number of images in image array does not match requirements for decoder. Ignoring this "
-             "image array message");
-    return;
-  }
+    // We expect an equal number of images for each camera, and the number of images per camera should be equal or
+    // larger (in the case there might be an additional image for colour) to the number of images required for the
+    // decoder to operate
+    bool equal_number_images_per_camera = (image_array_ptr->data.size() % (size_t)image_array_ptr->number_cameras) == 0;
+    size_t images_per_camera = image_array_ptr->data.size() / image_array_ptr->number_cameras;
+    size_t images_required_for_decoder = decoder_ptr_->GetNumberPatterns();
 
-  // Convert image msg to cv img
-  std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
-  image_acquisition::ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
-
-  // Decode pattern sequence for each camera, store results
-  std::vector<cv::Mat> decoder_results(number_output_images_, cv::Mat());
-
-  for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
-  {
-    std::vector<cv::Mat> frames;
-
-    // For now, we assume that all the images required for decoding are at the front
-    for (size_t j = 0; j < (size_t)images_required_for_decoder; j++)
+    // Do not continue if image array does not contain the expected number of images
+    if (!equal_number_images_per_camera || images_per_camera < images_required_for_decoder)
     {
-      frames.emplace_back(cv_img_ptr_vec.at(cameras_to_decode_indices_[i] * images_required_for_decoder + j)->image);
+      ROS_INFO("[DecoderNodelet] Number of images in image array does not match requirements for decoder. Ignoring "
+               "this image array message");
     }
+    else
+    {
+      // Convert image msg to cv img
+      std::vector<cv_bridge::CvImageConstPtr> cv_img_ptr_vec;
+      image_acquisition::ConvertImgArrToCvPtrVec(image_array_ptr, cv_img_ptr_vec);
 
-    decoder_ptr_->SetFrames(frames);
-    decoder_ptr_->DecodeFrames(decoder_results.at(i * 4), decoder_results.at(i * 4 + 1), decoder_results.at(i * 4 + 2),
-                               decoder_results.at(i * 4 + 3));
+      // Decode pattern sequence for each camera, store results
+      std::vector<cv::Mat> decoder_results(number_output_images_, cv::Mat());
+
+      for (size_t i = 0; i < cameras_to_decode_indices_.size(); i++)
+      {
+        std::vector<cv::Mat> frames;
+
+        // For now, we assume that all the images required for decoding are at the front
+        for (size_t j = 0; j < images_required_for_decoder; j++)
+        {
+          frames.emplace_back(
+              cv_img_ptr_vec.at(cameras_to_decode_indices_[i] * images_required_for_decoder + j)->image);
+        }
+
+        decoder_ptr_->SetFrames(frames);
+        decoder_ptr_->DecodeFrames(decoder_results.at(i * 4), decoder_results.at(i * 4 + 1),
+                                   decoder_results.at(i * 4 + 2), decoder_results.at(i * 4 + 3));
+      }
+
+      // Assign last image in the output to be the one used for colouring if required
+      if (colour_shading_enabled_)
+      {
+        decoder_results.back() =
+            cv_img_ptr_vec.at(images_per_camera * colour_camera_index_ + colour_image_index_)->image;
+      }
+
+      // Publish results
+      image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array_ptr->header.frame_id,
+                                         image_array_ptr->header.stamp, ros::Time::now(), output_image_format_vec_);
+    }
   }
-
-  // Assign last image in the output to be the one used for colouring
-  if (colour_shading_enabled_)
-  {
-    decoder_results.back() = cv_img_ptr_vec.at(images_per_camera * colour_camera_index_ + colour_image_index_)->image;
-  }
-
-  // Publish results
-  image_acquisition::PublishCvMatVec(decoded_pub_, decoder_results, image_array_ptr->header.frame_id,
-                                     image_array_ptr->header.stamp, ros::Time::now(), output_image_format_vec_);
 };
 
 }  // namespace codec

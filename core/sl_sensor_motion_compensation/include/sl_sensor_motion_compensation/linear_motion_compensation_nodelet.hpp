@@ -25,6 +25,7 @@ private:
   std::string sub_topic_ = "/image_array_input";
   std::string pub_topic_ = "/image_array_output";
   std::string pattern_direction_ = "both";
+  std::string filter_id_ = "";
   ShiftingOption shifting_option_ = ShiftingOption::kBothDirectionsShifting;
 
   double subsample_factor_ = 1.0f;
