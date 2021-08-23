@@ -13,33 +13,33 @@ namespace reconstruction
 {
 std::pair<ProjectorParameters, CameraParameters> Triangulator::GetCalibrationParams()
 {
-  return std::make_pair(projector_parameters_, primary_camera_parameters_);
+  return std::make_pair(projector_parameters_, triangulation_camera_parameters_);
 }
 
 Triangulator::Triangulator(const calibration::ProjectorParameters &projector_parameters,
-                           const calibration::CameraParameters &primary_camera_parameters,
+                           const calibration::CameraParameters &triangulation_camera_parameters,
                            const calibration::CameraParameters &secondary_camera_parameters)
   : projector_parameters_(projector_parameters)
-  , primary_camera_parameters_(primary_camera_parameters)
-  , secondary_camera_parameters_(secondary_camera_parameters)
+  , triangulation_camera_parameters_(triangulation_camera_parameters)
+  , colour_camera_parameters_(secondary_camera_parameters)
 {
   InitTriangulationParameters();
-  InitColouringParameters();
+  InitColourShadingInfo();
 }
 
 Triangulator::Triangulator(const calibration::ProjectorParameters &projector_parameters,
-                           const calibration::CameraParameters &primary_camera_parameters)
-  : projector_parameters_(projector_parameters), primary_camera_parameters_(primary_camera_parameters)
+                           const calibration::CameraParameters &triangulation_camera_parameters)
+  : projector_parameters_(projector_parameters), triangulation_camera_parameters_(triangulation_camera_parameters)
 {
   InitTriangulationParameters();
 }
 
-void Triangulator::InitColouringParameters()
+void Triangulator::InitColourShadingInfo()
 {
   colour_shading_enabled_ = true;
 
-  cv::Mat transform_p_c1 = primary_camera_parameters_.GetTransformationMatrix();
-  cv::Mat transform_c2_p = secondary_camera_parameters_.GetInverseTransformationMatrix();
+  cv::Mat transform_p_c1 = triangulation_camera_parameters_.GetTransformationMatrix();
+  cv::Mat transform_c2_p = colour_camera_parameters_.GetInverseTransformationMatrix();
   cv::Mat transform_c2_c1 = transform_c2_p * transform_p_c1;
 
   cv::Mat rot = cv::Mat(3, 3, CV_32F);
@@ -48,21 +48,21 @@ void Triangulator::InitColouringParameters()
   transform_c2_c1(cv::Range(0, 3), cv::Range(0, 3)).copyTo(rot);
   transform_c2_c1(cv::Range(0, 3), cv::Range(3, 4)).copyTo(trans);
 
-  cv::Rodrigues(rot, colour_camera_parameters_.rvec);
-  colour_camera_parameters_.tvec = trans;
-  colour_camera_parameters_.lens_distortion = secondary_camera_parameters_.lens_distortion();
-  colour_camera_parameters_.intrinsic_mat = secondary_camera_parameters_.intrinsic_mat();
+  cv::Rodrigues(rot, colour_shading_info_.rvec);
+  colour_shading_info_.tvec = trans;
+  colour_shading_info_.lens_distortion = colour_camera_parameters_.lens_distortion();
+  colour_shading_info_.intrinsic_mat = colour_camera_parameters_.intrinsic_mat();
 }
 
 void Triangulator::InitTriangulationParameters()
 {
   // Precompute uc_, vc_ maps
-  uc_.create(primary_camera_parameters_.resolution_y(), primary_camera_parameters_.resolution_x(), CV_32F);
-  vc_.create(primary_camera_parameters_.resolution_y(), primary_camera_parameters_.resolution_x(), CV_32F);
+  uc_.create(triangulation_camera_parameters_.resolution_y(), triangulation_camera_parameters_.resolution_x(), CV_32F);
+  vc_.create(triangulation_camera_parameters_.resolution_y(), triangulation_camera_parameters_.resolution_x(), CV_32F);
 
-  for (unsigned int row = 0; row < (unsigned int)primary_camera_parameters_.resolution_y(); row++)
+  for (unsigned int row = 0; row < (unsigned int)triangulation_camera_parameters_.resolution_y(); row++)
   {
-    for (unsigned int col = 0; col < (unsigned int)primary_camera_parameters_.resolution_x(); col++)
+    for (unsigned int col = 0; col < (unsigned int)triangulation_camera_parameters_.resolution_x(); col++)
     {
       uc_.at<float>(row, col) = col;
       vc_.at<float>(row, col) = row;
@@ -71,11 +71,11 @@ void Triangulator::InitTriangulationParameters()
 
   // Compute camera matrix from calibration data
   projection_matrix_camera_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(primary_camera_parameters_.intrinsic_mat())
+  cv::Mat(triangulation_camera_parameters_.intrinsic_mat())
       .copyTo(projection_matrix_camera_(cv::Range(0, 3), cv::Range(0, 3)));
 
   projection_matrix_projector_ =
-      cv::Mat(projector_parameters_.intrinsic_mat()) * primary_camera_parameters_.GetProjectionMatrix();
+      cv::Mat(projector_parameters_.intrinsic_mat()) * triangulation_camera_parameters_.GetProjectionMatrix();
 
   // Precompute determinant tensor
   int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
@@ -103,10 +103,10 @@ void Triangulator::InitTriangulationParameters()
   // Precompute lens correction maps
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
   cv::initUndistortRectifyMap(
-      primary_camera_parameters_.intrinsic_mat(), primary_camera_parameters_.lens_distortion(), eye,
-      primary_camera_parameters_.intrinsic_mat(),
-      cv::Size(primary_camera_parameters_.resolution_x(), primary_camera_parameters_.resolution_y()), CV_16SC2,
-      lens_map_1_, lens_map_2_);
+      triangulation_camera_parameters_.intrinsic_mat(), triangulation_camera_parameters_.lens_distortion(), eye,
+      triangulation_camera_parameters_.intrinsic_mat(),
+      cv::Size(triangulation_camera_parameters_.resolution_x(), triangulation_camera_parameters_.resolution_y()),
+      CV_16SC2, lens_map_1_, lens_map_2_);
 
   // Precompute parts of xyzw
   cv::Mat &dt = determinant_tensor_;
@@ -121,7 +121,7 @@ void Triangulator::InitTriangulationParameters()
   }
 
   // Precompute camera coordinates matrix in UpVpTriangulate
-  number_pixels_ = primary_camera_parameters_.resolution_y() * primary_camera_parameters_.resolution_x();
+  number_pixels_ = triangulation_camera_parameters_.resolution_y() * triangulation_camera_parameters_.resolution_x();
   proj_points_cam_ = cv::Mat(2, number_pixels_, CV_32F);
 
   uc_.reshape(0, 1).copyTo(proj_points_cam_.row(0));
@@ -245,9 +245,9 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::ConvertToColourPCLPointClou
         std::vector<cv::Point2f> output_point_vec;
 
         // We project 3D point to secondary camera's image to get pixel coordinate
-        cv::projectPoints(std::vector<cv::Vec3f>{ xyz.at<cv::Vec3f>(row, col) }, colour_camera_parameters_.rvec,
-                          colour_camera_parameters_.tvec, colour_camera_parameters_.intrinsic_mat,
-                          colour_camera_parameters_.lens_distortion, output_point_vec);
+        cv::projectPoints(std::vector<cv::Vec3f>{ xyz.at<cv::Vec3f>(row, col) }, colour_shading_info_.rvec,
+                          colour_shading_info_.tvec, colour_shading_info_.intrinsic_mat,
+                          colour_shading_info_.lens_distortion, output_point_vec);
 
         cv::Point2f &output_point = output_point_vec.at(0);
 

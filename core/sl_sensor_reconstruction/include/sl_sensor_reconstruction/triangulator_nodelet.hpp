@@ -41,8 +41,8 @@ private:
   std::string pc_pub_topic_ = "/point_cloud_output";
   std::string camera_parameters_filename_;
   std::string projector_parameters_filename_;
-  std::string primary_camera_parameters_filename_;
-  std::string secondary_camera_parameters_filename_;
+  std::string triangulation_camera_parameters_filename_;
+  std::string colour_camera_parameters_filename_;
 
   std::unique_ptr<Triangulator> triangulator_ptr_;
 

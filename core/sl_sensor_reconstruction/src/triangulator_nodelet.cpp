@@ -29,10 +29,10 @@ void TriangulatorNodelet::onInit()
   // Obtain information from private node handle
   private_nh_.param<std::string>("input_topic", image_array_sub_topic_, image_array_sub_topic_);
   private_nh_.param<std::string>("output_topic", pc_pub_topic_, pc_pub_topic_);
-  private_nh_.param<std::string>("primary_camera_parameters_filename", primary_camera_parameters_filename_,
-                                 primary_camera_parameters_filename_);
-  private_nh_.param<std::string>("secondary_camera_parameters_filename", secondary_camera_parameters_filename_,
-                                 secondary_camera_parameters_filename_);
+  private_nh_.param<std::string>("triangulation_camera_parameters_filename", triangulation_camera_parameters_filename_,
+                                 triangulation_camera_parameters_filename_);
+  private_nh_.param<std::string>("colour_camera_parameters_filename", colour_camera_parameters_filename_,
+                                 colour_camera_parameters_filename_);
   private_nh_.param<std::string>("projector_parameters_filename", projector_parameters_filename_,
                                  projector_parameters_filename_);
   private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
@@ -46,18 +46,18 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<bool>("colour_shading_enabled", colour_shading_enabled_, colour_shading_enabled_);
 
   // Load Camera Calibration Data
-  CameraParameters primary_camera_parameters;
-  if (primary_camera_parameters.Load(primary_camera_parameters_filename_))
+  CameraParameters triangulation_camera_parameters;
+  if (triangulation_camera_parameters.Load(triangulation_camera_parameters_filename_))
   {
     ROS_INFO("[TriangulatorNodelet] Primary camera parameters loaded successfully.");
   }
   else
   {
-    ROS_ERROR("[TriangulatorNodelet] Failed to load primary camera parameters!");
+    ROS_ERROR("[TriangulatorNodelet] Failed to load triangulation camera parameters!");
   }
 
-  ROS_INFO("[TriangulatorNodelet] Loaded primary camera parameters: ");
-  std::cout << primary_camera_parameters << std::endl;
+  ROS_INFO("[TriangulatorNodelet] Loaded triangulation camera parameters: ");
+  std::cout << triangulation_camera_parameters << std::endl;
 
   ProjectorParameters projector_parameters;
   if (projector_parameters.Load(projector_parameters_filename_))
@@ -72,31 +72,31 @@ void TriangulatorNodelet::onInit()
   ROS_INFO("[TriangulatorNodelet] Loaded projector parameters: ");
   std::cout << projector_parameters << std::endl;
 
-  CameraParameters secondary_camera_parameters;
+  CameraParameters colour_camera_parameters;
   if (colour_shading_enabled_)
   {
-    if (secondary_camera_parameters.Load(secondary_camera_parameters_filename_))
+    if (colour_camera_parameters.Load(colour_camera_parameters_filename_))
     {
-      ROS_INFO("[TriangulatorNodelet] Secondary camera parameters loaded successfully.");
+      ROS_INFO("[TriangulatorNodelet] Colour camera parameters loaded successfully.");
     }
     else
     {
-      ROS_ERROR("[TriangulatorNodelet] Failed to load secondary camera parameters!");
+      ROS_ERROR("[TriangulatorNodelet] Failed to load colour camera parameters!");
     }
 
-    ROS_INFO("[TriangulatorNodelet] Loaded secondary camera parameters: ");
-    std::cout << secondary_camera_parameters << std::endl;
+    ROS_INFO("[TriangulatorNodelet] Loaded colour camera parameters: ");
+    std::cout << colour_camera_parameters << std::endl;
   }
 
   // Setup Triangulator
   if (colour_shading_enabled_)
   {
     triangulator_ptr_ =
-        std::make_unique<Triangulator>(projector_parameters, primary_camera_parameters, secondary_camera_parameters);
+        std::make_unique<Triangulator>(projector_parameters, triangulation_camera_parameters, colour_camera_parameters);
   }
   else
   {
-    triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, primary_camera_parameters);
+    triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, triangulation_camera_parameters);
   }
 
   // Setup publisher and subscriber
@@ -112,9 +112,7 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   if (expected_images != image_array_ptr->data.size())
   {
     ROS_INFO("[TriangulatorNodelet] Number of images in image array does not match requirements for triangulator. "
-             "Ignoring "
-             "this "
-             "image array message");
+             "Ignoring this image array message");
     return;
   }
 

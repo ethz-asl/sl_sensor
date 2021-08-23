@@ -5,7 +5,7 @@
   <arg name="save_images" value="false" />
   <arg name="save_header" value="log" />
 
-  <arg name="primary_camera_parameters_filename"  value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+  <arg name="triangulation_camera_parameters_filename"  value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
   <arg name="projector_parameters_filename" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
   <arg name="camera_name" value="cam2"/>
   <arg name="projector_pattern_name" value="psp_tpu_vertical" />
