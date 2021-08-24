@@ -5,6 +5,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <algorithm>
+#include <opencv2/core/eigen.hpp>
 #include <sl_sensor_calibration/camera_parameters.hpp>
 #include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
@@ -35,6 +36,8 @@ void TriangulatorNodelet::onInit()
                                  colour_camera_parameters_filename_);
   private_nh_.param<std::string>("projector_parameters_filename", projector_parameters_filename_,
                                  projector_parameters_filename_);
+  private_nh_.param<std::string>("frame_camera_parameters_filename", frame_camera_parameters_filename_,
+                                 frame_camera_parameters_filename_);
   private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
   private_nh_.param<float>("crop_box_x_min", crop_box_x_min_, crop_box_x_min_);
   private_nh_.param<float>("crop_box_y_min", crop_box_y_min_, crop_box_y_min_);
@@ -45,7 +48,7 @@ void TriangulatorNodelet::onInit()
 
   private_nh_.param<bool>("colour_shading_enabled", colour_shading_enabled_, colour_shading_enabled_);
 
-  // Load Camera Calibration Data
+  // Load camera and projector data
   CameraParameters triangulation_camera_parameters;
   if (triangulation_camera_parameters.Load(triangulation_camera_parameters_filename_))
   {
@@ -99,6 +102,30 @@ void TriangulatorNodelet::onInit()
     triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, triangulation_camera_parameters);
   }
 
+  CameraParameters frame_camera_parameters;  // This contains transformation information between the projector and the
+                                             // camera in which you want to set as the sensor frame
+  if (!frame_camera_parameters_filename_.empty())
+  {
+    if (frame_camera_parameters.Load(frame_camera_parameters_filename_))
+    {
+      // Compute transform between camera that points are triangulated in wrt sensor frame
+      cv::Mat cv_mat_transform_frame_tri = frame_camera_parameters.GetInverseTransformationMatrix() *
+                                           triangulation_camera_parameters.GetTransformationMatrix();
+
+      // Store as eigen matrix for use during callback
+      cv::cv2eigen(cv_mat_transform_frame_tri, transform_sensor_tri_);
+
+      frame_camera_provided_ = true;
+
+      ROS_INFO("[TriangulatorNodelet] Loaded frame camera parameters: ");
+      std::cout << frame_camera_parameters << std::endl;
+    }
+    else
+    {
+      ROS_ERROR("[TriangulatorNodelet] Failed to load frame camera parameters!");
+    }
+  }
+
   // Setup publisher and subscriber
   pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pc_pub_topic_, 10);
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &TriangulatorNodelet::ImageArrayCb, this);
@@ -126,14 +153,8 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     auto pc_ptr = triangulator_ptr_->TriangulateColour(cv_img_ptr_vec.at(0)->image, cv_img_ptr_vec.at(1)->image,
                                                        cv_img_ptr_vec.at(2)->image, cv_img_ptr_vec.at(4)->image);
 
-    // Apply box filter if specified (point cloud will no longer be organised!)
-    if (apply_crop_box_)
-    {
-      ApplyCropBox<pcl::PointXYZRGB>(pc_ptr);
-    }
-
-    // Publish point cloud
-    PublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);
+    // Additional processing and then publish point cloud
+    PostProcessAndPublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);
   }
   else
   {
@@ -141,14 +162,8 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     auto pc_ptr = triangulator_ptr_->TriangulateMonochrome(cv_img_ptr_vec.at(0)->image, cv_img_ptr_vec.at(1)->image,
                                                            cv_img_ptr_vec.at(2)->image, cv_img_ptr_vec.at(3)->image);
 
-    // Apply box filter if specified (point cloud will no longer be organised!)
-    if (apply_crop_box_)
-    {
-      ApplyCropBox<pcl::PointXYZI>(pc_ptr);
-    }
-
-    // Publish point cloud
-    PublishPointCloud<pcl::PointXYZI>(pc_ptr, image_array_ptr);
+    // Additional processing and then publish point cloud
+    PostProcessAndPublishPointCloud<pcl::PointXYZI>(pc_ptr, image_array_ptr);
   }
 }
 
