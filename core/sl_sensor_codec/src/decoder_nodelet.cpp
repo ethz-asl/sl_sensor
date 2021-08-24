@@ -107,7 +107,7 @@ void DecoderNodelet::onInit()
 void DecoderNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
 {
   // If a filter id is specified, make sure that the id from the message is correct before continuing with processing
-  if (!filter_id_.empty() && filter_id_ == image_array_ptr->id)
+  if (filter_id_.empty() || (!filter_id_.empty() && filter_id_ == image_array_ptr->id))
   {
     // We expect an equal number of images for each camera, and the number of images per camera should be equal or
     // larger (in the case there might be an additional image for colour) to the number of images required for the

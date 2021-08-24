@@ -54,7 +54,7 @@ void LinearMotionCompensationNodelet::onInit()
 void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr image_arr_ptr)
 {
   // If a filter id is specified, make sure that the id from the message is correct before continuing with processing
-  if (!filter_id_.empty() && filter_id_ == image_arr_ptr->id)
+  if (filter_id_.empty() || (!filter_id_.empty() && filter_id_ == image_arr_ptr->id))
   {
     bool proceed_with_alignment = true;
 
@@ -89,7 +89,7 @@ void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisi
       // Add to unaligned_images the camera images that we want to align and also keep track of the encoding
       std::vector<cv::Mat> unaligned_images;
       std::vector<std::string> encoding_vec;
-      for (size_t i = camera_index_; i < camera_index_ + images_per_camera; i++)
+      for (size_t i = camera_index_ * images_per_camera; i < camera_index_ * images_per_camera + images_per_camera; i++)
       {
         unaligned_images.emplace_back(cv_img_ptr_vec[i]->image);
         encoding_vec.push_back(cv_img_ptr_vec[i]->encoding);
