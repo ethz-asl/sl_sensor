@@ -30,6 +30,7 @@ private:
 
   double subsample_factor_ = 1.0f;
   int reference_index_ = 1;
+  int camera_index_ = 0;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
