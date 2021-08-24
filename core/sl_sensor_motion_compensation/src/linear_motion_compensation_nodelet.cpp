@@ -22,7 +22,7 @@ void LinearMotionCompensationNodelet::onInit()
   private_nh_.param<std::string>("input_topic", sub_topic_, sub_topic_);
   private_nh_.param<std::string>("output_topic", pub_topic_, pub_topic_);
   private_nh_.param<std::string>("pattern_direction", pattern_direction_, pattern_direction_);
-  private_nh_.param<int>("reference_indice", reference_indice_, reference_indice_);
+  private_nh_.param<int>("reference_index", reference_index_, reference_index_);
   private_nh_.param<double>("subsample_factor", subsample_factor_, subsample_factor_);
   private_nh_.param<std::string>("filter_id", filter_id_, filter_id_);
 
@@ -66,7 +66,7 @@ void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisi
 
     // Align images
     std::vector<cv::Mat> aligned_images = {};
-    PhaseCorrelateAlignImageSequence(unaligned_images, aligned_images, reference_indice_, subsample_factor_,
+    PhaseCorrelateAlignImageSequence(unaligned_images, aligned_images, reference_index_, subsample_factor_,
                                      shifting_option_);
 
     // Publish aligned images
@@ -80,7 +80,7 @@ void LinearMotionCompensationNodelet::ImageArrayCb(const sl_sensor_image_acquisi
     // Note: We tag the output images with the timestamp of the reference image. This is important in matching the
     // acquisition time of the point cloud to its position it the trajectory
     PublishCvMatVec(output_pub_, aligned_images, image_arr_ptr->header.frame_id,
-                    image_arr_ptr->data[reference_indice_].header.stamp, ros::Time::now(), encoding_vec);
+                    image_arr_ptr->data[reference_index_].header.stamp, ros::Time::now(), encoding_vec);
   }
 }
 

@@ -1,5 +1,5 @@
 input_topic: "/image_synchroniser/grouped_images"
 output_topic: "/linear_motion_compensation/aligned_images"
-reference_indice: 1 # Align all images to the image with the specified image indice. E.g. If reference_indice is 1, all images will be aligned w.r.t the second image in the sequence
+reference_index: 1 # Align all images to the image with the specified image indice. E.g. If reference_indice is 1, all images will be aligned w.r.t the second image in the sequence
 subsample_factor: 1.0 # Amount to subsample images before applying phase correlation image registration
 

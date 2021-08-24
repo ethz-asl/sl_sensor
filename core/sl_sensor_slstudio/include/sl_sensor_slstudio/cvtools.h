@@ -30,10 +30,10 @@ std::vector<cv::Mat> read_image_sequence(const std::string &folder_directory, co
 
 char showImages(std::string title, std::vector<cv::Mat> &imgs, cv::Size cellSize);
 
-void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                              std::vector<cv::Point2d> &shifts);
 
-void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                              std::vector<cv::Point2d> &shifts, double subsample_factor);
 
 void apply_shifts_to_image_sequence(std::vector<cv::Mat> &input_image_sequence,

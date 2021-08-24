@@ -290,10 +290,10 @@ private:
    * @brief Perform phase correlation image registration on an image sequence
    *
    * @param image_sequence - Vector of images
-   * @param reference_indice - indice specifying which image in image_sequence is the reference image
+   * @param reference_index - indice specifying which image in image_sequence is the reference image
    * @param shifts - Vector of 2D values indicating the required shifts
    */
-  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                            std::vector<cv::Point2d> &shifts);
 
   /**
@@ -301,13 +301,13 @@ private:
    * Image is subsampled by subsample_factor before registration is performed
    *
    * @param image_sequence - Vector of images
-   * @param reference_indice - indice specifying which image in image_sequence is the reference image
+   * @param reference_index - indice specifying which image in image_sequence is the reference image
    * @param shifts - Vector of 2D values indicating the required shifts. Subsample factor has been accounted for (i.e.
    * shifts are for non-subsampled images)
    * @param subsample_factor - Factor to down scale images before registration. Set to a value <= 0.0 to disable
    * subsampling
    */
-  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                            std::vector<cv::Point2d> &shifts, double subsample_factor);
 
   /**

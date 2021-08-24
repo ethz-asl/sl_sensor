@@ -29,7 +29,7 @@ private:
   ShiftingOption shifting_option_ = ShiftingOption::kBothDirectionsShifting;
 
   double subsample_factor_ = 1.0f;
-  int reference_indice_ = 1;
+  int reference_index_ = 1;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;

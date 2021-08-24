@@ -15,14 +15,14 @@ enum class ShiftingOption
 };
 
 void PhaseCorrelateAlignImageSequence(const std::vector<cv::Mat> &input_image_sequence,
-                                      std::vector<cv::Mat> &output_image_sequence, size_t reference_indice,
+                                      std::vector<cv::Mat> &output_image_sequence, size_t reference_index,
                                       double subsample_factor = 1.0f,
                                       ShiftingOption shifting_option = ShiftingOption::kBothDirectionsShifting);
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_index,
                                          std::vector<cv::Point2d> &shifts);
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_index,
                                          std::vector<cv::Point2d> &shifts, double subsample_factor);
 
 void ApplyShiftsToImageSequence(const std::vector<cv::Mat> &input_image_sequence,
