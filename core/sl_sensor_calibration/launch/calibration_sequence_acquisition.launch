@@ -28,18 +28,18 @@
   <!-- Decoder Nodelet -->
   <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
-    <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
-    <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-    <param name="direction" type="string" value="both" />
-    <param name="decoder_name" type="string" value="calibration" />
-    <param name="cameras_to_decode_indices" type="string" value="0 1" />
+    <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+    <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+    <param name="direction" type="str" value="both" />
+    <param name="decoder_name" type="str" value="calibration" />
+    <param name="cameras_to_decode_indices" type="str" value="0 1" />
   </node>	
 
   <!-- Calibration Sequence Acquisition Nodelet -->
   <node pkg="nodelet" type="nodelet" name="calibration_sequence_acquisition" args="load sl_sensor_calibration/CalibrationSequenceAcquisitionNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
-    <param name="save_directory" type="string" value="$(arg save_directory)" />
-    <param name="save_filename" type="string" value="$(arg save_filename)" />
+    <param name="save_directory" type="str" value="$(arg save_directory)" />
+    <param name="save_filename" type="str" value="$(arg save_filename)" />
     <param name="number_cameras" type="int" value="2" />
   </node>		  
   

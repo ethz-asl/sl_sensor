@@ -2,17 +2,17 @@
 
   <node pkg="sl_sensor_calibration" type="dual_camera_calibration_preparator_node" name="dual_camera_calibration_preparator_node" required="true" output="screen">
 
-    <param name="pri_camera_folder_name" type="string" value="cam2" />
-    <param name="sec_camera_folder_name" type="string" value="cam1" />
-    <param name="pri_projector_folder_name" type="string" value="proj2" />
-    <param name="sec_projector_folder_name" type="string" value="proj1" />
-    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/both/" />
-    <param name="bundle_adjustment_problem_output_filename" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
-    <param name="ignore_1" type="string" value="" />
+    <param name="pri_camera_folder_name" type="str" value="cam2" />
+    <param name="sec_camera_folder_name" type="str" value="cam1" />
+    <param name="pri_projector_folder_name" type="str" value="proj2" />
+    <param name="sec_projector_folder_name" type="str" value="proj1" />
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/both/" />
+    <param name="bundle_adjustment_problem_output_filename" type="str" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
+    <param name="ignore_1" type="str" value="" />
 
-    <param name="pri_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
-    <param name="sec_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
-    <param name="projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
+    <param name="pri_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
+    <param name="sec_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
+    <param name="projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
 
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 

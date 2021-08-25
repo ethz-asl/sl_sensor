@@ -4,18 +4,18 @@
   <arg name="save_header" doc="Header appended to start of saved files" default="log" />
 
   <node pkg="nodelet" type="nodelet" name="point_cloud_logger" args="load sl_sensor_logger/PointCloudLoggerNodelet standalone_nodelet" output="screen">
-    <param name="service_name" type="string" value="/enable_log_pc" />
-    <param name="log_topic" type="string" value="/triangulator/point_cloud" />
+    <param name="service_name" type="str" value="/enable_log_pc" />
+    <param name="log_topic" type="str" value="/triangulator/point_cloud" />
     <param name="initially_enabled" type="bool" value="$(arg save_point_cloud)" />
-    <param name="log_directory" type="string" value="$(find sl_sensor)/saved_point_clouds/" />
-    <param name="file_header" type="string" value="$(arg save_header)" />
+    <param name="log_directory" type="str" value="$(find sl_sensor)/saved_point_clouds/" />
+    <param name="file_header" type="str" value="$(arg save_header)" />
   </node>		  
 
   <node pkg="nodelet" type="nodelet" name="image_logger" args="load sl_sensor_logger/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
-    <param name="service_name" type="string" value="/enable_log_image" />
-    <param name="log_topic" type="string" value="/image_synchroniser/grouped_images" />
+    <param name="service_name" type="str" value="/enable_log_image" />
+    <param name="log_topic" type="str" value="/image_synchroniser/grouped_images" />
     <param name="initially_enabled" type="bool" value="$(arg save_images)" />
-    <param name="log_directory" type="string" value="$(find sl_sensor)/saved_images/" />
-    <param name="file_header" type="string" value="$(arg save_header)" />
+    <param name="log_directory" type="str" value="$(find sl_sensor)/saved_images/" />
+    <param name="file_header" type="str" value="$(arg save_header)" />
   </node>
 </launch>

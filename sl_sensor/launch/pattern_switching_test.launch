@@ -42,65 +42,65 @@
 <group if="$(arg enable_linear_motion_compensation)">
   <node pkg="nodelet" type="nodelet" name="linear_motion_compensation_horizontal" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
-    <param name="pattern_direction" type="string" value="horizontal" />
-    <param name="output_topic" type="string" value="/linear_motion_compensation/aligned_images_horizontal" />
+    <param name="pattern_direction" type="str" value="horizontal" />
+    <param name="output_topic" type="str" value="/linear_motion_compensation/aligned_images_horizontal" />
     <param name="camera_index" type="int" value="0" />
-    <param name="filter_id" type="string" value="$(arg horizontal_projector_pattern_name)" />
+    <param name="filter_id" type="str" value="$(arg horizontal_projector_pattern_name)" />
   </node>
 
   <node pkg="nodelet" type="nodelet" name="linear_motion_compensation_vertical" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
-    <param name="pattern_direction" type="string" value="vertical" />
-    <param name="output_topic" type="string" value="/linear_motion_compensation/aligned_images_vertical" />
+    <param name="pattern_direction" type="str" value="vertical" />
+    <param name="output_topic" type="str" value="/linear_motion_compensation/aligned_images_vertical" />
     <param name="camera_index" type="int" value="1" />
-    <param name="filter_id" type="string" value="$(arg vertical_projector_pattern_name)" />
+    <param name="filter_id" type="str" value="$(arg vertical_projector_pattern_name)" />
   </node>
 </group>
 
 <!-- Decoders -->
 <node pkg="nodelet" type="nodelet" name="decoder_horizontal" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
-  <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="horizontal" />
-  <param name="decoder_name" type="string" value="$(arg decoder_name)" />
-  <param name="output_topic" type="string" value="/decoder_horizontal/decoded_images" />
-  <param name="filter_id" type="string" value="$(arg horizontal_projector_pattern_name)" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="horizontal" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
+  <param name="output_topic" type="str" value="/decoder_horizontal/decoded_images" />
+  <param name="filter_id" type="str" value="$(arg horizontal_projector_pattern_name)" />
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="decoder_vertical" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
-  <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="vertical" />
-  <param name="decoder_name" type="string" value="$(arg decoder_name)" />
-  <param name="output_topic" type="string" value="/decoder_vertical/decoded_images" />
-  <param name="cameras_to_decode_indices" type="string" value="1" />
-  <param name="filter_id" type="string" value="$(arg vertical_projector_pattern_name)" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="vertical" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
+  <param name="output_topic" type="str" value="/decoder_vertical/decoded_images" />
+  <param name="cameras_to_decode_indices" type="str" value="1" />
+  <param name="filter_id" type="str" value="$(arg vertical_projector_pattern_name)" />
 </node>		  
 
 <!--If set Decoder input topic based on whether there is motion compensation -->
 <group if="$(arg enable_linear_motion_compensation)">
-  <param name="decoder_horizontal/input_topic" type="string" value="/linear_motion_compensation/aligned_images_horizontal" />
-  <param name="decoder_vertical/input_topic" type="string" value="/linear_motion_compensation/aligned_images_vertical" />
+  <param name="decoder_horizontal/input_topic" type="str" value="/linear_motion_compensation/aligned_images_horizontal" />
+  <param name="decoder_vertical/input_topic" type="str" value="/linear_motion_compensation/aligned_images_vertical" />
   <!-- If there is a motion compensation nodelet, then decoder will only receive a single set of images as compared to getting images from the synchroniser where it will receive images from both cameras. Hence we set index to zero-->
-  <param name="decoder_vertical/cameras_to_decode_indices" type="string" value="0" />
+  <param name="decoder_vertical/cameras_to_decode_indices" type="str" value="0" />
 </group>
 
 <!-- Triangulator -->
 <node pkg="nodelet" type="nodelet" name="triangulator_horizontal" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
-  <param name="input_topic" type="string" value="/decoder_horizontal/decoded_images" />
-  <param name="triangulation_camera_parameters_filename" type="string" value="$(arg horizontal_camera_parameters_filename)" />
-  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
-  <param name="frame_camera_parameters_filename" type="string" value="$(arg vertical_camera_parameters_filename)" /> <!-- Translate to frame of vertical pattern camera (top camera)-->
+  <param name="input_topic" type="str" value="/decoder_horizontal/decoded_images" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg horizontal_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
+  <param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" /> <!-- Translate to frame of vertical pattern camera (top camera)-->
 </node>		  
 
 <node pkg="nodelet" type="nodelet" name="triangulator_vertical" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
-  <param name="input_topic" type="string" value="/decoder_vertical/decoded_images" />
-  <param name="triangulation_camera_parameters_filename" type="string" value="$(arg vertical_camera_parameters_filename)" />
-  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
+  <param name="input_topic" type="str" value="/decoder_vertical/decoded_images" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
 </node>		  
 
 <!-- Loggers -->

@@ -3,7 +3,7 @@
   <!-- Public ROS param for service name so other nodes can access it -->
   <param name="projector_service_name" type="str" value="command_projector"/>
 
-  <param name="projector_yaml_directory" type="string" value= "$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value= "$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" /> 
   <node pkg="sl_sensor_projector" type="lightcrafter_4500_node" name="lightcrafter_4500_node" output="screen"/>
 
 </launch>

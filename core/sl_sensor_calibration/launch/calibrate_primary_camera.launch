@@ -6,14 +6,14 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera_calib_io.xml"/>
-    <param name="output_projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector_calib_io.xml"/>
+    <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera_calib_io.xml"/>
+    <param name="output_projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector_calib_io.xml"/>
 
-    <param name="camera_folder_name" type="string" value="cam2" />
-    <param name="projector_folder_name" type="string" value="proj2" />
-    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io_cam2/" />
-    <param name="ignore_1" type="string" value="" />
-    <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
+    <param name="camera_folder_name" type="str" value="cam2" />
+    <param name="projector_folder_name" type="str" value="proj2" />
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io_cam2/" />
+    <param name="ignore_1" type="str" value="" />
+    <param name="projector_yaml_directory" type="str" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
     <param name="camera_fix_principle_point" type="bool" value="0" />
     <param name="camera_fix_aspect_ratio" type="bool" value="0" />
@@ -22,7 +22,7 @@
     <param name="camera_zero_tangential_distortion" type="bool" value="0" />
     <param name="camera_fix_values" type="bool" value="0" />
     <param name="camera_use_initial_guess" type="bool" value="0" />
-    <param name="camera_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
+    <param name="camera_calibration_init_yaml" type="str" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
     <param name="projector_fix_principle_point" type="bool" value="0" />
     <param name="projector_fix_aspect_ratio" type="bool" value="1" />
@@ -31,12 +31,12 @@
     <param name="projector_zero_tangential_distortion" type="bool" value="1" />
     <param name="projector_fix_values" type="bool" value="0" />
     <param name="projector_use_initial_guess" type="bool" value="0" />
-    <param name="projector_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
+    <param name="projector_calibration_init_yaml" type="str" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
-    <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
-    <param name="residuals_file_label" type="string" value="pri_cam_calib_io" />
+    <param name="residuals_save_folder" type="str" value="$(find sl_sensor_calibration)/residual_files/" />
+    <param name="residuals_file_label" type="str" value="pri_cam_calib_io" />
 
   </node>
 

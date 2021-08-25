@@ -36,29 +36,29 @@
 <group if="$(arg enable_linear_motion_compensation)">
   <node pkg="nodelet" type="nodelet" name="linear_motion_compensation" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
-    <param name="pattern_direction" type="string" value="$(arg pattern_direction)" />
+    <param name="pattern_direction" type="str" value="$(arg pattern_direction)" />
   </node>
 </group>
 
 <!-- Decoder -->
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
-  <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="$(arg pattern_direction)" />
-  <param name="decoder_name" type="string" value="$(arg decoder_name)" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="$(arg pattern_direction)" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
 </node>		  
 
 <!--If linear motion compensation is enabled, we need to reroute the rostopics -->
 <group if="$(arg enable_linear_motion_compensation)">
-  <param name="decoder/input_topic" type="string" value="/linear_motion_compensation/aligned_images" />
+  <param name="decoder/input_topic" type="str" value="/linear_motion_compensation/aligned_images" />
 </group>    
 
 <!-- Triangulator -->
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
-  <param name="triangulation_camera_parameters_filename" type="string" value="$(arg triangulation_camera_parameters_filename)" />
-  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg triangulation_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
 </node>		  
 
 <!-- Loggers -->
