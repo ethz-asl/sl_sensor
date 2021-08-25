@@ -12,7 +12,6 @@
 <arg name="horizontal_camera_name" doc="Name of camera as declared in in versavis" default="cam1"/>
 <arg name="vertical_camera_name" doc="Name of camera as declared in in versavis" default="cam2"/>
 
-
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
 
@@ -110,7 +109,9 @@
 <!-- RQT Scanning Dashboard if desired -->
 <group if="$(arg open_dashboard)">
   <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch" />
-  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch" />
+  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch">
+    <arg name="projector_pattern_names" value="$(arg horizontal_projector_pattern_name) $(arg vertical_projector_pattern_name)"/>
+  </include>
 </group>
 
 </launch>

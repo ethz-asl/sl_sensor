@@ -60,6 +60,24 @@ class SLSensorScanningPlugin(Plugin):
             rospy.logerr("Parameter %s is not available. Default values will be used." % e)
         self.widget_.saveImages.setChecked(image_logger_initially_enabled)
 
+        # Populate projector pattern combo box. 
+        # If not specified, we add "Default" which sets the pattern field in the /command_image_synchroniser service call to be empty 
+        # Empty pattern name means that if the fixed_pattern_name rosparam is specified during the initialisation of the image_synchroniser,
+        # it will play that particular pattern. If not, then no action will be performed by the image syncrhoniser
+        projector_patterns_concat = ""
+        try:
+            projector_patterns_concat = rospy.get_param("/sl_sensor_scanning_gui/projector_patterns")
+        except KeyError as e:
+            rospy.logerr("Parameter %s is not available. Default values will be used." % e)
+
+        projector_patterns = projector_patterns_concat.split(" ")
+
+        if not projector_patterns:
+          self.widget_.projectorPatternCombo.addItem("Default")
+        else:
+          for pattern_name in projector_patterns:
+            self.widget_.projectorPatternCombo.addItem(pattern_name)
+
         # Get projector and image synchroniser service names
         self.image_synchroniser_service_name = rospy.get_param("image_synchroniser_service_name", default="/command_image_synchroniser")
 
@@ -92,6 +110,10 @@ class SLSensorScanningPlugin(Plugin):
     def stop_scan_sw_trigger(self):
       self.send_command_image_synchroniser_request("stop", False, 0, 0)
 
+    def get_projector_pattern_name_from_combo_box(self):
+      combo_box_text = self.widget_.projectorPatternCombo.currentText()
+      return "" if ((not combo_box_text) or combo_box_text == "Default") else combo_box_text
+
     def send_enable_logger_request(self, service_name, enable):
       try:
         srv_class = rosservice.get_service_class_by_name(service_name)
@@ -119,7 +141,7 @@ class SLSensorScanningPlugin(Plugin):
         request = srv_class._request_class()
 
         request.command = command
-        request.pattern_name = "" # Empty pattern name so image synchroniser will use the default one it has been set to
+        request.pattern_name = self.get_projector_pattern_name_from_combo_box()
         request.is_hardware_trigger = is_hw_trigger
         request.number_scans = number_scans
         request.delay_ms = delay_ms

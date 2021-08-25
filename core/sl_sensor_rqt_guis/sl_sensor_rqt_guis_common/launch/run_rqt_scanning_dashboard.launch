@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-  <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen"
-        args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui.perspective">
-  </node>
+  <arg name="projector_pattern_names" doc="Projector pattern names to be displayed in the combo box, separated by single spaces" default="" />
+  <param name="/sl_sensor_scanning_gui/projector_patterns" value="$(arg projector_pattern_names)"/>
+
+  <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen" args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui.perspective"/>
 
 </launch>

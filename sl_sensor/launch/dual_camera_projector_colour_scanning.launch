@@ -66,7 +66,10 @@
   <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch">
     <arg name="is_colour_point_cloud" value="true"/>
   </include>
-  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch" />
+  
+  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch">
+    <arg name="projector_pattern_names" value="$(arg projector_pattern_name)"/>
+  </include>
 </group>
 
 </launch>
