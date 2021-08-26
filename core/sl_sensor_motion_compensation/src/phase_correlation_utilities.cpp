@@ -5,7 +5,7 @@ namespace sl_sensor
 namespace motion_compensation
 {
 void PhaseCorrelateAlignImageSequence(const std::vector<cv::Mat> &input_image_sequence,
-                                      std::vector<cv::Mat> &output_image_sequence, int reference_indice,
+                                      std::vector<cv::Mat> &output_image_sequence, size_t reference_indice,
                                       double subsample_factor, ShiftingOption shifting_option)
 {
   std::vector<cv::Point2d> shifts;
@@ -13,7 +13,7 @@ void PhaseCorrelateAlignImageSequence(const std::vector<cv::Mat> &input_image_se
   ApplyShiftsToImageSequence(input_image_sequence, output_image_sequence, shifts, shifting_option);
 }
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
                                          std::vector<cv::Point2d> &shifts)
 {
   shifts.clear();
@@ -23,7 +23,7 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
   // If input is an 8 bit image, we convert it to the required CV_32FC1 format
   if (image_sequence[0].type() == CV_8UC1)
   {
-    for (int i = 0; i < (int)image_sequence.size(); i++)
+    for (size_t i = 0; i < image_sequence.size(); i++)
     {
       image_seq_to_register.push_back(cv::Mat(image_sequence[i].size(), CV_32F));
       image_sequence[i].convertTo(image_seq_to_register.back(), CV_32FC1, 1.0f / 255.0f);
@@ -34,7 +34,7 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
     image_seq_to_register = image_sequence;
   }
 
-  for (int i = 0; i < (int)image_seq_to_register.size(); i++)
+  for (size_t i = 0; i < image_seq_to_register.size(); i++)
   {
     if (i != reference_indice)
     {
@@ -45,17 +45,9 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
       shifts.push_back(cv::Point2d(0.0f, 0.0f));
     }
   }
-
-  /**
-  for (const auto &shift : shifts)
-  {
-    std::cout << shift << " ";
-  }
-  std::cout << std::endl;
-  **/
 }
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
                                          std::vector<cv::Point2d> &shifts, double subsample_factor)
 {
   if (subsample_factor <= 0.0f)
