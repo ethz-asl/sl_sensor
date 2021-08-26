@@ -5,7 +5,7 @@ namespace sl_sensor
 {
 namespace calibration
 {
-struct CalibrationOption
+struct CalibrationFlag
 {
   bool fix_prinicple_point = true;
   bool fix_aspect_ratio = true;

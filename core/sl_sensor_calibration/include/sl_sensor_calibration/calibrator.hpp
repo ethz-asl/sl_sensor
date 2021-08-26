@@ -3,7 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <utility>
 
-#include "sl_sensor_calibration/calibration_option.hpp"
+#include "sl_sensor_calibration/calibration_flag.hpp"
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
 
@@ -19,8 +19,8 @@ public:
   void SetCheckerboardInformation(unsigned int checkerboard_cols, unsigned int checkerboard_rows,
                                   double checkerboard_size);
   void SetCalibrateCameraOnly(bool calibrate_camera_only);
-  void SetCameraCalibrationOption(const CalibrationOption& camera_calibration_option);
-  void SetProjectorCalibrationOption(const CalibrationOption& projector_calibration_option);
+  void SetCameraCalibrationFlag(const CalibrationFlag& camera_calibration_flag);
+  void SetProjectorCalibrationFlag(const CalibrationFlag& projector_calibration_flag);
   void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
   bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask, const cv::Mat& up,
                                     const cv::Mat& vp, const std::string& label = "");
@@ -41,8 +41,8 @@ private:
   unsigned int resolution_x_cam_ = 0;
   unsigned int resolution_y_cam_ = 0;
 
-  CalibrationOption camera_calibration_option_;
-  CalibrationOption projector_calibration_option_;
+  CalibrationFlag camera_calibration_flag_;
+  CalibrationFlag projector_calibration_flag_;
 
   std::vector<std::vector<cv::Point2f>> corner_camera_coordinates_storage_;
   std::vector<std::vector<cv::Point2f>> corner_projector_coordinates_storage_;
