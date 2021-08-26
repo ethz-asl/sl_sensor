@@ -34,7 +34,7 @@ private:
   std::shared_ptr<std::thread> initialisation_thread_ptr_;
 
   std::string image_array_sub_topic_ = "/image_array_receive";
-  std::string save_directory_ = "/";
+  std::string save_directory_ = "/tmp";
   std::string save_filename_ = "calibration_session";
   std::string erase_sequence_service_name_ = "erase_calibration_sequence";
   std::string grab_sequence_service_name_ = "grab_calibration_sequence";
