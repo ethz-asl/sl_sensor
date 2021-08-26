@@ -71,8 +71,8 @@ void ApplyShiftsToImageSequence(const std::vector<cv::Mat> &input_image_sequence
                                 std::vector<cv::Mat> &output_image_sequence, const std::vector<cv::Point2d> &shifts,
                                 ShiftingOption shifting_option)
 {
-  const float stationary_tol =
-      0.1f;  // Within this amount of pixel shift, we consider image to be stationary in that direction
+  // Within this amount of pixel shift, we consider image to be stationary in that direction
+  const float stationary_tol = 0.1f;
 
   output_image_sequence.clear();
   output_image_sequence.resize(input_image_sequence.size(), cv::Mat());
@@ -85,12 +85,9 @@ void ApplyShiftsToImageSequence(const std::vector<cv::Mat> &input_image_sequence
     bool non_zero_shift =
         !(x < stationary_tol && x > -1.0 * stationary_tol && y < stationary_tol && y > -1.0 * stationary_tol);
 
-    // std::cout << "Shifts: " << x << " | " << y << std::endl;
-
     if (non_zero_shift)
     {
       cv::Mat M = (cv::Mat_<float>(2, 3) << 1.0f, 0.0f, x, 0.0f, 1.0f, y);
-      // std::cout << M << std::endl;
       cv::warpAffine(input_image_sequence[i], output_image_sequence[i], M, input_image_sequence[i].size(),
                      cv::WARP_INVERSE_MAP);
     }
