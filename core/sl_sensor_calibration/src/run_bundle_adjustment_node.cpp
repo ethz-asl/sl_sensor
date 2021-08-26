@@ -45,8 +45,6 @@ bool SetOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_i
   const int num_points = problem.num_points();
   const int point_block_size = problem.point_block_size();
   double* points = problem.mutable_points();
-  // const int num_fixed_points = problem.num_fixed_points();
-  // double* fixed_points = problem.fixed_points();
   const int num_cameras = problem.num_cameras();
   const int camera_block_size = problem.camera_block_size();
   double* cameras = problem.mutable_cameras();
@@ -89,7 +87,8 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   const int num_observations = ba_problem.num_observations();
   const double* fixed_observations = ba_problem.fixed_observations();
   const int num_fixed_observations = ba_problem.num_fixed_observations();
-  for (int i = 0; i < ba_problem.num_observations(); ++i)
+
+  for (size_t i = 0; i < (size_t)num_observations; ++i)
   {
     // Each Residual block takes a point and a camera as input and outputs a 2
     // dimensional residual. Internally, the cost function stores the observed
@@ -101,27 +100,23 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
     double* mutable_point = ba_problem.mutable_point_for_observation(i);
     problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6, mutable_point);
   }
-  for (int i = 0; i < ba_problem.num_fixed_observations(); ++i)
+
+  for (size_t i = 0; i < (size_t)num_fixed_observations; ++i)
   {
     ceres::CostFunction* cost_function =
         SnavelyReprojectionError::Create(fixed_observations[2 * i + 0], fixed_observations[2 * i + 1]);
-
-    // This is the original loss function
-    // ceres::LossFunction* loss_function = new ceres::ScaledLoss(
-    //    new ceres::HuberLoss(1), (double)num_observations / num_fixed_observations, ceres::TAKE_OWNERSHIP);
-
     ceres::LossFunction* loss_function = new ceres::HuberLoss(1);
     double* mutable_camera = ba_problem.mutable_camera_for_fixed_observation(i);
     double* fixed_point = ba_problem.fixed_point_for_observation(i);
     problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6, fixed_point);
     problem.SetParameterBlockConstant(fixed_point);
   }
+
   const int num_cameras = ba_problem.num_cameras();
   const int camera_block_size = ba_problem.camera_block_size();
   double* cameras = ba_problem.mutable_cameras();
 
   // We set extrinsics for first camera to be fixed
-
   problem.SetParameterBlockConstant(cameras);
 
   for (int i = 0; i < num_cameras; ++i)
@@ -325,19 +320,6 @@ int main(int argc, char** argv)
   CameraParameters sec_cam_params(sec_cam_intrinsics, sec_cam_lens_distortion, 0, initial_sec_cam_params.resolution_x(),
                                   initial_sec_cam_params.resolution_y(), sec_cam_rot_mat, sec_cam_trans, 0);
   sec_cam_params.Save(output_sec_cam_parameters_file);
-
-  /**
-  cv::Mat T_c1_c2_initial =
-      initial_pri_cam_params.GetInverseTransformationMatrix() * initial_sec_cam_params.GetTransformationMatrix();
-
-  cv::Mat T_c1_c2_ba = pri_cam_params.GetInverseTransformationMatrix() * sec_cam_params.GetTransformationMatrix();
-
-  std::cout << "Initial" << std::endl;
-  std::cout << T_c1_c2_initial << std::endl;
-
-  std::cout << "BA" << std::endl;
-  std::cout << T_c1_c2_ba << std::endl;
-  **/
 
   // Clean up
   delete problem;
