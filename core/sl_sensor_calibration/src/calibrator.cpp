@@ -24,14 +24,14 @@ void Calibrator::SetCheckerboardInformation(unsigned int checkerboard_cols, unsi
   checkerboard_size_ = checkerboard_size;
 }
 
-void Calibrator::SetCameraCalibrationFlag(const CalibrationFlag& camera_calibration_flag)
+void Calibrator::SetCameraCalibrationFlags(const CalibrationFlags& camera_calibration_flags)
 {
-  camera_calibration_flag_ = camera_calibration_flag;
+  camera_calibration_flags_ = camera_calibration_flags;
 }
 
-void Calibrator::SetProjectorCalibrationFlag(const CalibrationFlag& projector_calibration_flag)
+void Calibrator::SetProjectorCalibrationFlags(const CalibrationFlags& projector_calibration_flags)
 {
-  projector_calibration_flag_ = projector_calibration_flag;
+  projector_calibration_flags_ = projector_calibration_flags;
 }
 
 void Calibrator::SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels)
@@ -140,33 +140,33 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
   }
 
   // Calibrate camera
-  auto intrinsic_cam = camera_calibration_flag_.intrinsics_init;
-  auto lens_distortion_cam = camera_calibration_flag_.lens_distortion_init;
+  auto intrinsic_cam = camera_calibration_flags_.intrinsics_init;
+  auto lens_distortion_cam = camera_calibration_flags_.lens_distortion_init;
   std::vector<cv::Mat> cam_rvecs, cam_tvecs;
 
   cv::Size image_size(resolution_x_cam_, resolution_y_cam_);
   double cam_error = 0.0f;
 
-  if (!camera_calibration_flag_.fix_values)
+  if (!camera_calibration_flags_.fix_values)
   {
     cam_error = cv::calibrateCamera(corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, image_size,
                                     intrinsic_cam, lens_distortion_cam, cam_rvecs, cam_tvecs,
-                                    camera_calibration_flag_.GetCalibrationFlags(),
+                                    camera_calibration_flags_.GetCalibrationFlagss(),
                                     cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
 
   // Calibrate projector
-  auto intrinsic_proj = projector_calibration_flag_.intrinsics_init;
-  auto lens_distortion_proj = projector_calibration_flag_.lens_distortion_init;
+  auto intrinsic_proj = projector_calibration_flags_.intrinsics_init;
+  auto lens_distortion_proj = projector_calibration_flags_.lens_distortion_init;
   std::vector<cv::Mat> proj_rvecs, proj_tvecs;
   cv::Size projector_size(resolution_x_proj_, resolution_y_proj_);
   double proj_error = 0.0f;
 
-  if (!projector_calibration_flag_.fix_values)
+  if (!projector_calibration_flags_.fix_values)
   {
     proj_error = cv::calibrateCamera(
         corner_3d_coordinates_storage_, corner_projector_coordinates_storage_, projector_size, intrinsic_proj,
-        lens_distortion_proj, proj_rvecs, proj_tvecs, projector_calibration_flag_.GetCalibrationFlags(),
+        lens_distortion_proj, proj_rvecs, proj_tvecs, projector_calibration_flags_.GetCalibrationFlagss(),
         cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
   // Calibrate extrinsics
@@ -190,7 +190,7 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
     int number_corners_this_sequence = (int)corner_3d_coordinates_storage_[i].size();
 
     // If camera and projector values were not calibrated we compute rvecs and tvecs now
-    if (camera_calibration_flag_.fix_values)
+    if (camera_calibration_flags_.fix_values)
     {
       cam_rvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
       cam_tvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
@@ -198,7 +198,7 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
                    lens_distortion_cam, cam_rvecs[i], cam_tvecs[i]);
     }
 
-    if (projector_calibration_flag_.fix_values)
+    if (projector_calibration_flags_.fix_values)
     {
       proj_rvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));
       proj_tvecs.push_back(cv::Mat::zeros(3, 3, cv::DataType<double>::type));

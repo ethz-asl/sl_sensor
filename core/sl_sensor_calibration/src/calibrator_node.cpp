@@ -12,7 +12,7 @@
 
 #include <sl_sensor_projector/projector_utils.hpp>
 
-#include "sl_sensor_calibration/calibration_flag.hpp"
+#include "sl_sensor_calibration/calibration_flags.hpp"
 #include "sl_sensor_calibration/calibration_utils.hpp"
 #include "sl_sensor_calibration/calibrator.hpp"
 #include "sl_sensor_calibration/camera_parameters.hpp"
@@ -86,9 +86,9 @@ int main(int argc, char** argv)
   unsigned int projector_cols = 0;
   unsigned int projector_rows = 0;
 
-  CalibrationFlag camera_calibration_flag;
+  CalibrationFlags camera_calibration_flags;
   std::string camera_calibration_init_yaml = "";
-  CalibrationFlag projector_calibration_flag;
+  CalibrationFlags projector_calibration_flags;
   std::string projector_calibration_init_yaml = "";
 
   int checkerboard_rows = 0;
@@ -103,32 +103,32 @@ int main(int argc, char** argv)
   private_nh.param<std::string>("directories", directories, directories);
   private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
 
-  private_nh.param<bool>("camera_fix_principle_point", camera_calibration_flag.fix_prinicple_point,
-                         camera_calibration_flag.fix_prinicple_point);
-  private_nh.param<bool>("camera_fix_aspect_ratio", camera_calibration_flag.fix_aspect_ratio,
-                         camera_calibration_flag.fix_aspect_ratio);
-  private_nh.param<bool>("camera_fix_k2", camera_calibration_flag.fix_k2, camera_calibration_flag.fix_k2);
-  private_nh.param<bool>("camera_fix_k3", camera_calibration_flag.fix_k3, camera_calibration_flag.fix_k3);
-  private_nh.param<bool>("camera_zero_tangential_distortion", camera_calibration_flag.zero_tangential_distortion,
-                         camera_calibration_flag.zero_tangential_distortion);
-  private_nh.param<bool>("camera_fix_values", camera_calibration_flag.fix_values, camera_calibration_flag.fix_values);
-  private_nh.param<bool>("camera_use_initial_guess", camera_calibration_flag.use_initial_guess,
-                         camera_calibration_flag.use_initial_guess);
+  private_nh.param<bool>("camera_fix_principle_point", camera_calibration_flags.fix_prinicple_point,
+                         camera_calibration_flags.fix_prinicple_point);
+  private_nh.param<bool>("camera_fix_aspect_ratio", camera_calibration_flags.fix_aspect_ratio,
+                         camera_calibration_flags.fix_aspect_ratio);
+  private_nh.param<bool>("camera_fix_k2", camera_calibration_flags.fix_k2, camera_calibration_flags.fix_k2);
+  private_nh.param<bool>("camera_fix_k3", camera_calibration_flags.fix_k3, camera_calibration_flags.fix_k3);
+  private_nh.param<bool>("camera_zero_tangential_distortion", camera_calibration_flags.zero_tangential_distortion,
+                         camera_calibration_flags.zero_tangential_distortion);
+  private_nh.param<bool>("camera_fix_values", camera_calibration_flags.fix_values, camera_calibration_flags.fix_values);
+  private_nh.param<bool>("camera_use_initial_guess", camera_calibration_flags.use_initial_guess,
+                         camera_calibration_flags.use_initial_guess);
   private_nh.param<std::string>("camera_calibration_init_yaml", camera_calibration_init_yaml,
                                 camera_calibration_init_yaml);
 
-  private_nh.param<bool>("projector_fix_principle_point", projector_calibration_flag.fix_prinicple_point,
-                         projector_calibration_flag.fix_prinicple_point);
-  private_nh.param<bool>("projector_fix_aspect_ratio", projector_calibration_flag.fix_aspect_ratio,
-                         projector_calibration_flag.fix_aspect_ratio);
-  private_nh.param<bool>("projector_fix_k2", projector_calibration_flag.fix_k2, projector_calibration_flag.fix_k2);
-  private_nh.param<bool>("projector_fix_k3", projector_calibration_flag.fix_k3, projector_calibration_flag.fix_k3);
-  private_nh.param<bool>("projector_zero_tangential_distortion", projector_calibration_flag.zero_tangential_distortion,
-                         projector_calibration_flag.zero_tangential_distortion);
-  private_nh.param<bool>("projector_fix_values", projector_calibration_flag.fix_values,
-                         projector_calibration_flag.fix_values);
-  private_nh.param<bool>("projector_use_initial_guess", projector_calibration_flag.use_initial_guess,
-                         projector_calibration_flag.use_initial_guess);
+  private_nh.param<bool>("projector_fix_principle_point", projector_calibration_flags.fix_prinicple_point,
+                         projector_calibration_flags.fix_prinicple_point);
+  private_nh.param<bool>("projector_fix_aspect_ratio", projector_calibration_flags.fix_aspect_ratio,
+                         projector_calibration_flags.fix_aspect_ratio);
+  private_nh.param<bool>("projector_fix_k2", projector_calibration_flags.fix_k2, projector_calibration_flags.fix_k2);
+  private_nh.param<bool>("projector_fix_k3", projector_calibration_flags.fix_k3, projector_calibration_flags.fix_k3);
+  private_nh.param<bool>("projector_zero_tangential_distortion", projector_calibration_flags.zero_tangential_distortion,
+                         projector_calibration_flags.zero_tangential_distortion);
+  private_nh.param<bool>("projector_fix_values", projector_calibration_flags.fix_values,
+                         projector_calibration_flags.fix_values);
+  private_nh.param<bool>("projector_use_initial_guess", projector_calibration_flags.use_initial_guess,
+                         projector_calibration_flags.use_initial_guess);
   private_nh.param<std::string>("projector_calibration_init_yaml", projector_calibration_init_yaml,
                                 projector_calibration_init_yaml);
 
@@ -149,20 +149,20 @@ int main(int argc, char** argv)
 
   CameraParameters camera_calibration_data_init;
 
-  if ((camera_calibration_flag.use_initial_guess || camera_calibration_flag.fix_values) &&
+  if ((camera_calibration_flags.use_initial_guess || camera_calibration_flags.fix_values) &&
       camera_calibration_data_init.Load(camera_calibration_init_yaml))
   {
-    camera_calibration_flag.intrinsics_init = camera_calibration_data_init.intrinsic_mat();
-    camera_calibration_flag.lens_distortion_init = camera_calibration_data_init.lens_distortion();
+    camera_calibration_flags.intrinsics_init = camera_calibration_data_init.intrinsic_mat();
+    camera_calibration_flags.lens_distortion_init = camera_calibration_data_init.lens_distortion();
   }
 
   ProjectorParameters projector_calibration_data_init;
 
-  if ((projector_calibration_flag.use_initial_guess || projector_calibration_flag.fix_values) &&
+  if ((projector_calibration_flags.use_initial_guess || projector_calibration_flags.fix_values) &&
       projector_calibration_data_init.Load(projector_calibration_init_yaml))
   {
-    projector_calibration_flag.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
-    projector_calibration_flag.lens_distortion_init = projector_calibration_data_init.lens_distortion();
+    projector_calibration_flags.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
+    projector_calibration_flags.lens_distortion_init = projector_calibration_data_init.lens_distortion();
   }
 
   std::string delimiter = " ";
@@ -193,8 +193,8 @@ int main(int argc, char** argv)
   Calibrator calibrator;
   calibrator.SetProjectorResolution(projector_cols, projector_rows);
   calibrator.SetCheckerboardInformation(checkerboard_cols, checkerboard_rows, checkerboard_size);
-  calibrator.SetCameraCalibrationFlag(camera_calibration_flag);
-  calibrator.SetProjectorCalibrationFlag(projector_calibration_flag);
+  calibrator.SetCameraCalibrationFlags(camera_calibration_flags);
+  calibrator.SetProjectorCalibrationFlags(projector_calibration_flags);
   calibrator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
 
   // Add calibration sequences to calibrator
@@ -292,7 +292,7 @@ int main(int argc, char** argv)
   {
     ROS_INFO("[CalibratorNode] Calibration was successful");
 
-    if (!projector_calibration_flag.fix_values)
+    if (!projector_calibration_flags.fix_values)
     {
       if (projector_parameters.Save(output_projector_parameters_filename))
       {
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
       }
     }
 
-    if (!camera_calibration_flag.fix_values)
+    if (!camera_calibration_flags.fix_values)
     {
       if (camera_parameters.Save(output_camera_parameters_filename))
       {

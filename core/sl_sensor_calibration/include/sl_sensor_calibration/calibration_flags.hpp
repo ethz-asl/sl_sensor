@@ -5,7 +5,7 @@ namespace sl_sensor
 {
 namespace calibration
 {
-struct CalibrationFlag
+struct CalibrationFlags
 {
   bool fix_prinicple_point = true;
   bool fix_aspect_ratio = true;
@@ -17,7 +17,7 @@ struct CalibrationFlag
   cv::Matx33f intrinsics_init = cv::Matx33f(1.0f, 0.0f, 100.0f, 0.0f, 1.0f, 100.0f, 0.0f, 0.0f, 1.0f);
   cv::Vec<float, 5> lens_distortion_init{ 0, 0, 0, 0, 0 };
 
-  int GetCalibrationFlags()
+  int GetCalibrationFlagss()
   {
     int flag = 0;
 
