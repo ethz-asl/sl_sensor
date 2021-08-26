@@ -1,7 +1,7 @@
 #pragma once
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
-#include <boost/thread.hpp>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -132,7 +132,7 @@ private:
   ros::NodeHandle nh_;
   ros::Subscriber image_sub_;
 
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   std::string image_sub_topic_;
 

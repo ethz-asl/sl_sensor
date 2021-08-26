@@ -8,8 +8,9 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <boost/thread/thread.hpp>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 namespace sl_sensor
 {
@@ -41,8 +42,8 @@ private:
 
   std::unique_ptr<pcl::visualization::PCLVisualizer> visualiser_ptr_;
   std::unique_ptr<pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI>> colour_handler_ptr;
-  boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
-  boost::mutex mutex_;
+  std::shared_ptr<std::thread> main_loop_thread_ptr_;
+  std::mutex mutex_;
 };
 
 }  // namespace visualise

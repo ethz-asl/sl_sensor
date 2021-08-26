@@ -89,8 +89,8 @@ void CalibrationSequenceAcquisitionNodelet::onInit()
   GenerateDataFolders();
 
   // Start thread to handle first command to image synchroniser
-  initialisation_thread_ptr_ = boost::shared_ptr<boost::thread>(
-      new boost::thread(boost::bind(&CalibrationSequenceAcquisitionNodelet::Init, this)));
+  initialisation_thread_ptr_ =
+      std::shared_ptr<std::thread>(new std::thread(std::bind(&CalibrationSequenceAcquisitionNodelet::Init, this)));
 }
 
 void CalibrationSequenceAcquisitionNodelet::Init()
@@ -108,7 +108,7 @@ void CalibrationSequenceAcquisitionNodelet::Init()
 void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
     const sl_sensor_image_acquisition::ImageArrayConstPtr image_arr_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // Check number of images are correct
   if ((int)(image_arr_ptr->data.size()) != (int)(number_cameras_ * 4))
@@ -257,7 +257,7 @@ void CalibrationSequenceAcquisitionNodelet::ProcessFloatImage(const cv::Mat& inp
 
 void CalibrationSequenceAcquisitionNodelet::SendCommandForNextCalibrationSequence()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // If buffer is not empty, we automatically save it before sending command
   if (!image_vec_buffer_.empty())
@@ -350,7 +350,7 @@ bool CalibrationSequenceAcquisitionNodelet::ProcessEraseSequenceCommand(
     [[maybe_unused]] std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res)
 
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   if (image_vec_buffer_.empty())
   {
@@ -369,7 +369,7 @@ bool CalibrationSequenceAcquisitionNodelet::ProcessEraseSequenceCommand(
 
 CalibrationSequenceAcquisitionNodelet::~CalibrationSequenceAcquisitionNodelet()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // Save last calibration sequence before exiting
   if (!image_vec_buffer_.empty())

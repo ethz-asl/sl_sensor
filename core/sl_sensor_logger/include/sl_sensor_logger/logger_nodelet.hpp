@@ -3,7 +3,8 @@
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
-#include <boost/thread/thread.hpp>
+#include <mutex>
+#include <thread>
 
 #include <sl_sensor_logger/EnableLogger.h>
 
@@ -21,7 +22,7 @@ protected:
   std::string service_name_ = "/enable_logger";
   ros::ServiceServer enable_service_;
 
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;

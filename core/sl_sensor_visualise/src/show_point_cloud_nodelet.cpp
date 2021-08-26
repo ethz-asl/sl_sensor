@@ -33,12 +33,12 @@ void ShowPointCloudNodelet::onInit()
 
   // Create thread for main loop
   main_loop_thread_ptr_ =
-      boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ShowPointCloudNodelet::Update, this)));
+      std::shared_ptr<std::thread>(new std::thread(std::bind(&ShowPointCloudNodelet::Update, this)));
 };
 
 void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   pcl::PCLPointCloud2 pcl_pc2;
   pcl_conversions::toPCL(*pc_msg_ptr, pcl_pc2);
@@ -88,7 +88,7 @@ void ShowPointCloudNodelet::Update()
   while (!visualiser_ptr_->wasStopped())
   {
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::scoped_lock lock(mutex_);
       visualiser_ptr_->spinOnce(1);
     }
 

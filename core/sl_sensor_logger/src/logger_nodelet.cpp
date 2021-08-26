@@ -29,7 +29,7 @@ void LoggerNodelet::onInit()
 bool LoggerNodelet::ProcessEnableLoggerService(sl_sensor_logger::EnableLogger::Request& req,
                                                sl_sensor_logger::EnableLogger::Response& res)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   enabled_ = req.enable;
   res.success = true;

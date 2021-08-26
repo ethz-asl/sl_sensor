@@ -7,8 +7,8 @@
 #include <versavis/TimeNumbered.h>
 #include <yaml-cpp/yaml.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/thread.hpp>
 #include <memory>
+#include <thread>
 #include <vector>
 
 #include "sl_sensor_image_acquisition/CommandImageSynchroniser.h"
@@ -43,7 +43,7 @@ private:
   std::string image_synchroniser_service_name_ = "command_image_synchroniser";
   std::string projector_service_name_ = "command_projector";
 
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   std::vector<ros::Time> projector_time_buffer_;
 
@@ -59,7 +59,7 @@ private:
   double upper_bound_tol_ = 0.0f;
   double image_trigger_period_ = 0.0f;
 
-  boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
+  std::shared_ptr<std::thread> main_loop_thread_ptr_;
 
   bool bad_data_ = false;
 

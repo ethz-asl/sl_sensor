@@ -5,9 +5,11 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
-#include <boost/thread/thread.hpp>
+#include <memory>
+#include <mutex>
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <thread>
 
 #include "sl_sensor_image_acquisition/ImageArray.h"
 
@@ -29,7 +31,7 @@ private:
   ros::ServiceServer erase_sequence_client_;
   ros::ServiceServer grab_next_sequence_client_;
 
-  boost::shared_ptr<boost::thread> initialisation_thread_ptr_;
+  std::shared_ptr<std::thread> initialisation_thread_ptr_;
 
   std::string image_array_sub_topic_ = "/image_array_receive";
   std::string save_directory_ = "/";
@@ -49,7 +51,7 @@ private:
 
   std::vector<cv_bridge::CvImageConstPtr> image_vec_buffer_;
 
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   bool ready_ = false;
 

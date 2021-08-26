@@ -74,7 +74,7 @@ void ImageSynchroniserNodelet::onInit()
 
   // Create thread for main loop
   main_loop_thread_ptr_ =
-      boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ImageSynchroniserNodelet::MainLoop, this)));
+      std::shared_ptr<std::thread>(new std::thread(std::bind(&ImageSynchroniserNodelet::MainLoop, this)));
 }
 
 void ImageSynchroniserNodelet::SendProjectorCommand(const std::string& command, int pattern_no)
@@ -90,7 +90,7 @@ void ImageSynchroniserNodelet::SendProjectorCommand(const std::string& command, 
 
 void ImageSynchroniserNodelet::ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // If synchroniser is running, we add projector timing to buffer
   if (synchroniser_state_.is_running && synchroniser_state_.is_hardware_trigger)
@@ -105,7 +105,7 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 {
   std::string command(req.command);
 
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   res.success = true;
 
@@ -316,13 +316,13 @@ void ImageSynchroniserNodelet::MainLoop()
     bool is_running;
 
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::scoped_lock lock(mutex_);
       is_running = synchroniser_state_.is_running;
     }
 
     if (is_running)
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::scoped_lock lock(mutex_);
 
       if (!bad_data_)
       {
@@ -394,7 +394,7 @@ std::vector<std::string> ImageSynchroniserNodelet::SplitString(const std::string
 bool ImageSynchroniserNodelet::ProcessNotifyBadData(sl_sensor_image_acquisition::NotifyBadData::Request& req,
                                                     sl_sensor_image_acquisition::NotifyBadData::Response& res)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   bad_data_ = req.bad_data;
   res.success = true;
   return true;
