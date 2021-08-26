@@ -145,7 +145,7 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
   // Publish results for visualisation (Headers are set to empty)
   for (int i = 0; i < number_cameras_; i++)
   {
-    // Shading (with corner locations if they are detected)
+    // Publish shading for visualisation(with corner locations if they are detected)
     sensor_msgs::ImagePtr shading_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat shading_colour;
     cv::cvtColor(image_vec_buffer_[i * 4 + 3]->image, shading_colour, cv::COLOR_GRAY2RGB);
@@ -154,19 +154,21 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
     cv_bridge::CvImage(std_msgs::Header(), "rgb8", shading_colour).toImageMsg(*shading_display_ptr);
     image_pubs_[i][0].publish(shading_display_ptr);
 
-    // Mask
+    // Publish mask for visualisation
     sensor_msgs::ImagePtr mask_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv_bridge::CvImage(std_msgs::Header(), "8UC1", image_vec_buffer_[i * 4 + 2]->image).toImageMsg(*mask_display_ptr);
     image_pubs_[i][1].publish(mask_display_ptr);
 
-    // up
+    // Publish decoded horizontal projector (up) coordinates (first convert float matrix to an 8 bit image for
+    // visualisation)
     sensor_msgs::ImagePtr up_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat up_display;
     ProcessFloatImage(image_vec_buffer_[i * 4]->image, up_display);
     cv_bridge::CvImage(std_msgs::Header(), "8UC1", up_display).toImageMsg(*up_display_ptr);
     image_pubs_[i][2].publish(up_display_ptr);
 
-    // vp
+    // Publish decoded vertical projector (vp) coordinates (first convert float matrix to an 8 bit image for
+    // visualisation)
     sensor_msgs::ImagePtr vp_display_ptr = boost::make_shared<sensor_msgs::Image>();
     cv::Mat vp_display;
     ProcessFloatImage(image_vec_buffer_[i * 4 + 1]->image, vp_display);
@@ -303,24 +305,24 @@ void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv_bridge
     std::string number = std::to_string(i + 1);
     std::string counter = std::to_string(counter_);
 
-    // up
+    // Save decoded horizontal projector coordinates (up) to xml file
     std::string up_directory =
         save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "up" + "/" + counter + ".xml";
     cv::FileStorage up_file(up_directory, cv::FileStorage::WRITE);
     up_file << "up" << cv_img_ptr_vec[i * 4]->image;
 
-    // vp
+    // Save decoded vertical projector coordinates (vp) to xml file
     std::string vp_directory =
         save_directory_ + save_filename_ + "/" + "proj" + number + "/" + "vp" + "/" + counter + ".xml";
     cv::FileStorage vp_file(vp_directory, cv::FileStorage::WRITE);
     vp_file << "vp" << cv_img_ptr_vec[i * 4 + 1]->image;
 
-    // mask
+    // Save mask to bmp file
     std::string mask_directory =
         save_directory_ + save_filename_ + "/" + "cam" + number + "/" + "mask" + "/" + counter + ".bmp";
     cv::imwrite(mask_directory, cv_img_ptr_vec[i * 4 + 2]->image);
 
-    // shading
+    // Save shading to bmp file
     std::string shading_directory =
         save_directory_ + save_filename_ + "/" + "cam" + number + "/" + "shading" + "/" + counter + ".bmp";
     cv::imwrite(shading_directory, cv_img_ptr_vec[i * 4 + 3]->image);
