@@ -4,7 +4,6 @@
 
 #include <math.h>
 #include <cmath>
-#include <opencv2/sfm/triangulation.hpp>
 
 namespace sl_sensor
 {
@@ -88,12 +87,10 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
   std::vector<cv::Point2f> current_sec_camera_corners;
   std::vector<cv::Point3f> current_3d_corners;
 
-  // std::vector<cv::Point3f> debug_3d_corners;
-
   // For each checkerboard corner
   for (unsigned int j = 0; j < all_checkerboard_3d_corners.size(); j++)
   {
-    // Extract projector coordinate for primary camera, continue if fail
+    // Extract projector coordinate for primary camera, move to next point if fail
     const cv::Point2f& processed_pri_camera_corner = pri_camera_checkerboard_corners[j];
     std::vector<cv::Point2f> pri_neighbourhood_camera_coordinates, pri_neighbourhood_projector_coordinates;
 
@@ -108,7 +105,7 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
       continue;
     }
 
-    // Extract projector coordinate for secondary camera, continue if fail
+    // Extract projector coordinate for secondary camera, move to next point if fail
     const cv::Point2f& processed_sec_camera_corner = sec_camera_checkerboard_corners[j];
     std::vector<cv::Point2f> sec_neighbourhood_camera_coordinates, sec_neighbourhood_projector_coordinates;
 
@@ -123,82 +120,32 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
       continue;
     }
 
-    // Consistency check for using extracted projector coordinates, continue if fail
-
-    // Simple script for visualising if corresponding corners from different cameras match
-    /**
-    cv::Mat pri_display = pri_up.clone();
-    cv::Mat sec_display = sec_up.clone();
-
-    cv::normalize(pri_display, pri_display, 0, 255, cv::NORM_MINMAX);
-    pri_display.convertTo(pri_display, CV_8UC1);
-
-    cv::normalize(sec_display, sec_display, 0, 255, cv::NORM_MINMAX);
-    sec_display.convertTo(sec_display, CV_8UC1);
-
-    cv::circle(pri_display, processed_pri_camera_corner, 5, cv::Scalar(255, 255, 255, 255));
-    cv::circle(sec_display, processed_sec_camera_corner, 5, cv::Scalar(255, 255, 255, 255));
-
-    cv::Mat display;  // These are the destination matrices
-    cv::hconcat(pri_display, sec_display, display);
-    cv::imshow("troubleshoot", display);
-    cv::waitKey(0);
-    **/
-
+    // Consistency check for using extracted projector coordinates, move to next point if fail
     if (!ProjectorCoordinatesConsistencyCheck(pri_processed_projector_corner, sec_processed_projector_corner))
     {
-      // std::cout << "[Calibrator] Projector coordinates consistency check failed for " << j << "th corner" <<
-      // std::endl;
       continue;
     }
 
-    // Undistort 2D corners based on calibrated intrinsics of cameras and projector. Note: We do not triangulate with
-    // projector coordinates from the secondary camera from the second with for now.
-
+    // Undistort 2D corners based on calibrated intrinsics of cameras and projector.
     auto undistorted_pri_cam_point =
         UndistortSinglePoint(processed_pri_camera_corner, cv::Mat(pri_cam_params_.intrinsic_mat()),
                              cv::Mat(pri_cam_params_.lens_distortion()));
-    // auto undistorted_sec_cam_point =
-    //    UndistortSinglePoint(processed_sec_camera_corner, cv::Mat(sec_cam_params_.intrinsic_mat()),
-    //                         cv::Mat(sec_cam_params_.lens_distortion()));
-
     auto undistorted_pri_proj_point = UndistortSinglePoint(
         pri_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()), cv::Mat(proj_params_.lens_distortion()));
-    // auto undistorted_sec_proj_point = UndistortSinglePoint(
-    //    sec_processed_projector_corner, cv::Mat(proj_params_.intrinsic_mat()),
-    //    cv::Mat(proj_params_.lens_distortion()));
 
     // Triangulate 3D coordinate of corner, wrt to primary camera
+    // Note: We only triangulate with primary cam - projector pair
+    // We tried DLT method with primary cam, projector and secondary cam, but got bad results
+    // Should explore triangulation with non-linear optimisation in the future
+    cv::Mat xyzw;
+    cv::triangulatePoints(projection_matrix_pri_cam_, projection_matrix_projector_, cv::Mat(undistorted_pri_cam_point),
+                          cv::Mat(undistorted_pri_proj_point), xyzw);
 
-    // std::cout << projection_matrix_pri_cam_ << std::endl;
-    // std::cout << projection_matrix_sec_cam_ << std::endl;
-    // std::cout << projection_matrix_projector_ << std::endl;
-
-    std::vector<cv::Mat> corner_points_vec;
-
-    corner_points_vec.push_back(cv::Mat(undistorted_pri_cam_point));
-    // corner_points_vec.push_back(cv::Mat(undistorted_sec_cam_point));
-    corner_points_vec.push_back(cv::Mat(undistorted_pri_proj_point));
-    // corner_points_vec.push_back(cv::Mat(undistorted_sec_proj_point));
-
-    std::vector<cv::Mat> projection_matrix_vec = { projection_matrix_pri_cam_, projection_matrix_projector_ };
-
-    // std::vector<cv::Mat> projection_matrix_vec = { projection_matrix_sec_cam_, projection_matrix_projector_ };
-
-    cv::Mat triangulated_point_mat;
-    cv::sfm::triangulatePoints(corner_points_vec, projection_matrix_vec, triangulated_point_mat);
-    cv::Point3f triangulated_point(triangulated_point_mat);
-
-    /**
-    corner_points_vec.clear();
-
-    corner_points_vec.push_back(cv::Mat(undistorted_sec_cam_point));
-    corner_points_vec.push_back(cv::Mat(undistorted_sec_proj_point));
-    projection_matrix_vec.clear();
-    projection_matrix_vec = { projection_matrix_sec_cam_, projection_matrix_projector_ };
-    cv::sfm::triangulatePoints(corner_points_vec, projection_matrix_vec, triangulated_point_mat);
-    cv::Point3f triangulated_point_debug(triangulated_point_mat);
-    **/
+    cv::Mat xyz(3, 1, CV_32F);
+    xyz.at<float>(0, 0) = xyzw.at<float>(0, 0) / xyzw.at<float>(3, 0);
+    xyz.at<float>(1, 0) = xyzw.at<float>(1, 0) / xyzw.at<float>(3, 0);
+    xyz.at<float>(2, 0) = xyzw.at<float>(2, 0) / xyzw.at<float>(3, 0);
+    cv::Point3f triangulated_point(xyz);
 
     // Append information to storage vectors
     // Note: We store the distorted observations since the reprojection error in the bundle adjustment will take lens
@@ -207,8 +154,6 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     current_pri_camera_corners.push_back(processed_pri_camera_corner);
     current_sec_camera_corners.push_back(processed_sec_camera_corner);
     current_3d_corners.push_back(triangulated_point);
-
-    // debug_3d_corners.push_back(triangulated_point_debug);
   }
 
   // Store results to storage for this calibration sequence
@@ -219,24 +164,6 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     corner_sec_camera_coordinates_storage_.push_back(current_sec_camera_corners);
     corner_3d_coordinates_storage_.push_back(current_3d_corners);
     sequence_label_storage_.push_back(label);
-
-    /**
-    for (const auto& corner : current_3d_corners)
-    {
-      std::cout << corner << std::endl;
-    }
-    **/
-
-    /**
-    cv::viz::Viz3d window;  // creating a Viz window
-    // Displaying the Coordinate Origin (0,0,0)
-    window.showWidget("coordinate", cv::viz::WCoordinateSystem(100));
-    // Displaying the 3D points in green
-    window.showWidget("points1", cv::viz::WCloud(current_3d_corners, cv::viz::Color::green()));
-    // Displaying the 3D points in green
-    window.showWidget("points2", cv::viz::WCloud(debug_3d_corners, cv::viz::Color::red()));
-    window.spin();
-    **/
   }
 
   return (!current_3d_corners.empty()) ? true : false;
@@ -245,7 +172,6 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
 bool DualCameraCalibrationPreparator::ProjectorCoordinatesConsistencyCheck(const cv::Point2f& coord_1,
                                                                            const cv::Point2f& coord_2)
 {
-  // std::cout << std::sqrt(pow(coord_1.x - coord_2.x, 2.0) + pow(coord_1.y - coord_2.y, 2.0)) << std::endl;
   return std::sqrt(pow(coord_1.x - coord_2.x, 2.0) + pow(coord_1.y - coord_2.y, 2.0)) < projector_acceptance_tol_;
 }
 
@@ -329,12 +255,7 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
 
   // 1) First line of file is number of cameras, number of points, number of fixed points, number of observations,
   // number of fixed observations.
-
-  // Points to be optimisation variables
   ba_file << 3 << " " << number_points << " " << 0 << " " << number_points * 3 << " " << 0 << "\n";
-
-  // Fix all points
-  // ba_file << 3 << " " << 0 << " " << number_points << " " << 0 << " " << number_points * 3 << "\n";
 
   // 2) Next n_obs rows are [camera index, point id, camera coord x, camera coord y]
   int point_id = 0;
@@ -363,10 +284,7 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
     }
   }
 
-  // 3) Next n_fobs rows are [camera index, point id, camera cood x, camera coord y] (we have no fixed points so we do
-  // not add anything)
-
-  // 4) After all observations have been listed, we list out all camera parameters
+  // 3) After all observations have been listed, we list out all camera parameters
 
   // Primary camera
   cv::Mat rvec_pri_cam = cv::Mat(3, 1, CV_32F);
@@ -404,7 +322,7 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
   WriteExtrinsics(ba_file, rvec_sec_cam, tvec_sec_cam);
   WriteIntrinsics(ba_file, sec_cam_params_);
 
-  // 5) After camera parameters, print out 3d coordinates of points
+  // 4) After camera parameters, print out 3d coordinates of points
 
   for (size_t i = 0; i < corner_3d_coordinates_storage_.size(); i++)
   {
@@ -415,8 +333,6 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
       ba_file << corner_3d_coordinates_storage_[i][j].z << "\n";
     }
   }
-
-  // 6) Followed by fixed 3D points (not applicable)
 
   // Close file
   ba_file.close();
