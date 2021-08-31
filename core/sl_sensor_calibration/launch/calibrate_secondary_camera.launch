@@ -1,5 +1,8 @@
 <launch>
 
+  <!-- This launch files calibrates the secondary camera intrinsics. -->
+  <!-- Projector intrinsics will be fixed to those calibrated between the primary camera and the projector -->
+
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
     <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>

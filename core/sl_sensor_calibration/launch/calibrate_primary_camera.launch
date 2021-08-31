@@ -1,5 +1,9 @@
 <launch>
 
+  <!-- This launch files calibrates the primary camera intrinsics, projector intrinsics and primary camera to projector extrinsics. -->
+  <!-- The primary camera is the camera that we will use to calibrate the projector intrinsics. -->
+  <!-- In addition, during the extrinsics refinement using bundle adjustment, all points will be in the frame of the primary camera-->
+
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
     <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
