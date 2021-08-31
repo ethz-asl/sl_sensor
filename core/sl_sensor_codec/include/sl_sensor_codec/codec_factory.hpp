@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "sl_sensor_codec/calibration_decoder.hpp"
-#include "sl_sensor_codec/calibration_encoder.hpp"
 #include "sl_sensor_codec/decoder.hpp"
 #include "sl_sensor_codec/encoder.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_decoder.hpp"
@@ -30,7 +28,8 @@ public:
 
     if (encoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<CalibrationEncoder>(node);
+      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it
+      output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(node);
     }
     else if (encoder_name == codec_names_[1])
     {
@@ -54,7 +53,8 @@ public:
 
     if (decoder_name == codec_names_[0])
     {
-      output_ptr = std::make_unique<CalibrationDecoder>(node);
+      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it
+      output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(node);
     }
     else if (decoder_name == codec_names_[1])
     {
