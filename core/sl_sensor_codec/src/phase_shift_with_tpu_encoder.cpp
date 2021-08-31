@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_codec/phase_shift_utilities.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_encoder.hpp"
 

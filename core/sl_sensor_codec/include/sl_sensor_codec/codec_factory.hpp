@@ -28,7 +28,8 @@ public:
 
     if (encoder_name == codec_names_[0])
     {
-      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it
+      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it when decoder_name
+      // = calibration
       output_ptr = std::make_unique<PhaseShiftWithTpuEncoder>(node);
     }
     else if (encoder_name == codec_names_[1])
@@ -53,7 +54,8 @@ public:
 
     if (decoder_name == codec_names_[0])
     {
-      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it
+      // Note the pattern used for calibration is the Phase Shift with TPU pattern so we initialise it when decoder_name
+      // = calibration
       output_ptr = std::make_unique<PhaseShiftWithTpuDecoder>(node);
     }
     else if (decoder_name == codec_names_[1])

@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include <math.h>
 #include <omp.h>
 #include <iostream>

@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #pragma once
 
 #include <ros/ros.h>

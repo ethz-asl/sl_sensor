@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #pragma once
 
 #include "sl_sensor_calibration/intrinsic_parameters.hpp"

@@ -1,3 +1,6 @@
+// Code adapted from SLStudio
+// Code adapted from Projector-Camera Calibration Software http://dx.doi.org/10.1109/3DIMPVT.2012.77
+
 #pragma once
 
 #include <opencv2/opencv.hpp>

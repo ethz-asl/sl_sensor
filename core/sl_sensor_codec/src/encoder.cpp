@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_codec/encoder.hpp"
 
 #include <tuple>

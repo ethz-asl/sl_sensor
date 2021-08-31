@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_calibration/camera_parameters.hpp"
 
 #include "sl_sensor_calibration/calibration_utils.hpp"

@@ -1,3 +1,6 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+// Code adapted from Projector-Camera Calibration Software http://dx.doi.org/10.1109/3DIMPVT.2012.77
+
 #include "sl_sensor_calibration/calibrator.hpp"
 
 #include "sl_sensor_calibration/calibration_utils.hpp"
