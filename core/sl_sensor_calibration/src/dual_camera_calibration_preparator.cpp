@@ -136,7 +136,7 @@ bool DualCameraCalibrationPreparator::AddSingleCalibrationSequence(
     // Triangulate 3D coordinate of corner, wrt to primary camera
     // Note: We only triangulate with primary cam - projector pair
     // We tried DLT method with primary cam, projector and secondary cam, but got bad results
-    // Should explore triangulation with non-linear optimisation in the future
+    // TODO: Explore triangulation with non-linear optimisation in the future
     cv::Mat xyzw;
     cv::triangulatePoints(projection_matrix_pri_cam_, projection_matrix_projector_, cv::Mat(undistorted_pri_cam_point),
                           cv::Mat(undistorted_pri_proj_point), xyzw);
