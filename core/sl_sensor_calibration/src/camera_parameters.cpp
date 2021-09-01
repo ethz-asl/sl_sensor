@@ -61,7 +61,7 @@ bool CameraParameters::SaveExtrinsic(const std::string& filename)
   }
   else
   {
-    std::cerr << "[IntrinsicParameters] Error: File extension not .xml, got " << file_extension << " instead."
+    std::cerr << "[CameraParameters] Error: File extension not .xml, got " << file_extension << " instead."
               << std::endl;
   }
 
@@ -73,7 +73,7 @@ bool CameraParameters::LoadExtrinsic(const std::string& filename)
   cv::FileStorage fs(filename, cv::FileStorage::READ);
   if (!fs.isOpened())
   {
-    std::cerr << "[IntrinsicParameters] Error: could not open file " << filename << std::endl;
+    std::cerr << "[CameraParameters] Error: could not open file " << filename << std::endl;
     return false;
   }
 
