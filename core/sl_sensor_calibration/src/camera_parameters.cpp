@@ -12,7 +12,7 @@ CameraParameters::CameraParameters(const cv::Matx33f& intrinsic_mat, const cv::V
                                    double calibration_error, int resolution_x, int resolution_y,
                                    const cv::Matx33f& extrinsic_rot, const cv::Vec3f& extrinsic_trans,
                                    double stereo_error)
-  : IntrinsicParameters(intrinsic_mat, lens_distortion, calibration_error, resolution_x, resolution_y)
+  : intrinsic_parameters_(intrinsic_mat, lens_distortion, calibration_error, resolution_x, resolution_y)
   , extrinsic_rot_(extrinsic_rot)
   , extrinsic_trans_(extrinsic_trans)
   , stereo_error_(stereo_error)
@@ -20,7 +20,7 @@ CameraParameters::CameraParameters(const cv::Matx33f& intrinsic_mat, const cv::V
 {
 }
 
-CameraParameters::CameraParameters(const std::string& filename) : IntrinsicParameters(filename)
+CameraParameters::CameraParameters(const std::string& filename) : intrinsic_parameters_(filename)
 {
   LoadExtrinsic(filename);
 }
@@ -44,7 +44,7 @@ const double& CameraParameters::stereo_error() const
 
 bool CameraParameters::SaveExtrinsic(const std::string& filename)
 {
-  std::string file_extension = this->GetFileExtension(filename);
+  std::string file_extension = IntrinsicParameters::GetFileExtension(filename);
 
   if (file_extension == "xml")
   {
@@ -90,26 +90,11 @@ bool CameraParameters::LoadExtrinsic(const std::string& filename)
   return true;
 }
 
-std::ostream& operator<<(std::ostream& os, const CameraParameters& data)
-{
-  os << (const IntrinsicParameters&)data << std::endl;
-
-  os << std::setw(5) << std::setprecision(4) << "=== Extrinsic Parameters ===\n"
-     << "Extrinsic Rotation Matrix: \n"
-     << data.extrinsic_rot() << "\n"
-     << "Extrinsic Translation Vector: \n"
-     << data.extrinsic_trans() << "\n"
-     << "Stereo Error: \n"
-     << data.stereo_error() << std::endl;
-
-  return os;
-}
-
 bool CameraParameters::Save(const std::string& filename)
 {
   bool success = false;
 
-  success = IntrinsicParameters::Save(filename);
+  success = intrinsic_parameters_.Save(filename);
   success = SaveExtrinsic(filename) & success;
 
   return success;
@@ -119,7 +104,7 @@ bool CameraParameters::Load(const std::string& filename)
 {
   bool success = false;
 
-  success = IntrinsicParameters::Load(filename);
+  success = intrinsic_parameters_.Load(filename);
   success = LoadExtrinsic(filename) & success;
 
   return success;
@@ -139,12 +124,57 @@ cv::Mat CameraParameters::GetInverseTransformationMatrix() const
   return inverted_transformation_matrix;
 }
 
+const IntrinsicParameters& CameraParameters::intrinsic_parameters() const
+{
+  return intrinsic_parameters_;
+}
+
+const cv::Matx33f& CameraParameters::intrinsic_mat() const
+{
+  return intrinsic_parameters_.intrinsic_mat();
+}
+
+const cv::Vec<float, 5>& CameraParameters::lens_distortion() const
+{
+  return intrinsic_parameters_.lens_distortion();
+}
+
+const double& CameraParameters::calibration_error() const
+{
+  return intrinsic_parameters_.calibration_error();
+}
+
+const int& CameraParameters::resolution_x() const
+{
+  return intrinsic_parameters_.resolution_x();
+}
+
+const int& CameraParameters::resolution_y() const
+{
+  return intrinsic_parameters_.resolution_x();
+}
+
 cv::Mat CameraParameters::GetProjectionMatrix() const
 {
   cv::Mat extrinsic_matrix = cv::Mat::zeros(3, 4, CV_32F);
   cv::Mat(this->extrinsic_rot()).copyTo(extrinsic_matrix(cv::Range(0, 3), cv::Range(0, 3)));
   cv::Mat(this->extrinsic_trans()).copyTo(extrinsic_matrix(cv::Range(0, 3), cv::Range(3, 4)));
   return extrinsic_matrix;
+}
+
+std::ostream& operator<<(std::ostream& os, const CameraParameters& data)
+{
+  os << data.intrinsic_parameters() << std::endl;
+
+  os << std::setw(5) << std::setprecision(4) << "=== Extrinsic Parameters ===\n"
+     << "Extrinsic Rotation Matrix: \n"
+     << data.extrinsic_rot() << "\n"
+     << "Extrinsic Translation Vector: \n"
+     << data.extrinsic_trans() << "\n"
+     << "Stereo Error: \n"
+     << data.stereo_error() << std::endl;
+
+  return os;
 }
 
 }  // namespace calibration

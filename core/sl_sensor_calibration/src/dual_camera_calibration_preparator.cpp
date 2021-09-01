@@ -292,7 +292,7 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
   cv::Rodrigues(cv::Mat::eye(3, 3, CV_32F), rvec_pri_cam);
 
   WriteExtrinsics(ba_file, rvec_pri_cam, tvec_pri_cam);
-  WriteIntrinsics(ba_file, pri_cam_params_);
+  WriteIntrinsics(ba_file, pri_cam_params_.intrinsic_parameters());
 
   // Projector
   cv::Mat rvec_projector = cv::Mat(3, 1, CV_32F);
@@ -320,7 +320,7 @@ void DualCameraCalibrationPreparator::ExportFile(const std::string& filename)
       .copyTo(tvec_sec_cam(cv::Range(0, 3), cv::Range(0, 1)));
 
   WriteExtrinsics(ba_file, rvec_sec_cam, tvec_sec_cam);
-  WriteIntrinsics(ba_file, sec_cam_params_);
+  WriteIntrinsics(ba_file, sec_cam_params_.intrinsic_parameters());
 
   // 4) After camera parameters, print out 3d coordinates of points
 

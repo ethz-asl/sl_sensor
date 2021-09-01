@@ -29,14 +29,14 @@ public:
   const int& resolution_x() const;
   const int& resolution_y() const;
 
+  static std::string GetFileExtension(const std::string& filename);
+
 protected:
   cv::Matx33f intrinsic_mat_ = cv::Matx33f::eye();
   cv::Vec<float, 5> lens_distortion_ = cv::Vec<float, 5>(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
   double calibration_error_ = 0.0f;
   int resolution_x_ = 0;
   int resolution_y_ = 0;
-
-  static std::string GetFileExtension(const std::string& filename);
 };
 
 std::ostream& operator<<(std::ostream& os, const IntrinsicParameters& dt);
