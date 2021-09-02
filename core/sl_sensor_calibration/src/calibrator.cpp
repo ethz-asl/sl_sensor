@@ -43,6 +43,11 @@ void Calibrator::SetLocalHomographySettings(unsigned int window_radius, unsigned
   minimum_valid_pixels_ = minimum_valid_pixels;
 }
 
+void Calibrator::SetReprojectionErrorWarningThreshold(float threshold)
+{
+  reprojection_error_warning_threshold_ = threshold;
+}
+
 bool Calibrator::AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
                                               const cv::Mat& up, const cv::Mat& vp, const std::string& label)
 {
@@ -214,31 +219,47 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
     cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), cam_rvecs[i], cam_tvecs[i], intrinsic_cam,
                       lens_distortion_cam, qc_proj);
 
-    float err = 0;
+    float cam_err = 0;
     for (unsigned int j = 0; j < qc_proj.size(); j++)
     {
       cv::Point2f d = corner_camera_coordinates_storage_[i][j] - qc_proj[j];
-      err += cv::sqrt(d.x * d.x + d.y * d.y);
+      float reprojection_error = cv::sqrt(d.x * d.x + d.y * d.y);
+      cam_err += reprojection_error;
+
+      if (reprojection_error > reprojection_error_warning_threshold_)
+      {
+        std::cout << "Warning: " << j << "th point from image with label " << sequence_label_storage_[i]
+                  << " has a camera reprojection error of " << reprojection_error << ">"
+                  << reprojection_error_warning_threshold_ << std::endl;
+      }
 
       camera_residuals.push_back(d.x);
       camera_residuals.push_back(d.y);
     }
-    cam_error_per_view[i] = (float)err / number_corners_this_sequence;
+    cam_error_per_view[i] = cam_err / (float)number_corners_this_sequence;
 
     // Compute projector error per view
     std::vector<cv::Point2f> qp_proj;
     cv::projectPoints(cv::Mat(corner_3d_coordinates_storage_[i]), proj_rvecs[i], proj_tvecs[i], intrinsic_proj,
                       lens_distortion_proj, qp_proj);
-    err = 0;
+    float proj_err = 0;
     for (unsigned int j = 0; j < qc_proj.size(); j++)
     {
       cv::Point2f d = corner_projector_coordinates_storage_[i][j] - qp_proj[j];
-      err += cv::sqrt(d.x * d.x + d.y * d.y);
+      float reprojection_error = cv::sqrt(d.x * d.x + d.y * d.y);
+      proj_err += reprojection_error;
+
+      if (reprojection_error > reprojection_error_warning_threshold_)
+      {
+        std::cout << "Warning: " << j << "th point from image with label " << sequence_label_storage_[i]
+                  << " has a projector reprojection error of " << reprojection_error << ">"
+                  << reprojection_error_warning_threshold_ << std::endl;
+      }
 
       projector_residuals.push_back(d.x);
       projector_residuals.push_back(d.y);
     }
-    proj_error_per_view[i] = (float)err / number_corners_this_sequence;
+    proj_error_per_view[i] = proj_err / (float)number_corners_this_sequence;
 
     std::cout << "Error " << i + 1 << ") Sequence " << sequence_label_storage_[i]
               << "):\n\tcam:" << cam_error_per_view[i] << " proj:" << proj_error_per_view[i] << std::endl;
