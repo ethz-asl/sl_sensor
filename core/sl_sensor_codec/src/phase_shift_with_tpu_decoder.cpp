@@ -39,12 +39,10 @@ void PhaseShiftWithTpuDecoder::DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &m
   {
     // Horizontal decoding
     up = GetPhase(frames_[0], frames_[1], frames_[2]);
-
     cv::Mat up_cue = GetPhase(frames_[3], frames_[4], frames_[5]);
-
     up = UnwrapWithCue(up, up_cue, number_phases_);
-
     up *= screen_cols_ / (2 * M_PI);
+    shading = GetMagnitude(frames_[0], frames_[1], frames_[2]);
   }
   if (direction_ == CodecDirection::kVertical || direction_ == CodecDirection::kBoth)
   {
@@ -54,10 +52,8 @@ void PhaseShiftWithTpuDecoder::DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &m
     cv::Mat vp_cue = GetPhase(frames_vertical[3], frames_vertical[4], frames_vertical[5]);
     vp = UnwrapWithCue(vp, vp_cue, number_phases_);
     vp *= screen_rows_ / (2 * M_PI);
+    shading = GetMagnitude(frames_vertical[0], frames_vertical[1], frames_vertical[2]);
   }
-
-  // Calculate modulation
-  shading = GetMagnitude(frames_[0], frames_[1], frames_[2]);
 
   // Generate shading
   mask = shading > shading_threshold_;

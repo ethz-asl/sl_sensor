@@ -5,15 +5,15 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io2_cam1/" />
     <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
 
     <param name="camera_folder_name" type="str" value="cam1" />
     <param name="projector_folder_name" type="str" value="proj1" />
-    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/cam1/" />
     <param name="ignore_1" type="str" value="" />
     <param name="projector_yaml_directory" type="str" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
-    <param name="camera_fix_principle_point" type="bool" value="1" />
+    <param name="camera_fix_principle_point" type="bool" value="0" />
     <param name="camera_fix_aspect_ratio" type="bool" value="1" />
     <param name="camera_fix_k2" type="bool" value="0" />
     <param name="camera_fix_k3" type="bool" value="0" />
