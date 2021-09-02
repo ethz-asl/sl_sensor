@@ -6,8 +6,8 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera_calib_io.xml"/>
-    <param name="output_projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector_calib_io.xml"/>
+    <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
+    <param name="output_projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
 
     <param name="camera_folder_name" type="str" value="cam2" />
     <param name="projector_folder_name" type="str" value="proj2" />
@@ -36,7 +36,7 @@
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
     <param name="residuals_save_folder" type="str" value="$(find sl_sensor_calibration)/residual_files/" />
-    <param name="residuals_file_label" type="str" value="pri_cam_calib_io" />
+    <param name="residuals_file_label" type="str" value="pri_cam" />
 
   </node>
 

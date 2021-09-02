@@ -28,7 +28,7 @@
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
     <param name="residuals_save_folder" type="str" value="$(find sl_sensor_calibration)/residual_files/" />
-    <param name="residuals_file_label" type="str" value="sec_cam_calib" />
+    <param name="residuals_file_label" type="str" value="sec_cam" />
 
   </node>
 
