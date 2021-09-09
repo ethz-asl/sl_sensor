@@ -9,9 +9,9 @@ phase_shift_with_tpu:
   number_phases: 12
   average_intensity: 0.6
   modulation_intensity: 0.4
-  shading_threshold: 60
+  shading_threshold: 30
 two_plus_one_with_tpu:
   number_phases: 12
   average_intensity: 0.6
   modulation_intensity: 0.4
-  shading_threshold: 60
+  shading_threshold: 30

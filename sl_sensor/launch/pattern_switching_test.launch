@@ -14,9 +14,13 @@
 
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
-
 <arg name="decoder_name" doc="Name of decoder" default="phase_shift_with_tpu" />
 
+<?ignore
+<arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_horizontal" />
+<arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_vertical" />
+<arg name="decoder_name" doc="Name of decoder" default="two_plus_one_with_tpu" />
+?>
 
 <arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="true" />
 
@@ -24,6 +28,8 @@
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
+
+<!--node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 3.1415 0 1.5708 ENDEFFECTOR $(arg frame_id) 10" /-->
 
 <!-- Projector Node -->
 <include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
@@ -113,5 +119,14 @@
     <arg name="projector_pattern_names" value="$(arg horizontal_projector_pattern_name) $(arg vertical_projector_pattern_name)"/>
   </include>
 </group>
+
+<?ignore
+/image_synchroniser/grouped_images
+
+
+  <node pkg="rosbag" type="record" name="rosbag_record"
+    args="record -o /home/ltf/rosbags/ /tf_static /tf" 
+    launch-prefix="bash -c 'sleep 2; $0 $@' "/>
+?>
 
 </launch>
