@@ -1,10 +1,14 @@
 input_topic: "/decoder/decoded_images"
 output_topic: "/triangulator/point_cloud"
-apply_crop_box: true
+apply_crop_box: true # Only points within the box boundaries wiill be kept. In the unit of measure used for calibation. Note: Point cloud will no longer be organised after crop box is applied
 crop_box_x_min: -750.0
 crop_box_y_min: -750.0
 crop_box_z_min: 0.0
 crop_box_x_max: 750.0
 crop_box_y_max: 750.0
 crop_box_z_max: 2000.0
-colour_shading_enabled: false
+colour_shading_enabled: false # If enabled, 5th image in the incoming image array will be used for tagging points with rgb data
+apply_scaling: false # Point clouds will be scaled by scaling_factor. Useful when you want point cloud to be converted to another unit
+scaling_factor: 0.001
+apply_transform_using_tf: false # Transform point clouds based on tf messages wrt to frame specified by base_frame_id
+base_frame_id: "world"

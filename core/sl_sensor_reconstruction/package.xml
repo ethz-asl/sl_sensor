@@ -19,6 +19,8 @@
   <depend>sensor_msgs</depend>
   <depend>sl_sensor_calibration</depend>
   <depend>sl_sensor_image_acquisition</depend>
+  <depend>tf</depend>
+  <depend>tf_conversions</depend>  
 
   <exec_depend>message_runtime</exec_depend>
 

@@ -10,8 +10,6 @@
 #include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
-#include <pcl/visualization/cloud_viewer.h>  // for debugging
-
 using namespace sl_sensor::calibration;
 using namespace sl_sensor::image_acquisition;
 
@@ -32,12 +30,9 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<std::string>("output_topic", pc_pub_topic_, pc_pub_topic_);
   private_nh_.param<std::string>("triangulation_camera_parameters_filename", triangulation_camera_parameters_filename_,
                                  triangulation_camera_parameters_filename_);
-  private_nh_.param<std::string>("colour_camera_parameters_filename", colour_camera_parameters_filename_,
-                                 colour_camera_parameters_filename_);
   private_nh_.param<std::string>("projector_parameters_filename", projector_parameters_filename_,
                                  projector_parameters_filename_);
-  private_nh_.param<std::string>("frame_camera_parameters_filename", frame_camera_parameters_filename_,
-                                 frame_camera_parameters_filename_);
+
   private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
   private_nh_.param<float>("crop_box_x_min", crop_box_x_min_, crop_box_x_min_);
   private_nh_.param<float>("crop_box_y_min", crop_box_y_min_, crop_box_y_min_);
@@ -47,8 +42,19 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<float>("crop_box_z_max", crop_box_z_max_, crop_box_z_max_);
 
   private_nh_.param<bool>("colour_shading_enabled", colour_shading_enabled_, colour_shading_enabled_);
+  private_nh_.param<std::string>("colour_camera_parameters_filename", colour_camera_parameters_filename_,
+                                 colour_camera_parameters_filename_);
 
-  // Load camera and projector data
+  private_nh_.param<std::string>("frame_camera_parameters_filename", frame_camera_parameters_filename_,
+                                 frame_camera_parameters_filename_);
+
+  private_nh_.param<bool>("apply_scaling", apply_scaling_, apply_scaling_);
+  private_nh_.param<float>("scaling_factor", scaling_factor_, scaling_factor_);
+
+  private_nh_.param<bool>("apply_transform_using_tf", apply_transform_using_tf_, apply_transform_using_tf_);
+  private_nh_.param<std::string>("base_frame_id", base_frame_id_, base_frame_id_);
+
+  // Load camera and projector parameters
   CameraParameters triangulation_camera_parameters;
   if (triangulation_camera_parameters.Load(triangulation_camera_parameters_filename_))
   {
@@ -129,6 +135,12 @@ void TriangulatorNodelet::onInit()
   // Setup publisher and subscriber
   pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pc_pub_topic_, 10);
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &TriangulatorNodelet::ImageArrayCb, this);
+
+  // Setup tf transformer if required
+  if (apply_transform_using_tf_)
+  {
+    tf_listener_ptr_ = std::make_unique<tf::TransformListener>();
+  }
 };
 
 void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)

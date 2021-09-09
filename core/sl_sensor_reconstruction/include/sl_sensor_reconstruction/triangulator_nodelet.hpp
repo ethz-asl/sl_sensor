@@ -9,6 +9,8 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sl_sensor_image_acquisition/ImageArray.h>
+#include <tf/transform_listener.h>
+#include <tf_conversions/tf_eigen.h>
 #include <memory>
 
 #include "sl_sensor_reconstruction/triangulator.hpp"
@@ -42,16 +44,10 @@ private:
   std::string camera_parameters_filename_ = "";
   std::string projector_parameters_filename_ = "";
   std::string triangulation_camera_parameters_filename_ = "";
-  std::string colour_camera_parameters_filename_ = "";
-  std::string frame_camera_parameters_filename_ =
-      "";  // Camera parameters file for the that we would transform the point cloud to
 
   std::unique_ptr<Triangulator> triangulator_ptr_;
 
-  // Transform between camera that performs the triangulation and the desired sensor frame, only used if
-  // frame_camera_parameters_filename_ is specified
-  Eigen::Matrix4f transform_sensor_tri_ = Eigen::Matrix4f::Identity();
-
+  // Crop box parameters
   bool apply_crop_box_ = false;
   float crop_box_x_min_ = -1.0e8;
   float crop_box_y_min_ = -1.0e8;
@@ -60,8 +56,27 @@ private:
   float crop_box_y_max_ = 1.0e8;
   float crop_box_z_max_ = 1.0e8;
 
+  // Colour shading parameters
   bool colour_shading_enabled_ = false;
+  std::string colour_camera_parameters_filename_ = "";
+
+  // Transform to sensor frame parameters
   bool frame_camera_provided_ = false;
+  std::string frame_camera_parameters_filename_ =
+      "";  // Camera parameters file for the that we would transform the point cloud to
+  Eigen::Matrix4f transform_sensor_tri_ =
+      Eigen::Matrix4f::Identity();  // Transform between camera that performs the triangulation and the desired sensor
+                                    // frame, only used if
+  // frame_camera_parameters_filename_ is specified
+
+  // Scaling parameters
+  bool apply_scaling_ = false;
+  float scaling_factor_ = 1.0;
+
+  // Transform wrt to a tf parameters
+  bool apply_transform_using_tf_ = false;
+  std::string base_frame_id_ = "";
+  std::unique_ptr<tf::TransformListener> tf_listener_ptr_;
 
   template <typename PointT>
   void ApplyCropBox(typename pcl::PointCloud<PointT>::Ptr pc_ptr)
@@ -85,6 +100,32 @@ private:
     pc_pub_.publish(pc_msg_ptr);
   };
 
+  /**
+   * @brief Scale a point cloud, input is a smart pointer of original point cloud
+   *
+   * @tparam PointT - Type of pcl point
+   * @param cloud_in_ptr - smart pointer of original point cloud
+   * @param scale -scaling factor
+   * @return pcl::PointCloud<PointT>::Ptr - Smart pointer of output point cloud
+   */
+  template <typename PointT>
+  typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(typename pcl::PointCloud<PointT>::Ptr cloud_in_ptr,
+                                                        double scale)
+  {
+    typedef typename pcl::PointCloud<PointT>::Ptr point_t_pc_ptr;
+    typedef typename pcl::PointCloud<PointT> point_t_pc;
+
+    point_t_pc_ptr transformed_ptr(new point_t_pc);
+
+    Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+    transform(0, 0) = scale;
+    transform(1, 1) = scale;
+    transform(2, 2) = scale;
+    pcl::transformPointCloud(*cloud_in_ptr, *transformed_ptr, transform);
+
+    return transformed_ptr;
+  }
+
   template <typename PointT>
   void PostProcessAndPublishPointCloud(typename pcl::PointCloud<PointT>::Ptr pc_ptr,
                                        const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
@@ -95,10 +136,27 @@ private:
       ApplyCropBox<PointT>(pc_ptr);
     }
 
+    // Scale point cloud if desired
+    if (apply_scaling_)
+    {
+      pc_ptr = ScalePointCloud<PointT>(pc_ptr, scaling_factor_);
+    }
+
     // Transform to the coordinate frame of the specified camera, if specified
     if (frame_camera_provided_)
     {
       pcl::transformPointCloud(*pc_ptr, *pc_ptr, transform_sensor_tri_);
+    }
+
+    // Transform to a tf frame, if specified
+    if (apply_transform_using_tf_)
+    {
+      tf::StampedTransform stamped_transform;
+      Eigen::Affine3d eigen_transform;
+      tf_listener_ptr_->lookupTransform(base_frame_id_, image_array_ptr->header.frame_id, image_array_ptr->header.stamp,
+                                        stamped_transform);
+      tf::transformTFToEigen(stamped_transform, eigen_transform);
+      pcl::transformPointCloud(*pc_ptr, *pc_ptr, eigen_transform);
     }
 
     // Publish point cloud
