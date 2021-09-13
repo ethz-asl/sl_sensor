@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "sl_sensor_registration/libpointmatcher_icp.hpp"
+#include "sl_sensor_registration/o3d_color_icp.hpp"
 #include "sl_sensor_registration/point_cloud_registration_algorithm.hpp"
 
 namespace sl_sensor
@@ -18,6 +19,10 @@ public:
     if (algo_name == "lpm_icp")
     {
       output_ptr = std::make_unique<LibpointmatcherICP>();
+    }
+    else if (algo_name == "o3d_color_icp")
+    {
+      output_ptr = std::make_unique<O3dColorIcp>();
     }
     else
     {

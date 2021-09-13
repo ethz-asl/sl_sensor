@@ -9,8 +9,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sl_sensor_image_acquisition/ImageArray.h>
-#include <tf/transform_listener.h>
-#include <tf_conversions/tf_eigen.h>
+
 #include <memory>
 
 #include "sl_sensor_reconstruction/triangulator.hpp"
@@ -73,11 +72,6 @@ private:
   bool apply_scaling_ = false;
   float scaling_factor_ = 1.0;
 
-  // Transform wrt to a tf parameters
-  bool apply_transform_using_tf_ = false;
-  std::string base_frame_id_ = "";
-  std::unique_ptr<tf::TransformListener> tf_listener_ptr_;
-
   template <typename PointT>
   void ApplyCropBox(typename pcl::PointCloud<PointT>::Ptr pc_ptr)
   {
@@ -136,27 +130,16 @@ private:
       ApplyCropBox<PointT>(pc_ptr);
     }
 
-    // Scale point cloud if desired
-    if (apply_scaling_)
-    {
-      pc_ptr = ScalePointCloud<PointT>(pc_ptr, scaling_factor_);
-    }
-
     // Transform to the coordinate frame of the specified camera, if specified
     if (frame_camera_provided_)
     {
       pcl::transformPointCloud(*pc_ptr, *pc_ptr, transform_sensor_tri_);
     }
 
-    // Transform to a tf frame, if specified
-    if (apply_transform_using_tf_)
+    // Scale point cloud if desired
+    if (apply_scaling_)
     {
-      tf::StampedTransform stamped_transform;
-      Eigen::Affine3d eigen_transform;
-      tf_listener_ptr_->lookupTransform(base_frame_id_, image_array_ptr->header.frame_id, image_array_ptr->header.stamp,
-                                        stamped_transform);
-      tf::transformTFToEigen(stamped_transform, eigen_transform);
-      pcl::transformPointCloud(*pc_ptr, *pc_ptr, eigen_transform);
+      pc_ptr = ScalePointCloud<PointT>(pc_ptr, scaling_factor_);
     }
 
     // Publish point cloud

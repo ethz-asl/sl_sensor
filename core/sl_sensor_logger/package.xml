@@ -16,11 +16,15 @@
   <depend>cv_bridge</depend>
   <depend>nodelet</depend>
   <depend>pluginlib</depend>
+  <depend>pcl_ros</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
   <depend>sl_sensor_image_acquisition</depend>
   <depend>sl_sensor_reconstruction</depend>
   <depend>std_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf_conversions</depend>
+
 
   <exec_depend>message_runtime</exec_depend>
 

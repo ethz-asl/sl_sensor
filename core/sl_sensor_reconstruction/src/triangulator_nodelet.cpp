@@ -51,9 +51,6 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<bool>("apply_scaling", apply_scaling_, apply_scaling_);
   private_nh_.param<float>("scaling_factor", scaling_factor_, scaling_factor_);
 
-  private_nh_.param<bool>("apply_transform_using_tf", apply_transform_using_tf_, apply_transform_using_tf_);
-  private_nh_.param<std::string>("base_frame_id", base_frame_id_, base_frame_id_);
-
   // Load camera and projector parameters
   CameraParameters triangulation_camera_parameters;
   if (triangulation_camera_parameters.Load(triangulation_camera_parameters_filename_))
@@ -135,12 +132,6 @@ void TriangulatorNodelet::onInit()
   // Setup publisher and subscriber
   pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pc_pub_topic_, 10);
   image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &TriangulatorNodelet::ImageArrayCb, this);
-
-  // Setup tf transformer if required
-  if (apply_transform_using_tf_)
-  {
-    tf_listener_ptr_ = std::make_unique<tf::TransformListener>();
-  }
 };
 
 void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)

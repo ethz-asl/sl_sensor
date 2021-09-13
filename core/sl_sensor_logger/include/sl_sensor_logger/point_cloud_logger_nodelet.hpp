@@ -4,6 +4,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <tf/transform_listener.h>
 #include <memory>
 
 #include "sl_sensor_logger/logger_nodelet.hpp"
@@ -27,6 +28,9 @@ private:
   std::string pc_sub_topic_ = "/decoded_images_input";
   std::string save_folder_ = "/point_cloud_output";
   std::string header_ = "pc_";
+  std::string base_frame_id_ = "";
+
+  std::unique_ptr<tf::TransformListener> tf_listener_ptr_;
 
   unsigned int counter_ = 0;
 };
