@@ -12,6 +12,7 @@
 <arg name="horizontal_camera_name" doc="Name of camera as declared in in versavis" default="cam1"/>
 <arg name="vertical_camera_name" doc="Name of camera as declared in in versavis" default="cam2"/>
 
+
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
 <arg name="decoder_name" doc="Name of decoder" default="phase_shift_with_tpu" />

@@ -9,8 +9,6 @@
 <arg name="horizontal_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
 <arg name="vertical_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
-<arg name="horizontal_camera_name" doc="Name of camera as declared in in versavis" default="cam1"/>
-<arg name="vertical_camera_name" doc="Name of camera as declared in in versavis" default="cam2"/>
 
 <arg name="base_frame_id" doc="If specified, will transform point cloud to a particular frame in tf" default="world"/>
 
@@ -22,6 +20,10 @@
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_vertical" />
 <arg name="decoder_name" doc="Name of decoder" default="two_plus_one_with_tpu" />
+?>
+
+<?ignore
+<node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 3.1415 0 1.5708 ENDEFFECTOR map 10" />
 ?>
 
 <arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="true" />
@@ -108,17 +110,9 @@
 </node>		  
 
 <!-- Loggers -->
-<include file="$(find sl_sensor_logger)/launch/launch_loggers.launch" pass_all_args="true"/>
-
-<!-- RQT Scanning Dashboard if desired -->
-<!--
-<group if="$(arg open_dashboard)">
-  <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch" />
-  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch">
-    <arg name="projector_pattern_names" value="$(arg horizontal_projector_pattern_name) $(arg vertical_projector_pattern_name)"/>
-  </include>
-</group>
--->
+<include file="$(find sl_sensor_logger)/launch/launch_loggers.launch" pass_all_args="true">
+  <arg name="point_cloud_include_timestamp" value = "false" />
+</include>
 
 <node pkg="rviz" type="rviz" name="rviz_sl_sensor" args="-d $(find sl_sensor)/rviz/rosbag_processing.rviz" />	  
 

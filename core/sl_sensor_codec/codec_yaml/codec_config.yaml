@@ -1,17 +1,21 @@
 calibration:
   # Calibration uses the same Phase Shift with TPU codec, but with different settings
-  number_phases: 16
+  # Number of phases is the same as used by SL Studio (16 for both directions)
+  number_phases_horizontal: 16
+  number_phases_vertical: 16
   average_intensity: 0.5
   modulation_intensity: 0.5
   shading_threshold: 25
   # TODO have an option to not distort calibration patterns
 phase_shift_with_tpu:
-  number_phases: 12
+  number_phases_horizontal: 19
+  number_phases_vertical: 12
   average_intensity: 0.6
   modulation_intensity: 0.4
   shading_threshold: 30
 two_plus_one_with_tpu:
-  number_phases: 12
+  number_phases_horizontal: 19
+  number_phases_vertical: 12
   average_intensity: 0.6
   modulation_intensity: 0.4
   shading_threshold: 30

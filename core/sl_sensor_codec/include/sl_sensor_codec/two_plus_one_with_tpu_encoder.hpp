@@ -15,11 +15,12 @@ class TwoPlusOneWithTpuEncoder : public Encoder
 {
 public:
   TwoPlusOneWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
-                           unsigned int number_phases);
+                           unsigned int number_phases_horizontal, unsigned int number_phases_vertical);
   TwoPlusOneWithTpuEncoder(const YAML::Node &node);
 
 private:
-  int number_phases_ = 1;
+  unsigned int number_phases_horizontal_ = 1;
+  unsigned int number_phases_vertical_ = 1;
   double average_intensity_ = 0.5;
   double modulation_intensity_ = 0.5;
   void GeneratePatterns();

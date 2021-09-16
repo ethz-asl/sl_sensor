@@ -29,6 +29,7 @@ void PointCloudLoggerNodelet::onInit()
   private_nh_.param<std::string>("log_directory", save_folder_, save_folder_);
   private_nh_.param<std::string>("file_header", header_, header_);
   private_nh_.param<std::string>("base_frame_id", base_frame_id_, base_frame_id_);
+  private_nh_.param<bool>("include_timestamp", include_timestamp_, include_timestamp_);
 
   // Setup publisher and subscriber
   pc_sub_ = nh_.subscribe(pc_sub_topic_, 10, &PointCloudLoggerNodelet::PointCloudCb, this);
@@ -60,9 +61,8 @@ void PointCloudLoggerNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPt
 
     std::string array_time = std::to_string(pc_msg_ptr->header.stamp.toNSec());
     std::string final_pc_full_directory =
-        save_folder_ + header_ + "_" + array_time + "_" + std::to_string(counter_) + ".pcd";
-
-    // std::string final_pc_full_directory = save_folder_ + header_ + "_" + std::to_string(counter_) + ".pcd";
+        (include_timestamp_) ? (save_folder_ + header_ + "_" + array_time + "_" + std::to_string(counter_) + ".pcd") :
+                               (save_folder_ + header_ + "_" + std::to_string(counter_) + ".pcd");
 
     pcl::PCDWriter file_writer;
     file_writer.write(final_pc_full_directory, pcl_pc2);

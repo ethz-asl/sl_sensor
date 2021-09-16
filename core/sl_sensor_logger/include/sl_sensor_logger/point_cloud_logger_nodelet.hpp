@@ -32,6 +32,7 @@ private:
 
   std::unique_ptr<tf::TransformListener> tf_listener_ptr_;
 
+  bool include_timestamp_ = false;
   unsigned int counter_ = 0;
 };
 

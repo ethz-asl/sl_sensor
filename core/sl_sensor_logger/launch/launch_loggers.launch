@@ -3,6 +3,7 @@
   <arg name="save_images" doc="Whether to save images grouped by image synchroniser" default="true" />
   <arg name="save_header" doc="Header appended to start of saved files" default="log" />
   <arg name="base_frame_id" doc="If specified, will transform point cloud to a particular frame in tf" default="" />
+  <arg name="point_cloud_include_timestamp" doc="Include timestamp in name of saved point cloud file" default="true" />
 
   <node pkg="nodelet" type="nodelet" name="point_cloud_logger" args="load sl_sensor_logger/PointCloudLoggerNodelet standalone_nodelet" output="screen">
     <param name="service_name" type="str" value="/enable_log_pc" />
@@ -11,6 +12,7 @@
     <param name="log_directory" type="str" value="$(find sl_sensor)/saved_point_clouds/" />
     <param name="file_header" type="str" value="$(arg save_header)" />
     <param name="base_frame_id" type="str" value="$(arg base_frame_id)" />
+    <param name="include_timestamp" type="bool" value="$(arg point_cloud_include_timestamp)" />
   </node>		  
 
   <node pkg="nodelet" type="nodelet" name="image_logger" args="load sl_sensor_logger/ImageArrayLoggerNodelet standalone_nodelet" output="screen">
@@ -20,4 +22,5 @@
     <param name="log_directory" type="str" value="$(find sl_sensor)/saved_images/" />
     <param name="file_header" type="str" value="$(arg save_header)" />
   </node>
+  
 </launch>
