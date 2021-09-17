@@ -6,7 +6,7 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io2_cam2/" />
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io3_cam2/" />
     <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
     <param name="output_projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
 

@@ -5,7 +5,7 @@
 
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io2_cam1/" />
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/calib_io3_cam1/" />
     <param name="output_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
 
     <param name="camera_folder_name" type="str" value="cam1" />

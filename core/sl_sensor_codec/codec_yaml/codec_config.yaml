@@ -1,12 +1,11 @@
 calibration:
   # Calibration uses the same Phase Shift with TPU codec, but with different settings
-  # Number of phases is the same as used by SL Studio (16 for both directions)
-  number_phases_horizontal: 16
+  number_phases_horizontal: 25
   number_phases_vertical: 16
   average_intensity: 0.5
   modulation_intensity: 0.5
   shading_threshold: 25
-  # TODO have an option to not distort calibration patterns
+  disable_lens_distortion_correction: true # We do not need to perform lens distortion correction for calibration patterns
 phase_shift_with_tpu:
   number_phases_horizontal: 19
   number_phases_vertical: 12
