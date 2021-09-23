@@ -25,10 +25,7 @@ target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Open3D::Open3D)
 # EXECUTABLES #
 ##############
 
-cs_add_executable(pairwise_registration_node src/pairwise_registration_node.cpp)
-target_link_libraries(pairwise_registration_node ${PROJECT_NAME})
-
-cs_add_executable(pairwise_registration_rosbag_node src/pairwise_registration_rosbag_node.cpp)
+cs_add_executable(pairwise_registration_rosbag_node src/pairwise_registration_node.cpp)
 target_link_libraries(pairwise_registration_rosbag_node ${PROJECT_NAME})
 
 ##########

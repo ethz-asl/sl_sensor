@@ -30,25 +30,20 @@
 #include <string>
 #include <thread>
 
-#include <sl_sensor_conversions/conversions.hpp>
-#include <sl_sensor_io/tum_csv_reader.hpp>
-#include <sl_sensor_io/tum_csv_writer.hpp>
 #include <sl_sensor_timer/timer.hpp>
-#include "sl_sensor_registration/pc_utils.hpp"
+#include "sl_sensor_registration/pc_utilities.hpp"
 #include "sl_sensor_registration/point_cloud_registration_algorithm.hpp"
 #include "sl_sensor_registration/point_cloud_registration_algorithm_factory.hpp"
 
 using namespace sl_sensor::registration;
-using namespace sl_sensor::io;
-using namespace sl_sensor::conversions;
 using namespace sl_sensor::timer;
 
-inline bool FileExists(const std::string& name) {
-  struct stat buffer;
-  return (stat(name.c_str(), &buffer) == 0);
-}
+bool FileExists(const std::string &name);
+geometry_msgs::Pose EigenToPose(const Eigen::Matrix4f &matrix);
+geometry_msgs::PoseStamped EigenToPoseStamped(const Eigen::Matrix4f &matrix, const ros::Time &time,
+                                              const std::string &frame_id);
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   // Init ros node
   ros::init(argc, argv, "pairwise_registration_node");
   ros::NodeHandle nh;
@@ -64,26 +59,27 @@ int main(int argc, char** argv) {
   std::string output_pc_directory;
   nh.param<std::string>("output_pc_directory", output_pc_directory, "");
 
-  std::string relative_pose_directory;
-  nh.param<std::string>("relative_pose_directory", relative_pose_directory, "");
+  std::string header_name = "log_";
+  nh.param<std::string>("header_name", header_name, header_name);
 
-  std::string absolute_pose_directory;
-  nh.param<std::string>("absolute_pose_directory", absolute_pose_directory, "");
+  bool enable_sor = true;
+  nh.param<bool>("enable_sor", enable_sor, enable_sor);
 
-  std::string input_pc_file_format;
-  nh.param<std::string>("input_pc_file_format", input_pc_file_format, "");
+  int nearest_k = 30;
+  nh.param<int>("nearest_k", nearest_k, nearest_k);
 
-  std::string output_pc_file_format;
-  nh.param<std::string>("output_pc_file_format", output_pc_file_format, "");
+  double std_dev = 1.0;
+  nh.param<double>("std_dev", std_dev, std_dev);
 
-  bool save_registered_pc;
-  nh.param<bool>("save_registered_pc", save_registered_pc, false);
+  std::string input_pc_file_format = ".pcd";
+  std::string output_pc_file_format = ".pcd";
+  bool save_registered_pc = true;
 
   int row_min;
-  nh.param<int>("row_min", row_min, -1);
+  nh.param<int>("row_min", row_min, 0);
 
   int row_max;
-  nh.param<int>("row_max", row_max, 100000);
+  nh.param<int>("row_max", row_max, 1000);
 
   // Publisher topics
   std::cout << "Setting up ROS publishers ..." << std::endl;
@@ -118,17 +114,9 @@ int main(int argc, char** argv) {
   // Timer to compute mean time taken per registration
   Timer timer("Pairwise Point Cloud Registration (" + algo_name + ")");
 
-  // Create csv viewer
-  TumCsvReader csv_reader{relative_pose_directory};
-  TumPose initial_pose_guess;
-
-  // Create csv writer
-  TumCsvWriter csv_writer{absolute_pose_directory};
-
   // Create the filtering object
+  pcl::StatisticalOutlierRemoval<pcl::PointXYZI> sor_filter_xyzi;
   pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor_filter;
-
-  int row = 1;
 
   Eigen::Matrix4f vo_pose = Eigen::Matrix4f::Identity();
 
@@ -136,76 +124,58 @@ int main(int argc, char** argv) {
 
   std::cout << "Start point cloud registration" << std::endl;
 
-  while (csv_reader.GetNextRow(initial_pose_guess)) {
-    if (row < row_min || row > row_max) {
-      row++;
-      continue;
-    }
-
-    // Point clouds are in mm, convert to m
-    double scale = 0.001f;
-    initial_pose_guess.ScaleTransform(scale);
-    auto image_timestamp = initial_pose_guess.timestamp;
-    std::cout << "Processing frame at image_timestamp " << image_timestamp << " ("
-              << "Row " << row << " of csv file"
-              << ")" << std::endl;
-    Eigen::Matrix4f initial_guess_transform_curr_frame;
-    initial_pose_guess.GetTransformationMatrix(initial_guess_transform_curr_frame);
-
+  for (size_t row = (size_t)row_min; row <= (size_t)row_max; row++) {
     // Read point cloud
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr stitch_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr stitch_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr registration_pc_xyzi_ptr(
+        new pcl::PointCloud<pcl::PointXYZI>);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr registration_pc_ptr(
         new pcl::PointCloud<pcl::PointXYZRGB>);
     std::string registration_pc_full_directory =
-        registration_pc_directory + std::to_string(image_timestamp) + input_pc_file_format;
+        registration_pc_directory + header_name + std::to_string(row) + input_pc_file_format;
     std::string stitch_pc_full_directory =
-        stitch_pc_directory + std::to_string(image_timestamp) + input_pc_file_format;
+        stitch_pc_directory + header_name + std::to_string(row) + input_pc_file_format;
 
-    // Accumulate initial guess poses
-    // If registration is successful in previous frame, initial_guess_transform is reset to identity
-    // at the end of the loop, if not we accumulate guess transforms
-    initial_guess_transform = initial_guess_transform * initial_guess_transform_curr_frame;
+    std::cout << "trying to open " << registration_pc_full_directory << std::endl;
 
     // If pc file does not exist, skip this frame
     if (!FileExists(registration_pc_full_directory) || !FileExists(stitch_pc_full_directory)) {
-      // We accumlate the pose estimates
       continue;
     }
 
     if (input_pc_file_format == ".pcd") {
-      pcl::io::loadPCDFile(registration_pc_full_directory, *registration_pc_ptr);
+      pcl::io::loadPCDFile(registration_pc_full_directory, *registration_pc_xyzi_ptr);
       pcl::io::loadPCDFile(stitch_pc_full_directory, *stitch_pc_ptr);
     } else if (input_pc_file_format == ".ply") {
-      pcl::io::loadPLYFile(registration_pc_full_directory, *registration_pc_ptr);
+      pcl::io::loadPLYFile(registration_pc_full_directory, *registration_pc_xyzi_ptr);
       pcl::io::loadPLYFile(stitch_pc_full_directory, *stitch_pc_ptr);
     } else {
       std::cout << "Invalid point cloud format: " << input_pc_file_format << std::endl;
       throw;
     }
 
-    // Scale point clouds
-    stitch_pc_ptr = ScalePointCloud<pcl::PointXYZRGB>(stitch_pc_ptr, scale);
-    registration_pc_ptr = ScalePointCloud<pcl::PointXYZRGB>(registration_pc_ptr, scale);
+    copyPointCloud(*registration_pc_xyzi_ptr, *registration_pc_ptr);
+
+    // Iterate over each point
+    for (size_t i = 0; i < registration_pc_xyzi_ptr->size(); ++i) {
+      registration_pc_ptr->points[i].r = registration_pc_xyzi_ptr->points[i].intensity;
+      registration_pc_ptr->points[i].g = registration_pc_xyzi_ptr->points[i].intensity;
+      registration_pc_ptr->points[i].b = registration_pc_xyzi_ptr->points[i].intensity;
+    }
 
     std::vector<int> register_nan_indices;
     pcl::removeNaNFromPointCloud(*registration_pc_ptr, *registration_pc_ptr, register_nan_indices);
-    sor_filter.setInputCloud(registration_pc_ptr);
-    // sor_filter.setMeanK(50);
-    // sor_filter.setStddevMulThresh(0.03);
-    sor_filter.setMeanK(30);
-    sor_filter.setStddevMulThresh(1.0);
-    sor_filter.filter(*registration_pc_ptr);
 
-    std::cout << registration_pc_ptr->size() << std::endl;
-
-    std::cout << "Initial guess transform: \n" << std::endl;
-    std::cout << initial_guess_transform << std::endl;
-
-    vo_pose = vo_pose * initial_guess_transform;
+    if (enable_sor) {
+      sor_filter.setInputCloud(registration_pc_ptr);
+      sor_filter.setMeanK(nearest_k);
+      sor_filter.setStddevMulThresh(std_dev);
+      sor_filter.filter(*registration_pc_ptr);
+    }
 
     // Perform PC registraion using feature guess
     timer.Start();
-    pc_registration_ptr->RegisterPointCloud(registration_pc_ptr, initial_guess_transform);
+    pc_registration_ptr->RegisterPointCloud(registration_pc_ptr);
     timer.End();
     timer.PrintAverageTiming();
 
@@ -220,17 +190,20 @@ int main(int argc, char** argv) {
     std::cout << current_transform << std::endl;
 
     // Transform and save final point cloud
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr final_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr final_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
     std::string final_pc_full_directory =
-        output_pc_directory + std::to_string(image_timestamp) + output_pc_file_format;
+        output_pc_directory + std::to_string(row) + output_pc_file_format;
     pcl::transformPointCloud(*stitch_pc_ptr, *final_pc_ptr, current_transform);
 
     std::vector<int> stitch_nan_indices;
     pcl::removeNaNFromPointCloud(*final_pc_ptr, *final_pc_ptr, stitch_nan_indices);
-    sor_filter.setInputCloud(final_pc_ptr);
-    sor_filter.setMeanK(30);
-    sor_filter.setStddevMulThresh(0.1);
-    sor_filter.filter(*final_pc_ptr);
+
+    if (enable_sor) {
+      sor_filter_xyzi.setInputCloud(final_pc_ptr);
+      sor_filter_xyzi.setMeanK(nearest_k);
+      sor_filter_xyzi.setStddevMulThresh(std_dev);
+      sor_filter_xyzi.filter(*final_pc_ptr);
+    }
 
     if (save_registered_pc) {
       if (output_pc_file_format == ".pcd") {
@@ -252,21 +225,50 @@ int main(int argc, char** argv) {
 
     // We subsample point cloud to get a sparser one for visualisation so it does not lag rviz
     sensor_msgs::PointCloud2 pc_msg;
-    pcl::toROSMsg(*GetSubsampledPointCloud<pcl::PointXYZRGB>(final_pc_ptr, rviz_leafsize), pc_msg);
+    pcl::toROSMsg(*GetSubsampledPointCloud<pcl::PointXYZI>(final_pc_ptr, rviz_leafsize), pc_msg);
     pc_msg.header.frame_id = frame;
     pc_pub.publish(pc_msg);
-
-    // Write absolute pose to csv file
-    TumPose absolute_pose{image_timestamp, current_transform};
-    csv_writer.WriteNextRow(absolute_pose);
-
-    // Update counter
-    row++;
-
-    // Since successful registration, reset guess transformation
-    initial_guess_transform = Eigen::Matrix4f::Identity();
   }
 
   ros::shutdown();
   return 0;
 }
+
+bool FileExists(const std::string &name) {
+  struct stat buffer;
+  return (stat(name.c_str(), &buffer) == 0);
+}
+
+geometry_msgs::PoseStamped EigenToPoseStamped(const Eigen::Matrix4f &matrix, const ros::Time &time,
+                                              const std::string &frame_id) {
+  geometry_msgs::PoseStamped pose_stamped;
+
+  pose_stamped.header.frame_id = frame_id;
+  pose_stamped.header.stamp = time;
+  pose_stamped.pose = EigenToPose(matrix);
+
+  return pose_stamped;
+};
+
+geometry_msgs::Pose EigenToPose(const Eigen::Matrix4f &matrix) {
+  geometry_msgs::Pose pose_output;
+
+  auto md = matrix.cast<double>();
+
+  tf::Matrix3x3 tf3d;
+  tf3d.setValue(md(0, 0), md(0, 1), md(0, 2), md(1, 0), md(1, 1), md(1, 2), md(2, 0), md(2, 1),
+                md(2, 2));
+
+  tf::Quaternion quat;
+  tf3d.getRotation(quat);
+
+  pose_output.position.x = md(0, 3);
+  pose_output.position.y = md(1, 3);
+  pose_output.position.z = md(2, 3);
+  pose_output.orientation.x = quat.getX();
+  pose_output.orientation.y = quat.getY();
+  pose_output.orientation.z = quat.getZ();
+  pose_output.orientation.w = quat.getW();
+
+  return pose_output;
+};
