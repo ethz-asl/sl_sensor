@@ -6,7 +6,6 @@
 <arg name="default_param_file" default="$(find sl_sensor_image_acquisition)/param/default_parameters.yaml"/>
 <arg name="fixed_pattern_name" default=""/>
 
-
 <node pkg="nodelet" type="nodelet" name="image_synchroniser" args="load sl_sensor_image_acquisition/ImageSynchroniserNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(arg default_param_file)" />
   <param name="frame_id" type="str" value="$(arg frame_id)" />

@@ -1,3 +1,4 @@
+# Topic which acquisition nodelet with obtain decoded images to save
 image_array_sub_topic: "/decoder/decoded_images"
 
 # Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)

@@ -11,25 +11,22 @@
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
 
 <arg name="base_frame_id" doc="If specified, will transform point cloud to a particular frame in tf" default="world"/>
+<arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="true" />
+<arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
+<arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
 
+
+<!-- Uncomment if using PSP with TPU Pattern-->
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
 <arg name="decoder_name" doc="Name of decoder" default="phase_shift_with_tpu" />
 
+<!-- Uncomment if using Two Plus One with TPU Pattern -->
 <?ignore
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_vertical" />
 <arg name="decoder_name" doc="Name of decoder" default="two_plus_one_with_tpu" />
 ?>
-
-<?ignore
-<node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 3.1415 0 1.5708 ENDEFFECTOR map 10" />
-?>
-
-<arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="true" />
-
-<arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
-<arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
 
 <!-- Initialise Reconstruction Nodelet Pipeline -->
 <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
