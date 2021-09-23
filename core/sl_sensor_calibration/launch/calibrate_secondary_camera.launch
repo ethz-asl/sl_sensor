@@ -30,8 +30,6 @@
     <param name="camera_fix_k3" type="bool" value="0" />
     <param name="camera_zero_tangential_distortion" type="bool" value="0" />
     <param name="camera_fix_values" type="bool" value="0" />
-    <param name="camera_use_initial_guess" type="bool" value="0" />
-    <param name="camera_calibration_init_yaml" type="str" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
     <!-- Fix projector calibration values -->
     <param name="projector_fix_values" type="bool" value="1" />

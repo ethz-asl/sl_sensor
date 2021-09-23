@@ -32,8 +32,6 @@
     <param name="camera_fix_k3" type="bool" value="0" />
     <param name="camera_zero_tangential_distortion" type="bool" value="0" />
     <param name="camera_fix_values" type="bool" value="0" />
-    <param name="camera_use_initial_guess" type="bool" value="0" />
-    <param name="camera_calibration_init_yaml" type="str" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
     <!-- Calibration options for projector. Refer OpenCV's cv::calibrateCamera method for more information-->
     <!-- Adjust to your own needs -->
@@ -43,8 +41,6 @@
     <param name="projector_fix_k3" type="bool" value="0" />
     <param name="projector_zero_tangential_distortion" type="bool" value="1" />
     <param name="projector_fix_values" type="bool" value="0" />
-    <param name="projector_use_initial_guess" type="bool" value="0" />
-    <param name="projector_calibration_init_yaml" type="str" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
     <!-- Load calibration board details and local homography calibration parameters -->
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
