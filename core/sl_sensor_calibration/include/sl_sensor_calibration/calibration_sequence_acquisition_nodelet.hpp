@@ -13,17 +13,23 @@
 
 #include "sl_sensor_image_acquisition/ImageArray.h"
 
-namespace sl_sensor
-{
-namespace calibration
-{
-class CalibrationSequenceAcquisitionNodelet : public nodelet::Nodelet
-{
-public:
+namespace sl_sensor {
+namespace calibration {
+
+/**
+ * @brief Nodelet to save images required for calibration
+ * For each camera, this includes:
+ * 1) Shading (within cam folder)
+ * 2) Mask (within cam folder)
+ * 3) Decoded horizontal projector coordinates, up (within proj folder)
+ * 4) Decoded vertical projector coordinates, vp (within proj folder)
+ */
+class CalibrationSequenceAcquisitionNodelet : public nodelet::Nodelet {
+ public:
   CalibrationSequenceAcquisitionNodelet();
   ~CalibrationSequenceAcquisitionNodelet();
 
-private:
+ private:
   ros::Subscriber image_array_sub_;
   std::vector<std::vector<ros::Publisher>> image_pubs_;
   ros::ServiceClient image_synchroniser_client_;
@@ -59,26 +65,78 @@ private:
 
   void ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr image_arr_ptr);
 
-  bool GetInputAndCheckIfItIsExpectedChar(const std::string& message, char expected_char);
-
+  /**
+   * @brief Converts input image that is in float format to an 8-bit image to be visualised. Float
+   * values are normalised to a value between 0-255
+   *
+   * @param input_image - Input float image
+   * @param output_image - Output 8-bit image
+   */
   void ProcessFloatImage(const cv::Mat& input_image, cv::Mat& output_image);
 
+  /**
+   * @brief Create folders where calibration images will be saved
+   *
+   * @return true - Success
+   * @return false - Failure
+   */
   bool GenerateDataFolders();
 
+  /**
+   * @brief Initialise nodelet to be ready to take in new calibration sequences
+   *
+   */
   void Init();
 
+  /**
+   * @brief Send service request to image acquisition nodelet to project and grab next calibration
+   * sequence
+   *
+   */
   void SendCommandForNextCalibrationSequence();
 
+  /**
+   * @brief Sends a service request to the projector
+   *
+   * @param command - Command to be sent to projector
+   * @param pattern_no - Pattern indice
+   */
   void SendProjectorCommand(const std::string& command, int pattern_no);
 
-  bool ProcessGrabNextSequenceCommand(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res);
+  /**
+   * @brief Processes "Grab Next Sequence" Button Press from RQT GUI to start acquisition of next
+   * calibration sequence
+   *
+   * @param req
+   * @param res
+   * @return true
+   * @return false
+   */
+  bool ProcessGrabNextSequenceCommand(std_srvs::Trigger::Request& req,
+                                      std_srvs::Trigger::Response& res);
 
-  bool ProcessEraseSequenceCommand(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res);
+  /**
+   * @brief Processes "Erase Last Sequence" Button Press from RQT GUI to erase the last calibration
+   * sequence obtained that is stored in the buffer
+   *
+   * @param req
+   * @param res
+   * @return true
+   * @return false
+   */
+  bool ProcessEraseSequenceCommand(std_srvs::Trigger::Request& req,
+                                   std_srvs::Trigger::Response& res);
 
-  void SaveData(const std::vector<cv::Mat>& cv_img_ptr_vec);
+  /**
+   * @brief Save calibration images to specified folders
+   *
+   * @param cv_img_vec - Vector of images to be saved in the order of 1) up 2) vp 3) mask 4) shading
+   */
+  void SaveData(const std::vector<cv::Mat>& cv_img_vec);
 };
 
 }  // namespace calibration
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::calibration::CalibrationSequenceAcquisitionNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::calibration::CalibrationSequenceAcquisitionNodelet,
+                       nodelet::Nodelet);

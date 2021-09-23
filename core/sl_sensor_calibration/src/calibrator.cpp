@@ -146,7 +146,7 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
     cam_error = cv::calibrateCamera(
         corner_3d_coordinates_storage_, corner_camera_coordinates_storage_, image_size,
         intrinsic_cam, lens_distortion_cam, cam_rvecs, cam_tvecs,
-        camera_calibration_flags_.GetCalibrationFlagss(),
+        camera_calibration_flags_.GetCalibrationFlags(),
         cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
 
@@ -161,7 +161,7 @@ bool Calibrator::Calibrate(ProjectorParameters& proj_params, CameraParameters& c
     proj_error = cv::calibrateCamera(
         corner_3d_coordinates_storage_, corner_projector_coordinates_storage_, projector_size,
         intrinsic_proj, lens_distortion_proj, proj_rvecs, proj_tvecs,
-        projector_calibration_flags_.GetCalibrationFlagss(),
+        projector_calibration_flags_.GetCalibrationFlags(),
         cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, DBL_EPSILON));
   }
   // Calibrate extrinsics
