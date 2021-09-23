@@ -15,7 +15,6 @@
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
 
-
 <!-- Uncomment if using PSP with TPU Pattern-->
 <arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
 <arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
@@ -111,6 +110,7 @@
   <arg name="point_cloud_include_timestamp" value = "false" />
 </include>
 
+<!-- Launch RVIZ -->
 <node pkg="rviz" type="rviz" name="rviz_sl_sensor" args="-d $(find sl_sensor)/rviz/rosbag_processing.rviz" />	  
 
 </launch>
