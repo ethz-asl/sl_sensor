@@ -6,7 +6,7 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>BSD3</license>
+  <license>GPLv3</license>
 
   <build_depend>libpointmatcher</build_depend>
   <build_depend>libpointmatcher_ros</build_depend>

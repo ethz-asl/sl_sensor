@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>GUI interface for SL sensor</description>
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
-  <license>BSD3</license>
+  <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>sl_sensor_scanning_gui</depend>
