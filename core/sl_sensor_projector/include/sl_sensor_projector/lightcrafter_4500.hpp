@@ -7,18 +7,15 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace projector
-{
+namespace sl_sensor {
+namespace projector {
 /**
- * @brief Class object that manages the Lightcrafter 4500 used by the Lightcrafter 4500 ROS Node. Note: For functions
- * that return a boolean, true means success and false means failure
+ * @brief Class object that manages the Lightcrafter 4500 used by the Lightcrafter 4500 ROS Node.
+ * Note: For functions that return a boolean, true means success and false means failure
  *
  */
-class Lightcrafter4500
-{
-public:
+class Lightcrafter4500 {
+ public:
   Lightcrafter4500();
   ~Lightcrafter4500();
 
@@ -148,13 +145,13 @@ public:
    */
   static int GetNumberProjections(const YAML::Node& config, const std::string& pattern_name);
 
-private:
+ private:
   Lightcrafter4500Api projector_;
   YAML::Node proj_config_;
   unsigned int backup_exposure_period_us_ = 1000000;
   LightcrafterSinglePattern backup_single_pattern_ =
       LightcrafterSinglePattern(0, 0, 8, 7, 0, false, false, true, false);
-  unsigned char backup_rgb_[3] = { 104, 135, 130 };
+  unsigned char backup_rgb_[3] = {104, 135, 130};
 };
 
 }  // namespace projector

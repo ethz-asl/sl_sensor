@@ -10,14 +10,11 @@
 
 using namespace pcl::visualization;
 
-namespace sl_sensor
-{
-namespace visualise
-{
+namespace sl_sensor {
+namespace visualise {
 ShowPointCloudNodelet::ShowPointCloudNodelet(){};
 
-void ShowPointCloudNodelet::onInit()
-{
+void ShowPointCloudNodelet::onInit() {
   // Get node handles
   nh_ = getNodeHandle();
   private_nh_ = getPrivateNodeHandle();
@@ -32,12 +29,11 @@ void ShowPointCloudNodelet::onInit()
   image_array_sub_ = nh_.subscribe(pc_sub_topic_, 10, &ShowPointCloudNodelet::PointCloudCb, this);
 
   // Create thread for main loop
-  main_loop_thread_ptr_ =
-      std::shared_ptr<std::thread>(new std::thread(std::bind(&ShowPointCloudNodelet::Update, this)));
+  main_loop_thread_ptr_ = std::shared_ptr<std::thread>(
+      new std::thread(std::bind(&ShowPointCloudNodelet::Update, this)));
 };
 
-void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr)
-{
+void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr) {
   std::scoped_lock lock(mutex_);
 
   pcl::PCLPointCloud2 pcl_pc2;
@@ -46,14 +42,12 @@ void ShowPointCloudNodelet::PointCloudCb(const sensor_msgs::PointCloud2ConstPtr&
   pcl::fromPCLPointCloud2(pcl_pc2, *pc_ptr);
 
   colour_handler_ptr->setInputCloud(pc_ptr);
-  if (!visualiser_ptr_->updatePointCloud(pc_ptr, *colour_handler_ptr, screen_title_))
-  {
+  if (!visualiser_ptr_->updatePointCloud(pc_ptr, *colour_handler_ptr, screen_title_)) {
     visualiser_ptr_->addPointCloud(pc_ptr, *colour_handler_ptr, screen_title_);
   };
 }
 
-void ShowPointCloudNodelet::Update()
-{
+void ShowPointCloudNodelet::Update() {
   // Setup visualiser and colour handler
   // Note: Visualiser must be initialise within the thread or else it will crash
   visualiser_ptr_ = std::make_unique<PCLVisualizer>(screen_title_, true);
@@ -68,8 +62,7 @@ void ShowPointCloudNodelet::Update()
   // Projector coordinate frame
   calibration::CameraParameters camera_parameters;
 
-  if (camera_parameters.Load(camera_parameters_filename_))
-  {
+  if (camera_parameters.Load(camera_parameters_filename_)) {
     cv::Mat T_proj_cam_cv(3, 4, CV_32F);
     cv::Mat(camera_parameters.extrinsic_rot()).copyTo(T_proj_cam_cv.colRange(0, 3));
     cv::Mat(camera_parameters.extrinsic_trans()).copyTo(T_proj_cam_cv.col(3));
@@ -83,10 +76,10 @@ void ShowPointCloudNodelet::Update()
   visualiser_ptr_->setCameraClipDistances(0.001, 10000000);
 
   // Initialize point cloud color handler
-  colour_handler_ptr = std::make_unique<PointCloudColorHandlerGenericField<pcl::PointXYZI>>("intensity");
+  colour_handler_ptr =
+      std::make_unique<PointCloudColorHandlerGenericField<pcl::PointXYZI>>("intensity");
 
-  while (!visualiser_ptr_->wasStopped())
-  {
+  while (!visualiser_ptr_->wasStopped()) {
     {
       std::scoped_lock lock(mutex_);
       visualiser_ptr_->spinOnce(1);

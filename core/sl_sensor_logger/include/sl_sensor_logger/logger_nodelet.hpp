@@ -8,16 +8,13 @@
 
 #include <sl_sensor_logger/EnableLogger.h>
 
-namespace sl_sensor
-{
-namespace logger
-{
-class LoggerNodelet : public nodelet::Nodelet
-{
-public:
+namespace sl_sensor {
+namespace logger {
+class LoggerNodelet : public nodelet::Nodelet {
+ public:
   LoggerNodelet();
 
-protected:
+ protected:
   bool enabled_ = false;
   std::string service_name_ = "/enable_logger";
   ros::ServiceServer enable_service_;

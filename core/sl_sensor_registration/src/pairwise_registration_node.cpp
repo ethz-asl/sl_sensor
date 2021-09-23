@@ -43,14 +43,12 @@ using namespace sl_sensor::io;
 using namespace sl_sensor::conversions;
 using namespace sl_sensor::timer;
 
-inline bool FileExists(const std::string& name)
-{
+inline bool FileExists(const std::string& name) {
   struct stat buffer;
   return (stat(name.c_str(), &buffer) == 0);
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "pairwise_registration_node");
   ros::NodeHandle nh;
@@ -121,11 +119,11 @@ int main(int argc, char** argv)
   Timer timer("Pairwise Point Cloud Registration (" + algo_name + ")");
 
   // Create csv viewer
-  TumCsvReader csv_reader{ relative_pose_directory };
+  TumCsvReader csv_reader{relative_pose_directory};
   TumPose initial_pose_guess;
 
   // Create csv writer
-  TumCsvWriter csv_writer{ absolute_pose_directory };
+  TumCsvWriter csv_writer{absolute_pose_directory};
 
   // Create the filtering object
   pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor_filter;
@@ -138,10 +136,8 @@ int main(int argc, char** argv)
 
   std::cout << "Start point cloud registration" << std::endl;
 
-  while (csv_reader.GetNextRow(initial_pose_guess))
-  {
-    if (row < row_min || row > row_max)
-    {
+  while (csv_reader.GetNextRow(initial_pose_guess)) {
+    if (row < row_min || row > row_max) {
       row++;
       continue;
     }
@@ -158,35 +154,31 @@ int main(int argc, char** argv)
 
     // Read point cloud
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr stitch_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr registration_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr registration_pc_ptr(
+        new pcl::PointCloud<pcl::PointXYZRGB>);
     std::string registration_pc_full_directory =
         registration_pc_directory + std::to_string(image_timestamp) + input_pc_file_format;
-    std::string stitch_pc_full_directory = stitch_pc_directory + std::to_string(image_timestamp) + input_pc_file_format;
+    std::string stitch_pc_full_directory =
+        stitch_pc_directory + std::to_string(image_timestamp) + input_pc_file_format;
 
     // Accumulate initial guess poses
-    // If registration is successful in previous frame, initial_guess_transform is reset to identity at the end of the
-    // loop, if not we accumulate guess transforms
+    // If registration is successful in previous frame, initial_guess_transform is reset to identity
+    // at the end of the loop, if not we accumulate guess transforms
     initial_guess_transform = initial_guess_transform * initial_guess_transform_curr_frame;
 
     // If pc file does not exist, skip this frame
-    if (!FileExists(registration_pc_full_directory) || !FileExists(stitch_pc_full_directory))
-    {
+    if (!FileExists(registration_pc_full_directory) || !FileExists(stitch_pc_full_directory)) {
       // We accumlate the pose estimates
       continue;
     }
 
-    if (input_pc_file_format == ".pcd")
-    {
+    if (input_pc_file_format == ".pcd") {
       pcl::io::loadPCDFile(registration_pc_full_directory, *registration_pc_ptr);
       pcl::io::loadPCDFile(stitch_pc_full_directory, *stitch_pc_ptr);
-    }
-    else if (input_pc_file_format == ".ply")
-    {
+    } else if (input_pc_file_format == ".ply") {
       pcl::io::loadPLYFile(registration_pc_full_directory, *registration_pc_ptr);
       pcl::io::loadPLYFile(stitch_pc_full_directory, *stitch_pc_ptr);
-    }
-    else
-    {
+    } else {
       std::cout << "Invalid point cloud format: " << input_pc_file_format << std::endl;
       throw;
     }
@@ -229,7 +221,8 @@ int main(int argc, char** argv)
 
     // Transform and save final point cloud
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr final_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-    std::string final_pc_full_directory = output_pc_directory + std::to_string(image_timestamp) + output_pc_file_format;
+    std::string final_pc_full_directory =
+        output_pc_directory + std::to_string(image_timestamp) + output_pc_file_format;
     pcl::transformPointCloud(*stitch_pc_ptr, *final_pc_ptr, current_transform);
 
     std::vector<int> stitch_nan_indices;
@@ -239,18 +232,12 @@ int main(int argc, char** argv)
     sor_filter.setStddevMulThresh(0.1);
     sor_filter.filter(*final_pc_ptr);
 
-    if (save_registered_pc)
-    {
-      if (output_pc_file_format == ".pcd")
-      {
+    if (save_registered_pc) {
+      if (output_pc_file_format == ".pcd") {
         pcl::io::savePCDFileASCII(final_pc_full_directory, *final_pc_ptr);
-      }
-      else if (output_pc_file_format == ".ply")
-      {
+      } else if (output_pc_file_format == ".ply") {
         pcl::io::savePLYFileASCII(final_pc_full_directory, *final_pc_ptr);
-      }
-      else
-      {
+      } else {
         std::cout << "Invalid point cloud format: " << input_pc_file_format << std::endl;
         throw;
       }
@@ -270,7 +257,7 @@ int main(int argc, char** argv)
     pc_pub.publish(pc_msg);
 
     // Write absolute pose to csv file
-    TumPose absolute_pose{ image_timestamp, current_transform };
+    TumPose absolute_pose{image_timestamp, current_transform};
     csv_writer.WriteNextRow(absolute_pose);
 
     // Update counter

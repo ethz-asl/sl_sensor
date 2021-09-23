@@ -6,23 +6,21 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace projector
-{
+namespace sl_sensor {
+namespace projector {
 /**
- * @brief Interface to control Lightcrafter 4500. Note: Most functions return an int. int < 0 means that the action has
- * failed
+ * @brief Interface to control Lightcrafter 4500. Note: Most functions return an int. int < 0 means
+ * that the action has failed
  *
  */
-class Lightcrafter4500Api
-{
-public:
+class Lightcrafter4500Api {
+ public:
   Lightcrafter4500Api();
   ~Lightcrafter4500Api();
 
   /**
-   * @brief Initialise connection with Lightcrafter. Call at the start of operation. Do not call more than once
+   * @brief Initialise connection with Lightcrafter. Call at the start of operation. Do not call
+   * more than once
    *
    * @return int
    */
@@ -60,8 +58,8 @@ public:
    * @note Usually we just set exposure_period_us = frame_period_us
    * @return int
    */
-  int PlayPatternSequence(const std::vector<LightcrafterSinglePattern>& pattern_vec, unsigned int exposure_period_us,
-                          unsigned int frame_period_us);
+  int PlayPatternSequence(const std::vector<LightcrafterSinglePattern>& pattern_vec,
+                          unsigned int exposure_period_us, unsigned int frame_period_us);
 
   /**
    * @brief Clear class object's internally stored pattern sequence
@@ -141,7 +139,7 @@ public:
    */
   int SetPatternSequenceStop();
 
-private:
+ private:
   const int max_entries_ = 10;
   std::vector<LightcrafterSinglePattern> pattern_store_ = {};
 

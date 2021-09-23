@@ -5,16 +5,13 @@
 #include <cstdint>
 #include <opencv2/opencv.hpp>
 
-namespace sl_sensor
-{
-namespace vo
-{
+namespace sl_sensor {
+namespace vo {
 /**
  * @brief Struct that holds all the required information in a pattern sequence to perform VO
  *
  */
-struct VisualOdometryFrame
-{
+struct VisualOdometryFrame {
   std::vector<cv::Mat> image_sequence;
   std::vector<cv::Mat> rectified_image_sequence;
   std::vector<cv::Mat> registered_image_sequence;
@@ -40,8 +37,8 @@ struct VisualOdometryFrame
    * @param z_min
    * @param z_max
    */
-  void RemoverUnreliableDepthKeypoints(double x_min, double x_max, double y_min, double y_max, double z_min,
-                                       double z_max);
+  void RemoverUnreliableDepthKeypoints(double x_min, double x_max, double y_min, double y_max,
+                                       double z_min, double z_max);
 
   /**
    * @brief Convert all points in kps_pc_ptr to a vector of openCV's cv::Point3d

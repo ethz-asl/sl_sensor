@@ -1,5 +1,5 @@
-#include <math.h>
 #include "sl_sensor_slstudio/codec2p1tpu.h"
+#include <math.h>
 
 #include "sl_sensor_slstudio/cvtools.h"
 #include "sl_sensor_slstudio/pstools.h"
@@ -15,24 +15,20 @@
 static unsigned int nPhases = 12;
 // static unsigned int nPhases = 16;
 
-namespace sl_sensor
-{
-namespace slstudio
-{
+namespace sl_sensor {
+namespace slstudio {
 // Encoder
-EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsigned int _screenRows, CodecDir _dir)
-  : Encoder(_screenCols, _screenRows, _dir)
-{
+EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsigned int _screenRows,
+                                                 CodecDir _dir)
+    : Encoder(_screenCols, _screenRows, _dir) {
   // Set N
   N = 5;
 
   const float pi = M_PI;
 
-  if (_dir == CodecDirHorizontal)
-  {
+  if (_dir == CodecDirHorizontal) {
     // Precompute horizontally encoding patterns
-    for (unsigned int i = 0; i < 2; i++)
-    {
+    for (unsigned int i = 0; i < 2; i++) {
       float phase = pi / 2.0 * i;
       float pitch = (float)screenCols / (float)nPhases;
       cv::Mat patternI;
@@ -42,8 +38,7 @@ EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsig
     }
 
     // Precompute horizontally phase cue patterns
-    for (unsigned int i = 0; i < 2; i++)
-    {
+    for (unsigned int i = 0; i < 2; i++) {
       float phase = pi / 2.0 * i;
       float pitch = screenCols;
       cv::Mat patternI;
@@ -53,11 +48,9 @@ EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsig
     }
   }
 
-  if (_dir == CodecDirVertical)
-  {
+  if (_dir == CodecDirVertical) {
     // Precompute vertically encoding patterns
-    for (unsigned int i = 0; i < 2; i++)
-    {
+    for (unsigned int i = 0; i < 2; i++) {
       float phase = pi / 2.0 * i;
       float pitch = (float)screenRows / (float)nPhases;
       cv::Mat patternI;
@@ -66,8 +59,7 @@ EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsig
     }
 
     // Precompute vertically phase cue patterns
-    for (unsigned int i = 0; i < 2; i++)
-    {
+    for (unsigned int i = 0; i < 2; i++) {
       float phase = pi / 2.0 * i;
       float pitch = screenRows;
       cv::Mat patternI;
@@ -84,26 +76,20 @@ EncoderPhaseShift2p1Tpu::EncoderPhaseShift2p1Tpu(unsigned int _screenCols, unsig
   patterns.insert(it + 1, patternI);
 }
 
-cv::Mat EncoderPhaseShift2p1Tpu::getEncodingPattern(size_t depth)
-{
-  return patterns[depth];
-}
+cv::Mat EncoderPhaseShift2p1Tpu::getEncodingPattern(size_t depth) { return patterns[depth]; }
 
 // Decoder
-DecoderPhaseShift2p1Tpu::DecoderPhaseShift2p1Tpu(unsigned int _screenCols, unsigned int _screenRows, CodecDir _dir)
-  : Decoder(_screenCols, _screenRows, _dir)
-{
+DecoderPhaseShift2p1Tpu::DecoderPhaseShift2p1Tpu(unsigned int _screenCols, unsigned int _screenRows,
+                                                 CodecDir _dir)
+    : Decoder(_screenCols, _screenRows, _dir) {
   N = 5;
   frames.resize(N);
 }
 
-void DecoderPhaseShift2p1Tpu::setFrame(unsigned int depth, cv::Mat frame)
-{
-  frames[depth] = frame;
-}
+void DecoderPhaseShift2p1Tpu::setFrame(unsigned int depth, cv::Mat frame) { frames[depth] = frame; }
 
-void DecoderPhaseShift2p1Tpu::decodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading)
-{
+void DecoderPhaseShift2p1Tpu::decodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask,
+                                           cv::Mat &shading) {
   const float pi = M_PI;
 
   cv::Mat_<float> I1(frames[0]);
@@ -115,8 +101,7 @@ void DecoderPhaseShift2p1Tpu::decodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &ma
   // cv::Mat mag;
   // cv::magnitude(I1 - I2, I3 - I2, mag);
 
-  if (dir & CodecDirVertical)
-  {
+  if (dir & CodecDirVertical) {
     // Vertical decoding
     cv::phase(I1 - I2, I3 - I2, vp);
     cv::Mat vpCue;
@@ -125,8 +110,7 @@ void DecoderPhaseShift2p1Tpu::decodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &ma
     vp *= screenRows / (2 * pi);
   }
 
-  if (dir & CodecDirHorizontal)
-  {
+  if (dir & CodecDirHorizontal) {
     // Horizontal decoding
     cv::phase(I1 - I2, I3 - I2, up);
     cv::Mat upCue;
@@ -166,8 +150,7 @@ void DecoderPhaseShift2p1Tpu::decodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &ma
   **/
 }
 
-DecoderPhaseShift2p1Tpu::~DecoderPhaseShift2p1Tpu()
-{
+DecoderPhaseShift2p1Tpu::~DecoderPhaseShift2p1Tpu() {
   /**
   cv::FileStorage fs("shiftHistory.xml", cv::FileStorage::WRITE);
   if (!fs.isOpened())
@@ -180,14 +163,11 @@ DecoderPhaseShift2p1Tpu::~DecoderPhaseShift2p1Tpu()
 
 void DecoderPhaseShift2p1Tpu::decode_keypoints(const std::vector<cv::Mat> &image_sequence,
                                                std::vector<cv::KeyPoint> &keypoint_vec,
-                                               std::vector<float> &phase_vector)
-{
+                                               std::vector<float> &phase_vector) {
   phase_vector.clear();
 
-  for (const auto &kp : keypoint_vec)
-  {
-    for (int i = 0; i < 5; i++)
-    {
+  for (const auto &kp : keypoint_vec) {
+    for (int i = 0; i < 5; i++) {
       cv::Mat single_pixel = (cv::Mat_<float>(1, 1) << image_sequence[i].at<float>(kp.pt) * 255.0f);
       // std::cout << "Pix " << i << ": " << single_pixel.at<float>(0, 0) << std::endl;
       this->setFrame(i, single_pixel);
@@ -203,8 +183,7 @@ void DecoderPhaseShift2p1Tpu::decode_keypoints(const std::vector<cv::Mat> &image
 
     float phase = NAN;
 
-    if (mask.at<bool>(0, 0) == true)
-    {
+    if (mask.at<bool>(0, 0) == true) {
       phase = vp.at<float>(0, 0);
     }
 

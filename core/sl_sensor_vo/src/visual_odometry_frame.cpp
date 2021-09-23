@@ -12,18 +12,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-namespace sl_sensor
-{
-namespace vo
-{
-void VisualOdometryFrame::RemoverUnreliableDepthKeypoints(double x_min, double x_max, double y_min, double y_max,
-                                                          double z_min, double z_max)
-{
+namespace sl_sensor {
+namespace vo {
+void VisualOdometryFrame::RemoverUnreliableDepthKeypoints(double x_min, double x_max, double y_min,
+                                                          double y_max, double z_min,
+                                                          double z_max) {
   size_t num_kps_3d = kps_pc_ptr->size();
 
   size_t j = 0;
-  for (size_t i = 0; i < (size_t)num_kps_3d; ++i)
-  {
+  for (size_t i = 0; i < (size_t)num_kps_3d; ++i) {
     double x = kps_pc_ptr->points[i].x;
     double y = kps_pc_ptr->points[i].y;
     double z = kps_pc_ptr->points[i].z;
@@ -33,15 +30,13 @@ void VisualOdometryFrame::RemoverUnreliableDepthKeypoints(double x_min, double x
     bool is_outside_of_bounding_box =
         !(x_min <= x && x <= x_max) || !(y_min <= y && y <= y_max) || !(z_min <= z && z <= z_max);
 
-    if (has_nan_entries || is_outside_of_bounding_box)
-      continue;
+    if (has_nan_entries || is_outside_of_bounding_box) continue;
     kps_pc_ptr->points[j] = kps_pc_ptr->points[i];
     kps[j] = kps[i];
     j++;
   }
 
-  if (j != num_kps_3d)
-  {
+  if (j != num_kps_3d) {
     // Resize to the correct size
     kps_pc_ptr->points.resize(j);
     kps.resize(j);
@@ -52,13 +47,12 @@ void VisualOdometryFrame::RemoverUnreliableDepthKeypoints(double x_min, double x
   kps_pc_ptr->is_dense = true;
 }
 
-void VisualOdometryFrame::Get3DPointsCV(std::vector<cv::Point3d>& output_vec)
-{
+void VisualOdometryFrame::Get3DPointsCV(std::vector<cv::Point3d>& output_vec) {
   output_vec.clear();
 
-  for (int i = 0; i < (int)kps_pc_ptr->size(); i++)
-  {
-    output_vec.push_back(cv::Point3d{ kps_pc_ptr->points[i].x, kps_pc_ptr->points[i].y, kps_pc_ptr->points[i].z });
+  for (int i = 0; i < (int)kps_pc_ptr->size(); i++) {
+    output_vec.push_back(
+        cv::Point3d{kps_pc_ptr->points[i].x, kps_pc_ptr->points[i].y, kps_pc_ptr->points[i].z});
   }
 }
 

@@ -4,14 +4,11 @@
 #include <algorithm>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
 
-namespace sl_sensor
-{
-namespace visualise
-{
+namespace sl_sensor {
+namespace visualise {
 ShowImageArrayNodelet::ShowImageArrayNodelet(){};
 
-void ShowImageArrayNodelet::onInit()
-{
+void ShowImageArrayNodelet::onInit() {
   // Get node handles
   nh_ = getNodeHandle();
   private_nh_ = getPrivateNodeHandle();
@@ -22,20 +19,19 @@ void ShowImageArrayNodelet::onInit()
   private_nh_.param<float>("scaling_factor", scaling_factor_, scaling_factor_);
 
   // Setup subscriber
-  image_array_sub_ = nh_.subscribe(image_array_sub_topic_, 10, &ShowImageArrayNodelet::ImageArrayCb, this);
+  image_array_sub_ =
+      nh_.subscribe(image_array_sub_topic_, 10, &ShowImageArrayNodelet::ImageArrayCb, this);
 };
 
-void ShowImageArrayNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
-{
+void ShowImageArrayNodelet::ImageArrayCb(
+    const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr) {
   std::vector<cv_bridge::CvImageConstPtr> temp_cv_ptr_vec = {};
   std::vector<cv::Mat> cv_mat_vec = {};
 
   image_acquisition::ConvertImgArrToCvPtrVec(image_array_ptr, temp_cv_ptr_vec);
 
-  for (const auto cv_ptr : temp_cv_ptr_vec)
-  {
-    if (!cv_ptr->image.empty())
-    {
+  for (const auto cv_ptr : temp_cv_ptr_vec) {
+    if (!cv_ptr->image.empty()) {
       cv::Mat processed_image;
       ProcessImage(cv_ptr->image, processed_image);
       cv_mat_vec.emplace_back(processed_image.clone());
@@ -49,13 +45,11 @@ void ShowImageArrayNodelet::ImageArrayCb(const sl_sensor_image_acquisition::Imag
   cv::waitKey(refresh_delay_ms_);
 };
 
-void ShowImageArrayNodelet::ProcessImage(const cv::Mat& input_image, cv::Mat& output_image)
-{
+void ShowImageArrayNodelet::ProcessImage(const cv::Mat& input_image, cv::Mat& output_image) {
   cv::resize(input_image, output_image,
              cv::Size(input_image.cols * scaling_factor_, input_image.rows * scaling_factor_));
 
-  if (input_image.type() == CV_8UC1)
-  {
+  if (input_image.type() == CV_8UC1) {
     output_image.convertTo(output_image, CV_32FC1, 1.0 / 0xff);
   }
 

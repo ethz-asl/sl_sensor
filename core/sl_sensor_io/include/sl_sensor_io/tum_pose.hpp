@@ -3,16 +3,13 @@
 #include <Eigen/Core>
 #include <cstdint>
 
-namespace sl_sensor
-{
-namespace io
-{
+namespace sl_sensor {
+namespace io {
 /**
  * @brief Struct used to encapsulate a pose in TUM format
  *
  */
-struct TumPose
-{
+struct TumPose {
   uint64_t timestamp = 0;
   double x = 0.0f;
   double y = 0.0f;
@@ -34,11 +31,9 @@ struct TumPose
    * @param _qz
    * @param _qw
    */
-  TumPose(uint64_t _timestamp = 0, double _x = 0.0f, double _y = 0.0f, double _z = 0.0f, double _qx = 0.0f,
-          double _qy = 0.0f, double _qz = 0.0f, double _qw = 1.0f)
-    : timestamp(_timestamp), x(_x), y(_y), z(_z), qx(_qx), qy(_qy), qz(_qz), qw(_qw)
-  {
-  }
+  TumPose(uint64_t _timestamp = 0, double _x = 0.0f, double _y = 0.0f, double _z = 0.0f,
+          double _qx = 0.0f, double _qy = 0.0f, double _qz = 0.0f, double _qw = 1.0f)
+      : timestamp(_timestamp), x(_x), y(_y), z(_z), qx(_qx), qy(_qy), qz(_qz), qw(_qw) {}
 
   /**
    * @brief Construct a new Tum Pose object using a 4x4 eigen transformation matrix
@@ -46,18 +41,14 @@ struct TumPose
    * @param ts
    * @param mat
    */
-  TumPose(uint64_t ts, const Eigen::Matrix4f& mat)
-  {
-    set(ts, mat);
-  }
+  TumPose(uint64_t ts, const Eigen::Matrix4f& mat) { set(ts, mat); }
 
   /**
    * @brief Convert tum pose to a 4x4 eigen transformation matrix
    *
    * @param mat
    */
-  void GetTransformationMatrix(Eigen::Matrix4f& mat)
-  {
+  void GetTransformationMatrix(Eigen::Matrix4f& mat) {
     tf::Matrix3x3 R;
     tf::Quaternion q(qx, qy, qz, qw);
     R.setRotation(q);
@@ -91,12 +82,12 @@ struct TumPose
    * @param ts - timestamp
    * @param mat
    */
-  void set(uint64_t ts, const Eigen::Matrix4f& mat)
-  {
+  void set(uint64_t ts, const Eigen::Matrix4f& mat) {
     timestamp = ts;
 
     tf::Matrix3x3 tf3d;
-    tf3d.setValue(mat(0, 0), mat(0, 1), mat(0, 2), mat(1, 0), mat(1, 1), mat(1, 2), mat(2, 0), mat(2, 1), mat(2, 2));
+    tf3d.setValue(mat(0, 0), mat(0, 1), mat(0, 2), mat(1, 0), mat(1, 1), mat(1, 2), mat(2, 0),
+                  mat(2, 1), mat(2, 2));
 
     tf::Quaternion quat;
     tf3d.getRotation(quat);
@@ -110,8 +101,7 @@ struct TumPose
     qw = quat.getW();
   }
 
-  void ScaleTransform(double scale)
-  {
+  void ScaleTransform(double scale) {
     x *= scale;
     y *= scale;
     z *= scale;

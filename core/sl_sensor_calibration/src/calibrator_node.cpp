@@ -21,8 +21,7 @@
 
 using namespace sl_sensor::calibration;
 
-bool DirectoryExists(const char* path)
-{
+bool DirectoryExists(const char* path) {
   struct stat info;
 
   if (stat(path, &info) != 0)
@@ -33,14 +32,12 @@ bool DirectoryExists(const char* path)
     return false;
 };
 
-std::vector<std::string> SplitString(const std::string& s, const std::string& delimiter)
-{
+std::vector<std::string> SplitString(const std::string& s, const std::string& delimiter) {
   std::vector<std::string> res;
   size_t pos_start = 0, pos_end, delim_len = delimiter.length();
   std::string token;
 
-  while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
-  {
+  while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
     token = s.substr(pos_start, pos_end - pos_start);
     pos_start = pos_end + delim_len;
     res.push_back(token);
@@ -51,12 +48,10 @@ std::vector<std::string> SplitString(const std::string& s, const std::string& de
   return res;
 };
 
-bool GetCvMatFromXml(const std::string& filename, const std::string& param_name, cv::Mat& mat)
-{
+bool GetCvMatFromXml(const std::string& filename, const std::string& param_name, cv::Mat& mat) {
   cv::FileStorage fs(filename, cv::FileStorage::READ);
 
-  if (!fs.isOpened())
-  {
+  if (!fs.isOpened()) {
     return false;
   }
 
@@ -65,8 +60,7 @@ bool GetCvMatFromXml(const std::string& filename, const std::string& param_name,
   return mat.empty() ? false : true;
 };
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "calibrator");
   ros::NodeHandle nh_public;
@@ -102,35 +96,46 @@ int main(int argc, char** argv)
   float reprojection_error_warning_threshold = 0.0f;
 
   private_nh.param<std::string>("camera_folder_name", camera_folder_name, camera_folder_name);
-  private_nh.param<std::string>("projector_folder_name", projector_folder_name, projector_folder_name);
+  private_nh.param<std::string>("projector_folder_name", projector_folder_name,
+                                projector_folder_name);
   private_nh.param<std::string>("directories", directories, directories);
-  private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory, projector_yaml_directory);
+  private_nh.param<std::string>("projector_yaml_directory", projector_yaml_directory,
+                                projector_yaml_directory);
 
   private_nh.param<bool>("camera_fix_principle_point", camera_calibration_flags.fix_prinicple_point,
                          camera_calibration_flags.fix_prinicple_point);
   private_nh.param<bool>("camera_fix_aspect_ratio", camera_calibration_flags.fix_aspect_ratio,
                          camera_calibration_flags.fix_aspect_ratio);
-  private_nh.param<bool>("camera_fix_k2", camera_calibration_flags.fix_k2, camera_calibration_flags.fix_k2);
-  private_nh.param<bool>("camera_fix_k3", camera_calibration_flags.fix_k3, camera_calibration_flags.fix_k3);
-  private_nh.param<bool>("camera_zero_tangential_distortion", camera_calibration_flags.zero_tangential_distortion,
+  private_nh.param<bool>("camera_fix_k2", camera_calibration_flags.fix_k2,
+                         camera_calibration_flags.fix_k2);
+  private_nh.param<bool>("camera_fix_k3", camera_calibration_flags.fix_k3,
+                         camera_calibration_flags.fix_k3);
+  private_nh.param<bool>("camera_zero_tangential_distortion",
+                         camera_calibration_flags.zero_tangential_distortion,
                          camera_calibration_flags.zero_tangential_distortion);
-  private_nh.param<bool>("camera_fix_values", camera_calibration_flags.fix_values, camera_calibration_flags.fix_values);
+  private_nh.param<bool>("camera_fix_values", camera_calibration_flags.fix_values,
+                         camera_calibration_flags.fix_values);
   private_nh.param<bool>("camera_use_initial_guess", camera_calibration_flags.use_initial_guess,
                          camera_calibration_flags.use_initial_guess);
   private_nh.param<std::string>("camera_calibration_init_yaml", camera_calibration_init_yaml,
                                 camera_calibration_init_yaml);
 
-  private_nh.param<bool>("projector_fix_principle_point", projector_calibration_flags.fix_prinicple_point,
+  private_nh.param<bool>("projector_fix_principle_point",
+                         projector_calibration_flags.fix_prinicple_point,
                          projector_calibration_flags.fix_prinicple_point);
   private_nh.param<bool>("projector_fix_aspect_ratio", projector_calibration_flags.fix_aspect_ratio,
                          projector_calibration_flags.fix_aspect_ratio);
-  private_nh.param<bool>("projector_fix_k2", projector_calibration_flags.fix_k2, projector_calibration_flags.fix_k2);
-  private_nh.param<bool>("projector_fix_k3", projector_calibration_flags.fix_k3, projector_calibration_flags.fix_k3);
-  private_nh.param<bool>("projector_zero_tangential_distortion", projector_calibration_flags.zero_tangential_distortion,
+  private_nh.param<bool>("projector_fix_k2", projector_calibration_flags.fix_k2,
+                         projector_calibration_flags.fix_k2);
+  private_nh.param<bool>("projector_fix_k3", projector_calibration_flags.fix_k3,
+                         projector_calibration_flags.fix_k3);
+  private_nh.param<bool>("projector_zero_tangential_distortion",
+                         projector_calibration_flags.zero_tangential_distortion,
                          projector_calibration_flags.zero_tangential_distortion);
   private_nh.param<bool>("projector_fix_values", projector_calibration_flags.fix_values,
                          projector_calibration_flags.fix_values);
-  private_nh.param<bool>("projector_use_initial_guess", projector_calibration_flags.use_initial_guess,
+  private_nh.param<bool>("projector_use_initial_guess",
+                         projector_calibration_flags.use_initial_guess,
                          projector_calibration_flags.use_initial_guess);
   private_nh.param<std::string>("projector_calibration_init_yaml", projector_calibration_init_yaml,
                                 projector_calibration_init_yaml);
@@ -142,22 +147,25 @@ int main(int argc, char** argv)
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
 
-  private_nh.param<float>("reprojection_error_warning_threshold", reprojection_error_warning_threshold,
+  private_nh.param<float>("reprojection_error_warning_threshold",
+                          reprojection_error_warning_threshold,
                           reprojection_error_warning_threshold);
 
-  private_nh.param<std::string>("output_camera_parameters_filename", output_camera_parameters_filename,
+  private_nh.param<std::string>("output_camera_parameters_filename",
+                                output_camera_parameters_filename,
                                 output_camera_parameters_filename);
-  private_nh.param<std::string>("output_projector_parameters_filename", output_projector_parameters_filename,
+  private_nh.param<std::string>("output_projector_parameters_filename",
+                                output_projector_parameters_filename,
                                 output_projector_parameters_filename);
 
-  private_nh.param<std::string>("residuals_save_folder", residuals_save_folder, residuals_save_folder);
+  private_nh.param<std::string>("residuals_save_folder", residuals_save_folder,
+                                residuals_save_folder);
   private_nh.param<std::string>("residuals_file_label", residuals_file_label, residuals_file_label);
 
   CameraParameters camera_calibration_data_init;
 
   if ((camera_calibration_flags.use_initial_guess || camera_calibration_flags.fix_values) &&
-      camera_calibration_data_init.Load(camera_calibration_init_yaml))
-  {
+      camera_calibration_data_init.Load(camera_calibration_init_yaml)) {
     camera_calibration_flags.intrinsics_init = camera_calibration_data_init.intrinsic_mat();
     camera_calibration_flags.lens_distortion_init = camera_calibration_data_init.lens_distortion();
   }
@@ -165,17 +173,16 @@ int main(int argc, char** argv)
   ProjectorParameters projector_calibration_data_init;
 
   if ((projector_calibration_flags.use_initial_guess || projector_calibration_flags.fix_values) &&
-      projector_calibration_data_init.Load(projector_calibration_init_yaml))
-  {
+      projector_calibration_data_init.Load(projector_calibration_init_yaml)) {
     projector_calibration_flags.intrinsics_init = projector_calibration_data_init.intrinsic_mat();
-    projector_calibration_flags.lens_distortion_init = projector_calibration_data_init.lens_distortion();
+    projector_calibration_flags.lens_distortion_init =
+        projector_calibration_data_init.lens_distortion();
   }
 
   std::string delimiter = " ";
   directories_vec = SplitString(directories, delimiter);
 
-  for (unsigned int i = 1; i <= directories_vec.size(); i++)
-  {
+  for (unsigned int i = 1; i <= directories_vec.size(); i++) {
     std::string ignore_param_name = "ignore_" + std::to_string(i);
     std::string temp_string = "";
     private_nh.param<std::string>(ignore_param_name, temp_string, temp_string);
@@ -184,8 +191,7 @@ int main(int argc, char** argv)
 
     std::unordered_set<std::string> ignore_filenames;
 
-    for (const auto& filenames : ignore_filenames_vec)
-    {
+    for (const auto& filenames : ignore_filenames_vec) {
       ignore_filenames.insert(filenames);
     }
 
@@ -193,7 +199,8 @@ int main(int argc, char** argv)
   }
 
   // Get resolution of projector using YAML file
-  sl_sensor::projector::GetProjectorResolution(projector_yaml_directory, projector_rows, projector_cols);
+  sl_sensor::projector::GetProjectorResolution(projector_yaml_directory, projector_rows,
+                                               projector_cols);
 
   // Initialise calibrator
   Calibrator calibrator;
@@ -206,55 +213,48 @@ int main(int argc, char** argv)
 
   // Add calibration sequences to calibrator
   int counter = 0;
-  for (const auto& directory : directories_vec)
-  {
+  for (const auto& directory : directories_vec) {
     // Check if the required folders exist
     std::string shading_directory = directory + camera_folder_name + "/shading";
     std::string mask_directory = directory + camera_folder_name + "/mask";
     std::string up_directory = directory + projector_folder_name + "/up";
     std::string vp_directory = directory + projector_folder_name + "/vp";
 
-    if (!DirectoryExists(shading_directory.c_str()))
-    {
-      std::string status_message =
-          "[CalibratorNode] Shading Directory " + shading_directory + " does not exist, skipping this folder";
+    if (!DirectoryExists(shading_directory.c_str())) {
+      std::string status_message = "[CalibratorNode] Shading Directory " + shading_directory +
+                                   " does not exist, skipping this folder";
       ROS_INFO("%s", status_message.c_str());
       continue;
     }
 
-    if (!DirectoryExists(mask_directory.c_str()))
-    {
-      std::string status_message =
-          "[CalibratorNode] Mask Directory " + mask_directory + " does not exist, skipping this folder";
+    if (!DirectoryExists(mask_directory.c_str())) {
+      std::string status_message = "[CalibratorNode] Mask Directory " + mask_directory +
+                                   " does not exist, skipping this folder";
       ROS_INFO("%s", status_message.c_str());
       continue;
     }
 
-    if (!DirectoryExists(up_directory.c_str()))
-    {
+    if (!DirectoryExists(up_directory.c_str())) {
       std::string status_message =
           "[CalibratorNode] Up Directory " + up_directory + " does not exist, skipping this folder";
       ROS_INFO("%s", status_message.c_str());
       continue;
     }
 
-    if (!DirectoryExists(vp_directory.c_str()))
-    {
+    if (!DirectoryExists(vp_directory.c_str())) {
       std::string status_message =
           "[CalibratorNode] Vp Directory " + vp_directory + " does not exist, skipping this folder";
       ROS_INFO("%s", status_message.c_str());
       continue;
     }
 
-    for (const auto& entry : std::experimental::filesystem::directory_iterator(shading_directory))
-    {
+    for (const auto& entry : std::experimental::filesystem::directory_iterator(shading_directory)) {
       std::string stem = entry.path().stem().u8string();
 
-      // If stem is in the list of filenames to ignore or stem is not a number (contains chars that are not digits),
-      // skip to next entry
+      // If stem is in the list of filenames to ignore or stem is not a number (contains chars that
+      // are not digits), skip to next entry
       if (files_to_ignore_vec[counter].find(stem) != files_to_ignore_vec[counter].end() ||
-          !std::all_of(stem.begin(), stem.end(), [](char c) { return std::isdigit(c); }))
-      {
+          !std::all_of(stem.begin(), stem.end(), [](char c) { return std::isdigit(c); })) {
         std::cout << "Ignoring files named " << stem << std::endl;
         continue;
       }
@@ -274,11 +274,11 @@ int main(int argc, char** argv)
       bool vp_success = GetCvMatFromXml(vp_directory + "/" + stem + ".xml", "vp", vp);
 
       // If all read successfully, add to calibrator
-      if (shading_success && mask_success && up_success && vp_success)
-      {
+      if (shading_success && mask_success && up_success && vp_success) {
         std::string label = directory + "|" + stem;
         bool load_success = calibrator.AddSingleCalibrationSequence(shading, mask, up, vp, label);
-        std::cout << "Loading files from " << label << "..." << (load_success ? " success " : " fail ") << std::endl;
+        std::cout << "Loading files from " << label << "..."
+                  << (load_success ? " success " : " fail ") << std::endl;
       }
     }
 
@@ -297,42 +297,32 @@ int main(int argc, char** argv)
 
   bool save_residuals = (!residuals_save_folder.empty() && !residuals_file_label.empty());
 
-  if (calibration_success)
-  {
+  if (calibration_success) {
     ROS_INFO("[CalibratorNode] Calibration was successful");
 
-    if (!projector_calibration_flags.fix_values)
-    {
-      if (projector_parameters.Save(output_projector_parameters_filename))
-      {
+    if (!projector_calibration_flags.fix_values) {
+      if (projector_parameters.Save(output_projector_parameters_filename)) {
         ROS_INFO("[CalibratorNode] Projector parameters saved");
-      }
-      else
-      {
+      } else {
         ROS_INFO("[CalibratorNode] Failed to save projector parameter file");
       }
     }
 
-    if (!camera_calibration_flags.fix_values)
-    {
-      if (camera_parameters.Save(output_camera_parameters_filename))
-      {
+    if (!camera_calibration_flags.fix_values) {
+      if (camera_parameters.Save(output_camera_parameters_filename)) {
         ROS_INFO("[CalibratorNode] Camera parameters saved");
-      }
-      else
-      {
+      } else {
         ROS_INFO("[CalibratorNode] Failed to save camera parameter file");
       }
     }
 
-    if (save_residuals)
-    {
-      WriteResidualTextFile(residuals_save_folder, "cam_residuals_" + residuals_file_label + ".txt", cam_residuals);
-      WriteResidualTextFile(residuals_save_folder, "proj_residuals_" + residuals_file_label + ".txt", proj_residuals);
+    if (save_residuals) {
+      WriteResidualTextFile(residuals_save_folder, "cam_residuals_" + residuals_file_label + ".txt",
+                            cam_residuals);
+      WriteResidualTextFile(residuals_save_folder,
+                            "proj_residuals_" + residuals_file_label + ".txt", proj_residuals);
     }
-  }
-  else
-  {
+  } else {
     ROS_INFO("[CalibratorNode] Calibration was unsuccessful");
   }
 

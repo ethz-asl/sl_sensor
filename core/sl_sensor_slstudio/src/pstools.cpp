@@ -4,25 +4,21 @@
 #define M_PI 3.14159265359
 #endif
 
-namespace sl_sensor
-{
-namespace slstudio
-{
-namespace pstools
-{
+namespace sl_sensor {
+namespace slstudio {
+namespace pstools {
 // Cosine function vector (3-channel)
-cv::Mat computePhaseVector(unsigned int length, float phase, float pitch)
-{
+cv::Mat computePhaseVector(unsigned int length, float phase, float pitch) {
   cv::Mat phaseVector(length, 1, CV_8UC3);
 
   const float pi = M_PI;
 
   // Loop through vector
-  for (int i = 0; i < phaseVector.rows; i++)
-  {
+  for (int i = 0; i < phaseVector.rows; i++) {
     // Amplitude of channels
     // float amp = 0.5 * (1 + cos(2 * pi * i / pitch - phase));
-    float amp = 0.6 + 0.4 * cos(2 * pi * i / pitch - phase);  // Larger base signal for motion compensation
+    float amp =
+        0.6 + 0.4 * cos(2 * pi * i / pitch - phase);  // Larger base signal for motion compensation
     phaseVector.at<cv::Vec3b>(i, 0) = cv::Vec3b(255.0 * amp, 255.0 * amp, 255.0 * amp);
   }
 
@@ -30,8 +26,7 @@ cv::Mat computePhaseVector(unsigned int length, float phase, float pitch)
 }
 
 // Absolute phase from 3 frames
-cv::Mat getPhase(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
-{
+cv::Mat getPhase(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3) {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
   cv::Mat_<float> I3_(I3);
@@ -44,8 +39,7 @@ cv::Mat getPhase(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
 }
 
 // Absolute magnitude from 3 frames
-cv::Mat getMagnitude(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
-{
+cv::Mat getMagnitude(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3) {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
   cv::Mat_<float> I3_(I3);
@@ -60,8 +54,7 @@ cv::Mat getMagnitude(const cv::Mat I1, const cv::Mat I2, const cv::Mat I3)
 }
 
 // Absolute phase and magnitude from N frames
-std::vector<cv::Mat> getDFTComponents(const std::vector<cv::Mat> frames)
-{
+std::vector<cv::Mat> getDFTComponents(const std::vector<cv::Mat> frames) {
   unsigned int N = frames.size();
 
   std::vector<cv::Mat> framesReverse = frames;
@@ -85,8 +78,7 @@ std::vector<cv::Mat> getDFTComponents(const std::vector<cv::Mat> frames)
 }
 
 // Phase unwrapping by means of a phase cue
-cv::Mat unwrapWithCue(const cv::Mat up, const cv::Mat upCue, unsigned int nPhases)
-{
+cv::Mat unwrapWithCue(const cv::Mat up, const cv::Mat upCue, unsigned int nPhases) {
   const float pi = M_PI;
 
   // Determine number of jumps

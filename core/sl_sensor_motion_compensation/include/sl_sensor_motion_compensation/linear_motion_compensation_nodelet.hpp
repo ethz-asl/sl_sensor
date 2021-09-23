@@ -9,16 +9,13 @@
 
 #include "sl_sensor_motion_compensation/phase_correlation_utilities.hpp"
 
-namespace sl_sensor
-{
-namespace motion_compensation
-{
-class LinearMotionCompensationNodelet : public nodelet::Nodelet
-{
-public:
+namespace sl_sensor {
+namespace motion_compensation {
+class LinearMotionCompensationNodelet : public nodelet::Nodelet {
+ public:
   LinearMotionCompensationNodelet();
 
-private:
+ private:
   ros::Subscriber input_sub_;
   ros::Publisher output_pub_;
 
@@ -43,4 +40,5 @@ private:
 }  // namespace motion_compensation
 }  // namespace sl_sensor
 
-PLUGINLIB_EXPORT_CLASS(sl_sensor::motion_compensation::LinearMotionCompensationNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(sl_sensor::motion_compensation::LinearMotionCompensationNodelet,
+                       nodelet::Nodelet);

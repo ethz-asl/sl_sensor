@@ -10,17 +10,14 @@
 #include <utility>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace reconstruction
-{
+namespace sl_sensor {
+namespace reconstruction {
 /**
  * @brief Class object that triangulates decoded images
  *
  */
-class Triangulator
-{
-public:
+class Triangulator {
+ public:
   /**
    * @brief Construct a new Triangulator object
    *
@@ -54,13 +51,15 @@ public:
    * @param shading - Shading information
    * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud
    */
-  pcl::PointCloud<pcl::PointXYZI>::Ptr TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+  pcl::PointCloud<pcl::PointXYZI>::Ptr TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp,
+                                                             const cv::Mat &mask,
                                                              const cv::Mat &shading);
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr TriangulateColour(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr TriangulateColour(const cv::Mat &up, const cv::Mat &vp,
+                                                           const cv::Mat &mask,
                                                            const cv::Mat &colour_shading);
 
-private:
+ private:
   /**
    * @brief Perform triangulation using horizontal projector coordinates
    *
@@ -86,7 +85,8 @@ private:
    */
   void TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv::Mat &xyz);
 
-  pcl::PointCloud<pcl::PointXYZI>::Ptr ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz, const cv::Mat &mask,
+  pcl::PointCloud<pcl::PointXYZI>::Ptr ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz,
+                                                                       const cv::Mat &mask,
                                                                        const cv::Mat &shading);
 
   void Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, cv::Mat &xyz);
@@ -95,19 +95,19 @@ private:
 
   void InitTriangulationParameters();
 
-  void UndistortImages(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading,
-                       cv::Mat &up_undistorted, cv::Mat &vp_undistorted, cv::Mat &mask_undistorted,
-                       cv::Mat &shading_undistorted);
+  void UndistortImages(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
+                       const cv::Mat &shading, cv::Mat &up_undistorted, cv::Mat &vp_undistorted,
+                       cv::Mat &mask_undistorted, cv::Mat &shading_undistorted);
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr ConvertToColourPCLPointCloud(const cv::Mat &xyz, const cv::Mat &mask,
-                                                                      const cv::Mat &colour_shading);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr ConvertToColourPCLPointCloud(
+      const cv::Mat &xyz, const cv::Mat &mask, const cv::Mat &colour_shading);
 
   /**
-   * @brief Struct to hold information required to get rgb information from coloured image from colour camera
+   * @brief Struct to hold information required to get rgb information from coloured image from
+   * colour camera
    *
    */
-  struct ColourShadingInfo
-  {
+  struct ColourShadingInfo {
     cv::Mat rvec;
     cv::Mat tvec;
     cv::Matx33f intrinsic_mat;

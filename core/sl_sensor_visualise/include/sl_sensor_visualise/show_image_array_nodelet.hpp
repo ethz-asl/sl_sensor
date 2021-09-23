@@ -6,25 +6,23 @@
 #include <sl_sensor_image_acquisition/ImageArray.h>
 #include <opencv2/opencv.hpp>
 
-namespace sl_sensor
-{
-namespace visualise
-{
+namespace sl_sensor {
+namespace visualise {
 /**
  * @brief Nodelet that displays a published image array message
  */
-class ShowImageArrayNodelet : public nodelet::Nodelet
-{
-public:
+class ShowImageArrayNodelet : public nodelet::Nodelet {
+ public:
   ShowImageArrayNodelet();
 
-private:
+ private:
   virtual void onInit();
 
   void ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array);
 
   /**
-   * @brief Prepare an input image to be displayed. Currently only supports CV_8UC1 and CV_32FC1 formats
+   * @brief Prepare an input image to be displayed. Currently only supports CV_8UC1 and CV_32FC1
+   * formats
    *
    * @param input_image
    * @param output_image

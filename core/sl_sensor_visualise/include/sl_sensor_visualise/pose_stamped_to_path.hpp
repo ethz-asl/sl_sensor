@@ -6,18 +6,15 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace visualise
-{
+namespace sl_sensor {
+namespace visualise {
 /**
  * @brief Subscribes to a pose stamped topic and publishes a path
  * message that contains all previously received messages
  *
  */
-class PoseStampedToPath
-{
-public:
+class PoseStampedToPath {
+ public:
   /**
    * @brief Construct a new Pose Stamped To Path object
    *
@@ -33,7 +30,7 @@ public:
    */
   void Callback(const geometry_msgs::PoseStamped& pose_stamped);
 
-private:
+ private:
   std::string subscribe_topic_ = "pose_stamped_in";
   std::string publish_topic_ = "path_out";
   ros::Publisher pub_;

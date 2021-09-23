@@ -8,17 +8,14 @@
 
 #include "sl_sensor_codec/codec_common.hpp"
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 /**
  * @brief Base class that performed decoding for images with structured light patterns
  *
  */
-class Decoder
-{
-public:
+class Decoder {
+ public:
   /**
    * @brief Construct a new Decoder object
    *
@@ -26,7 +23,8 @@ public:
    * @param screen_rows - Number of rows in projector image
    * @param direction_ - Direction of pattern
    */
-  Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir = CodecDirection::kHorizontal);
+  Decoder(unsigned int screen_cols, unsigned int screen_rows,
+          CodecDirection dir = CodecDirection::kHorizontal);
 
   Decoder(const YAML::Node &node);
 
@@ -71,7 +69,7 @@ public:
 
   virtual ~Decoder(){};
 
-protected:
+ protected:
   unsigned int number_patterns_ = 0;
   unsigned int screen_cols_, screen_rows_;
   std::vector<cv::Mat> frames_;

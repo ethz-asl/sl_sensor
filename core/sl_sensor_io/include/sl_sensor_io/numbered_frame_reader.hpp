@@ -2,18 +2,16 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace io
-{
+namespace sl_sensor {
+namespace io {
 /**
  * @brief Class object that reads out a sequence of images based on filename
- * Images should be labelled in the following manner: folder_directory + file_title + "_" + frame_no_str + "_" +
- * pat_no_str + file_format frame_no_str and pat_no_str are integers zero padded to be at least 2 digits
+ * Images should be labelled in the following manner: folder_directory + file_title + "_" +
+ * frame_no_str + "_" + pat_no_str + file_format frame_no_str and pat_no_str are integers zero
+ * padded to be at least 2 digits
  */
-class NumberedFrameReader
-{
-public:
+class NumberedFrameReader {
+ public:
   NumberedFrameReader(){};
 
   /**
@@ -29,8 +27,8 @@ public:
    * @param pat_no_max - Largest pattern indice
    */
   NumberedFrameReader(const std::string &folder_directory, const std::string &file_title,
-                      const std::string &file_format, int frame_no_start, int frame_no_end, int frame_increment,
-                      int pat_no_min, int pat_no_max);
+                      const std::string &file_format, int frame_no_start, int frame_no_end,
+                      int frame_increment, int pat_no_min, int pat_no_max);
 
   /**
    * @brief Get the Next Image Sequence
@@ -56,7 +54,7 @@ public:
   int pat_no_max_;
   int frame_increment_ = 1;
 
-private:
+ private:
   int last_read_frame_no_ = -1;
 
   /**
@@ -71,8 +69,8 @@ private:
    * @param image_sequence - vector where images will be written, if successful
    */
   void ReadImageSequence(const std::string &folder_directory, const std::string &file_title,
-                         const std::string &file_format, int frame_no, int pat_no_min, int pat_no_max,
-                         std::vector<cv::Mat> &image_sequence);
+                         const std::string &file_format, int frame_no, int pat_no_min,
+                         int pat_no_max, std::vector<cv::Mat> &image_sequence);
 };
 
 }  // namespace io

@@ -40,14 +40,12 @@ using namespace sl_sensor::registration;
 using namespace sl_sensor::conversions;
 using namespace sl_sensor::timer;
 
-inline bool FileExists(const std::string& name)
-{
+inline bool FileExists(const std::string& name) {
   struct stat buffer;
   return (stat(name.c_str(), &buffer) == 0);
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "pairwise_registration_node");
   ros::NodeHandle nh;
@@ -128,12 +126,13 @@ int main(int argc, char** argv)
 
   std::cout << "Start point cloud registration" << std::endl;
 
-  for (size_t row = (size_t)row_min; row <= (size_t)row_max; row++)
-  {
+  for (size_t row = (size_t)row_min; row <= (size_t)row_max; row++) {
     // Read point cloud
     pcl::PointCloud<pcl::PointXYZI>::Ptr stitch_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr registration_pc_xyzi_ptr(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr registration_pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr registration_pc_xyzi_ptr(
+        new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr registration_pc_ptr(
+        new pcl::PointCloud<pcl::PointXYZRGB>);
     std::string registration_pc_full_directory =
         registration_pc_directory + header_name + std::to_string(row) + input_pc_file_format;
     std::string stitch_pc_full_directory =
@@ -142,23 +141,17 @@ int main(int argc, char** argv)
     std::cout << "trying to open " << registration_pc_full_directory << std::endl;
 
     // If pc file does not exist, skip this frame
-    if (!FileExists(registration_pc_full_directory) || !FileExists(stitch_pc_full_directory))
-    {
+    if (!FileExists(registration_pc_full_directory) || !FileExists(stitch_pc_full_directory)) {
       continue;
     }
 
-    if (input_pc_file_format == ".pcd")
-    {
+    if (input_pc_file_format == ".pcd") {
       pcl::io::loadPCDFile(registration_pc_full_directory, *registration_pc_xyzi_ptr);
       pcl::io::loadPCDFile(stitch_pc_full_directory, *stitch_pc_ptr);
-    }
-    else if (input_pc_file_format == ".ply")
-    {
+    } else if (input_pc_file_format == ".ply") {
       pcl::io::loadPLYFile(registration_pc_full_directory, *registration_pc_xyzi_ptr);
       pcl::io::loadPLYFile(stitch_pc_full_directory, *stitch_pc_ptr);
-    }
-    else
-    {
+    } else {
       std::cout << "Invalid point cloud format: " << input_pc_file_format << std::endl;
       throw;
     }
@@ -166,8 +159,7 @@ int main(int argc, char** argv)
     copyPointCloud(*registration_pc_xyzi_ptr, *registration_pc_ptr);
 
     // Iterate over each point
-    for (size_t i = 0; i < registration_pc_xyzi_ptr->size(); ++i)
-    {
+    for (size_t i = 0; i < registration_pc_xyzi_ptr->size(); ++i) {
       registration_pc_ptr->points[i].r = registration_pc_xyzi_ptr->points[i].intensity;
       registration_pc_ptr->points[i].g = registration_pc_xyzi_ptr->points[i].intensity;
       registration_pc_ptr->points[i].b = registration_pc_xyzi_ptr->points[i].intensity;
@@ -176,8 +168,7 @@ int main(int argc, char** argv)
     std::vector<int> register_nan_indices;
     pcl::removeNaNFromPointCloud(*registration_pc_ptr, *registration_pc_ptr, register_nan_indices);
 
-    if (enable_sor)
-    {
+    if (enable_sor) {
       sor_filter.setInputCloud(registration_pc_ptr);
       sor_filter.setMeanK(nearest_k);
       sor_filter.setStddevMulThresh(std_dev);
@@ -202,32 +193,26 @@ int main(int argc, char** argv)
 
     // Transform and save final point cloud
     pcl::PointCloud<pcl::PointXYZI>::Ptr final_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>);
-    std::string final_pc_full_directory = output_pc_directory + std::to_string(row) + output_pc_file_format;
+    std::string final_pc_full_directory =
+        output_pc_directory + std::to_string(row) + output_pc_file_format;
     pcl::transformPointCloud(*stitch_pc_ptr, *final_pc_ptr, current_transform);
 
     std::vector<int> stitch_nan_indices;
     pcl::removeNaNFromPointCloud(*final_pc_ptr, *final_pc_ptr, stitch_nan_indices);
 
-    if (enable_sor)
-    {
+    if (enable_sor) {
       sor_filter_xyzi.setInputCloud(final_pc_ptr);
       sor_filter_xyzi.setMeanK(nearest_k);
       sor_filter_xyzi.setStddevMulThresh(std_dev);
       sor_filter_xyzi.filter(*final_pc_ptr);
     }
 
-    if (save_registered_pc)
-    {
-      if (output_pc_file_format == ".pcd")
-      {
+    if (save_registered_pc) {
+      if (output_pc_file_format == ".pcd") {
         pcl::io::savePCDFileASCII(final_pc_full_directory, *final_pc_ptr);
-      }
-      else if (output_pc_file_format == ".ply")
-      {
+      } else if (output_pc_file_format == ".ply") {
         pcl::io::savePLYFileASCII(final_pc_full_directory, *final_pc_ptr);
-      }
-      else
-      {
+      } else {
         std::cout << "Invalid point cloud format: " << input_pc_file_format << std::endl;
         throw;
       }

@@ -36,17 +36,14 @@
 
 #include <unordered_map>
 
-namespace sl_sensor
-{
-namespace vo
-{
+namespace sl_sensor {
+namespace vo {
 /**
  * @brief Class object that performs VO using the SL sensor
  *
  */
-class StructuredLightOdometry
-{
-public:
+class StructuredLightOdometry {
+ public:
   /**
    * @brief Construct a new Structured Light Odometry object
    *
@@ -60,7 +57,7 @@ public:
    */
   void LoopOnce();
 
-private:
+ private:
   // ROS topic addresses
   std::string keypoints_topic_ = "/registered_pc";
   std::string pose_topic_ = "/registered_pose";
@@ -83,10 +80,12 @@ private:
 
   // Transformation Estimation SVD Setup
   pcl::registration::CorrespondenceRejectorSampleConsensus<pcl::PointXYZ> ransac_rejector_;
-  pcl::registration::TransformationEstimationSVD<pcl::PointXYZ, pcl::PointXYZ, float> transform_estimator_svd_;
+  pcl::registration::TransformationEstimationSVD<pcl::PointXYZ, pcl::PointXYZ, float>
+      transform_estimator_svd_;
   pcl::registration::TransformationEstimationDualQuaternion<pcl::PointXYZ, pcl::PointXYZ, float>
       transform_estimator_dq_;
-  pcl::registration::TransformationEstimation2D<pcl::PointXYZ, pcl::PointXYZ, float> transform_estimator_2d_;
+  pcl::registration::TransformationEstimation2D<pcl::PointXYZ, pcl::PointXYZ, float>
+      transform_estimator_2d_;
 
   // VO options
   bool received_first_frame_ = false;
@@ -104,8 +103,7 @@ private:
   std::string output_frame_timings_csv_filename_ = "";
 
   // IO setup
-  enum class InputType
-  {
+  enum class InputType {
     kNumberedFrames,
     kRosSubscriber,
     kSize,
@@ -135,25 +133,24 @@ private:
   int timer_counter_ = 0;
   double total_processing_time_ = 0.0f;
   std::unordered_map<std::string, sl_sensor::timer::Timer> _timers = {
-    { "Image Preprocessing", sl_sensor::timer::Timer("Image Preprocessing") },
-    { "Image Registration", sl_sensor::timer::Timer("Image Registration") },
-    { "Keypoint Detection", sl_sensor::timer::Timer("Keypoint Detection") },
-    { "Keypoint Triangulation", sl_sensor::timer::Timer("Keypoint Triangulation") },
-    { "Triangulation Filtering", sl_sensor::timer::Timer("Triangulation "
-                                                         "Filtering") },
-    { "Keypoint Description", sl_sensor::timer::Timer("Keypoint Description") },
-    { "Correspondence Matching", sl_sensor::timer::Timer("Correspondence "
-                                                         "Matching") },
-    { "Correspondence Filtering 2D", sl_sensor::timer::Timer("Corresponde"
-                                                             "nce "
-                                                             "Filtering "
-                                                             "2D") },
-    { "Correspondence Filtering 3D", sl_sensor::timer::Timer("Correspon"
-                                                             "dence "
-                                                             "Filtering"
-                                                             " 3D") },
-    { "Pose Estimation", sl_sensor::timer::Timer("Pose Estimation") }
-  };
+      {"Image Preprocessing", sl_sensor::timer::Timer("Image Preprocessing")},
+      {"Image Registration", sl_sensor::timer::Timer("Image Registration")},
+      {"Keypoint Detection", sl_sensor::timer::Timer("Keypoint Detection")},
+      {"Keypoint Triangulation", sl_sensor::timer::Timer("Keypoint Triangulation")},
+      {"Triangulation Filtering", sl_sensor::timer::Timer("Triangulation "
+                                                          "Filtering")},
+      {"Keypoint Description", sl_sensor::timer::Timer("Keypoint Description")},
+      {"Correspondence Matching", sl_sensor::timer::Timer("Correspondence "
+                                                          "Matching")},
+      {"Correspondence Filtering 2D", sl_sensor::timer::Timer("Corresponde"
+                                                              "nce "
+                                                              "Filtering "
+                                                              "2D")},
+      {"Correspondence Filtering 3D", sl_sensor::timer::Timer("Correspon"
+                                                              "dence "
+                                                              "Filtering"
+                                                              " 3D")},
+      {"Pose Estimation", sl_sensor::timer::Timer("Pose Estimation")}};
 
   /**
    * @brief Perform the frame processing step
@@ -214,26 +211,28 @@ private:
   void PublishPoseStamped(const Eigen::Matrix4f &pose, const ros::Time &timestamp);
 
   /**
-   * @brief Publish 3D points of correspondences used for pose estimation (currently only publishes max 10 points to
-   * prevent lagging of pipeline)
+   * @brief Publish 3D points of correspondences used for pose estimation (currently only publishes
+   * max 10 points to prevent lagging of pipeline)
    *
    * @param frame - Frame where wi
    * @param correspondences - Correspondences to publish
    * @param pose - Absolute pose of the frame
    * @param timestamp
    */
-  void PublishCorrespondences(const VisualOdometryFrame &frame, const pcl::Correspondences &correspondences,
+  void PublishCorrespondences(const VisualOdometryFrame &frame,
+                              const pcl::Correspondences &correspondences,
                               const Eigen::Matrix4f &pose, const ros::Time &timestamp);
 
   /**
-   * @brief Visually display correspondences between two frames (Warning: this is a blocking function, only use for
-   * input type is kNumberedFrames when inputs are not real-time)
+   * @brief Visually display correspondences between two frames (Warning: this is a blocking
+   * function, only use for input type is kNumberedFrames when inputs are not real-time)
    *
    * @param prev_frame
    * @param curr_frame
    * @param correspondences
    */
-  void DisplayFeatureCorrespondences(const VisualOdometryFrame &prev_frame, const VisualOdometryFrame &curr_frame,
+  void DisplayFeatureCorrespondences(const VisualOdometryFrame &prev_frame,
+                                     const VisualOdometryFrame &curr_frame,
                                      const pcl::Correspondences &correspondences);
 
   /**
@@ -244,7 +243,8 @@ private:
    * @return true - successful
    * @return false - unsuccessful
    */
-  bool GetNextImageSequenceFromSubscribers(std::vector<cv::Mat> &image_sequence, std::vector<ros::Time> &timestamp_vec);
+  bool GetNextImageSequenceFromSubscribers(std::vector<cv::Mat> &image_sequence,
+                                           std::vector<ros::Time> &timestamp_vec);
 
   /**
    * @brief Get the Image From Image Buffer object
@@ -278,12 +278,12 @@ private:
    * @return T - Median value
    */
   template <typename T>
-  T GetMedian(const std::vector<T> &values)
-  {
+  T GetMedian(const std::vector<T> &values) {
     auto values_sorted = values;
     int N = values.size();
     std::sort(values_sorted.begin(), values_sorted.end());
-    return (N % 2 == 0) ? ((values_sorted.at(N / 2 - 1) + values_sorted.at(N / 2))) / 2.0f : (values_sorted.at(N / 2));
+    return (N % 2 == 0) ? ((values_sorted.at(N / 2 - 1) + values_sorted.at(N / 2))) / 2.0f
+                        : (values_sorted.at(N / 2));
   }
 
   /**
@@ -293,8 +293,8 @@ private:
    * @param reference_index - indice specifying which image in image_sequence is the reference image
    * @param shifts - Vector of 2D values indicating the required shifts
    */
-  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
-                                           std::vector<cv::Point2d> &shifts);
+  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence,
+                                           int reference_index, std::vector<cv::Point2d> &shifts);
 
   /**
    * @brief Perform phase correlation image registration on an image sequence.
@@ -302,23 +302,26 @@ private:
    *
    * @param image_sequence - Vector of images
    * @param reference_index - indice specifying which image in image_sequence is the reference image
-   * @param shifts - Vector of 2D values indicating the required shifts. Subsample factor has been accounted for (i.e.
-   * shifts are for non-subsampled images)
-   * @param subsample_factor - Factor to down scale images before registration. Set to a value <= 0.0 to disable
-   * subsampling
+   * @param shifts - Vector of 2D values indicating the required shifts. Subsample factor has been
+   * accounted for (i.e. shifts are for non-subsampled images)
+   * @param subsample_factor - Factor to down scale images before registration. Set to a value <=
+   * 0.0 to disable subsampling
    */
-  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
-                                           std::vector<cv::Point2d> &shifts, double subsample_factor);
+  void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence,
+                                           int reference_index, std::vector<cv::Point2d> &shifts,
+                                           double subsample_factor);
 
   /**
    * @brief Apply shifts to image sequence
    *
    * @param input_image_sequence
    * @param output_image_sequence
-   * @param shifts - Vector of 2D values indicating the amount to translate the images horizontally or vertically
+   * @param shifts - Vector of 2D values indicating the amount to translate the images horizontally
+   * or vertically
    */
   void ApplyShiftsToImageSequence(std::vector<cv::Mat> &input_image_sequence,
-                                  std::vector<cv::Mat> &output_image_sequence, const std::vector<cv::Point2d> &shifts);
+                                  std::vector<cv::Mat> &output_image_sequence,
+                                  const std::vector<cv::Point2d> &shifts);
 
   /**
    * @brief Convert rectangle values from MSER detector to a keypoint
@@ -326,7 +329,8 @@ private:
    * @param rect_vec - Vector of cv::Rect obtained from MSER detector
    * @param keypoint_vec - Resulting keypoints
    */
-  void ConverMserRectsToKeypoints(const std::vector<cv::Rect> &rect_vec, std::vector<cv::KeyPoint> &keypoint_vec);
+  void ConverMserRectsToKeypoints(const std::vector<cv::Rect> &rect_vec,
+                                  std::vector<cv::KeyPoint> &keypoint_vec);
 
   /**
    * @brief Detect MSER keypoints
@@ -347,9 +351,9 @@ private:
    * @param good_matches - Vector of good matches
    * @param ratio_thresh - Lowe's ratio
    */
-  void GetDescriptorMatches(cv::Ptr<cv::DescriptorMatcher> matcher_ptr, const cv::Mat &descriptors_static,
-                            const cv::Mat &descriptors_moving, std::vector<cv::DMatch> &good_matches,
-                            float ratio_thresh);
+  void GetDescriptorMatches(cv::Ptr<cv::DescriptorMatcher> matcher_ptr,
+                            const cv::Mat &descriptors_static, const cv::Mat &descriptors_moving,
+                            std::vector<cv::DMatch> &good_matches, float ratio_thresh);
 
   /**
    * @brief Convert cv::DMatch -es to pcl::Correspondences
@@ -357,7 +361,8 @@ private:
    * @param dmatches
    * @param correspondences
    */
-  void CvDmatchesToPclCorrespondences(const std::vector<cv::DMatch> &dmatches, pcl::Correspondences &correspondences);
+  void CvDmatchesToPclCorrespondences(const std::vector<cv::DMatch> &dmatches,
+                                      pcl::Correspondences &correspondences);
 
   /**
    * @brief Convert pcl::Correspondences to cv::DMatch -es
@@ -365,7 +370,8 @@ private:
    * @param dmatches
    * @param correspondences
    */
-  void PclCorrespondencesToCvDmatches(const pcl::Correspondences &correspondences, std::vector<cv::DMatch> &dmatches);
+  void PclCorrespondencesToCvDmatches(const pcl::Correspondences &correspondences,
+                                      std::vector<cv::DMatch> &dmatches);
 
   /**
    * @brief Subsample an image sequence by subsample factor
@@ -384,7 +390,8 @@ private:
    * @param matches21
    * @param symmetric_matches
    */
-  void KeepOnlySymmetricMatches(const std::vector<cv::DMatch> &matches12, const std::vector<cv::DMatch> &matches21,
+  void KeepOnlySymmetricMatches(const std::vector<cv::DMatch> &matches12,
+                                const std::vector<cv::DMatch> &matches21,
                                 std::vector<cv::DMatch> &symmetric_matches);
 
   /**
@@ -393,11 +400,13 @@ private:
    * @param static_kps
    * @param moving_kps
    * @param kp_matches
-   * @param threshold - in pixels, all points within +- threshold of the median are considered inliers
+   * @param threshold - in pixels, all points within +- threshold of the median are considered
+   * inliers
    */
   void FilterCorrespondencesByMedianVerticalPixelShift(const std::vector<cv::KeyPoint> &static_kps,
                                                        const std::vector<cv::KeyPoint> &moving_kps,
-                                                       std::vector<cv::DMatch> &kp_matches, double threshold);
+                                                       std::vector<cv::DMatch> &kp_matches,
+                                                       double threshold);
 
   /**
    * @brief Median filtering of 3D point distances, y distance, z distance and full l2 distance
@@ -411,8 +420,9 @@ private:
    */
   void FilterCorrespondencesByMedian3dDistances(const pcl::PointCloud<pcl::PointXYZ> &static_pc,
                                                 const pcl::PointCloud<pcl::PointXYZ> &moving_pc,
-                                                pcl::Correspondences &correspondences, double y_threshold,
-                                                double z_threshold, double l2_threshold);
+                                                pcl::Correspondences &correspondences,
+                                                double y_threshold, double z_threshold,
+                                                double l2_threshold);
 };
 
 }  // namespace vo

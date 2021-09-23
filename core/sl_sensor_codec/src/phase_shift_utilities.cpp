@@ -5,21 +5,18 @@
 #include <math.h>
 #include <algorithm>
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 // Cosine function vector (3-channel)
 cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_intensity,
-                           double modulation_intensity)
-{
+                           double modulation_intensity) {
   cv::Mat phase_vector(length, 1, CV_8UC3);
 
   // Loop through vector
-  for (int i = 0; i < phase_vector.rows; i++)
-  {
-    float amp =
-        std::clamp((float)(average_intensity + modulation_intensity * cos(2 * M_PI * i / pitch - phase)), 0.0f, 1.0f);
+  for (int i = 0; i < phase_vector.rows; i++) {
+    float amp = std::clamp(
+        (float)(average_intensity + modulation_intensity * cos(2 * M_PI * i / pitch - phase)), 0.0f,
+        1.0f);
     phase_vector.at<cv::Vec3b>(i, 0) = cv::Vec3b(255.0 * amp, 255.0 * amp, 255.0 * amp);
   }
 
@@ -27,8 +24,7 @@ cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double
 }
 
 // Absolute phase from 3 frames
-cv::Mat GetPhase(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
-{
+cv::Mat GetPhase(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3) {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
   cv::Mat_<float> I3_(I3);
@@ -41,8 +37,7 @@ cv::Mat GetPhase(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
 }
 
 // Absolute magnitude from 3 frames
-cv::Mat GetMagnitude(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
-{
+cv::Mat GetMagnitude(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3) {
   cv::Mat_<float> I1_(I1);
   cv::Mat_<float> I2_(I2);
   cv::Mat_<float> I3_(I3);
@@ -57,8 +52,7 @@ cv::Mat GetMagnitude(const cv::Mat& I1, const cv::Mat& I2, const cv::Mat& I3)
 }
 
 // Phase unwrapping by means of a phase cue
-cv::Mat UnwrapWithCue(const cv::Mat& up, const cv::Mat& up_cue, unsigned int n_phases)
-{
+cv::Mat UnwrapWithCue(const cv::Mat& up, const cv::Mat& up_cue, unsigned int n_phases) {
   // Determine number of jumps
   cv::Mat P = (up_cue * n_phases - up) / (2 * M_PI);
 

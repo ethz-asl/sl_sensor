@@ -6,10 +6,8 @@
 #include <tf/transform_datatypes.h>
 #include <tf_conversions/tf_eigen.h>
 
-namespace sl_sensor
-{
-namespace conversions
-{
+namespace sl_sensor {
+namespace conversions {
 /**
  * @brief Converts Eigen 4x4 transformation matrix to geometry_msgs::Pose message
  *
@@ -30,7 +28,8 @@ geometry_msgs::PoseStamped EigenToPoseStamped(const Eigen::Matrix4f &matrix, con
                                               const std::string &frame_id);
 
 /**
- * @brief Takes a Eigen 4x4 transformation matrix from A to B and results transformation matrix from B to A
+ * @brief Takes a Eigen 4x4 transformation matrix from A to B and results transformation matrix from
+ * B to A
  *
  * @param mat - transformation matrix from A to B
  * @return Eigen::Matrix4f - transformation matrix from B to A
@@ -55,11 +54,12 @@ Eigen::Affine3d Matrix4fToAffine3d(const Eigen::Matrix4f &input);
 Eigen::Matrix4f InvertTransformationMatrix(const Eigen::Matrix4f &mat);
 
 /**
- * @brief Converts rotation matrix in input transformatiom matrix to YPR, sets P and R to be 0 and then converts it back
- * to a rotation matrix
+ * @brief Converts rotation matrix in input transformatiom matrix to YPR, sets P and R to be 0 and
+ * then converts it back to a rotation matrix
  *
  * @param mat
- * @return Eigen::Matrix4f - Transformation matrix where rotation matrix has roll and pitch angles set to 0
+ * @return Eigen::Matrix4f - Transformation matrix where rotation matrix has roll and pitch angles
+ * set to 0
  */
 Eigen::Matrix4f RemovePitchandRoll(const Eigen::Matrix4f &mat);
 

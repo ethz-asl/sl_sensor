@@ -8,20 +8,17 @@
 
 #include "sl_sensor_codec/decoder.hpp"
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 /**
  * @brief Nodelet that decodes an image sequence with structured light patterns
  *
  */
-class DecoderNodelet : public nodelet::Nodelet
-{
-public:
+class DecoderNodelet : public nodelet::Nodelet {
+ public:
   DecoderNodelet();
 
-private:
+ private:
   virtual void onInit();
 
   void ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array);

@@ -5,22 +5,20 @@
 #include <vector>
 #include "sl_sensor_codec/encoder.hpp"
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 /**
  * @brief Encoder for PSP with TPU pattern
  *
  */
-class PhaseShiftWithTpuEncoder : public Encoder
-{
-public:
+class PhaseShiftWithTpuEncoder : public Encoder {
+ public:
   PhaseShiftWithTpuEncoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
-                           unsigned int number_phases_horizontal, unsigned int number_phases_vertical);
+                           unsigned int number_phases_horizontal,
+                           unsigned int number_phases_vertical);
   PhaseShiftWithTpuEncoder(const YAML::Node &node);
 
-private:
+ private:
   unsigned int number_phases_horizontal_ = 1;
   unsigned int number_phases_vertical_ = 1;
 

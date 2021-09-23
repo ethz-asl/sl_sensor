@@ -9,17 +9,14 @@
 #include <string>
 #include "sl_sensor_io/tum_pose.hpp"
 
-namespace sl_sensor
-{
-namespace io
-{
+namespace sl_sensor {
+namespace io {
 /**
  * @brief Class objects that writes a sequence of poses in TUM format
  *
  */
-class TumCsvWriter
-{
-public:
+class TumCsvWriter {
+ public:
   /**
    * @brief Construct a new Tum Csv Writer object
    *
@@ -34,7 +31,7 @@ public:
    */
   void WriteNextRow(const TumPose& pose);
 
-private:
+ private:
   char delimiter_ = ' ';
 
   std::fstream stream_;

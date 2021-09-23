@@ -5,17 +5,14 @@
 #include <Eigen/Core>
 #include "ros/ros.h"
 
-namespace sl_sensor
-{
-namespace registration
-{
+namespace sl_sensor {
+namespace registration {
 /**
  * @brief Base class for point cloud registration algorithms
  *
  */
-class PointCloudRegistrationAlgorithm
-{
-public:
+class PointCloudRegistrationAlgorithm {
+ public:
   /**
    * @brief Get settings from ROS node
    *
@@ -35,7 +32,8 @@ public:
                                   const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()){};
 
   /**
-   * @brief Register point cloud (XYZRGB points). By default, will convert point cloud to XYZ format and register
+   * @brief Register point cloud (XYZRGB points). By default, will convert point cloud to XYZ format
+   * and register
    *
    * @param reference_pc - Point cloud to be registered
    * @param guess - initial guess transform
@@ -69,7 +67,7 @@ public:
 
   void PrintSettings();
 
-protected:
+ protected:
   Eigen::Matrix4f absolute_transform_ = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f relative_transform_ = Eigen::Matrix4f::Identity();
   std::unordered_map<std::string, double> settings_ = {};

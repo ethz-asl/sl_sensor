@@ -18,16 +18,13 @@
 #include <iostream>
 #include <memory>
 
-namespace sl_sensor
-{
-namespace registration
-{
-class LibpointmatcherICP : public PointCloudRegistrationAlgorithm
-{
+namespace sl_sensor {
+namespace registration {
+class LibpointmatcherICP : public PointCloudRegistrationAlgorithm {
   typedef PointMatcher<float> PM;
   typedef PM::DataPoints DP;
 
-public:
+ public:
   /**
    * @brief Construct a new Libpointmatcher ICP object
    *
@@ -48,7 +45,8 @@ public:
    * @param fs_matrix
    * @return PM::TransformationParameters
    */
-  static PM::TransformationParameters EigenToTransformationParameter(const Eigen::Matrix4f& fs_matrix);
+  static PM::TransformationParameters EigenToTransformationParameter(
+      const Eigen::Matrix4f& fs_matrix);
 
   /**
    * @brief Convert LPM's transformation parameter to Eigen 4x4 transformation matrix
@@ -77,16 +75,17 @@ public:
    * @param reference_pc - Point cloud to be registered
    * @param guess - initial guess transform
    */
-  virtual void RegisterPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr reference_pc_ptr,
-                                  const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()) override;
+  virtual void RegisterPointCloud(
+      const pcl::PointCloud<pcl::PointXYZ>::Ptr reference_pc_ptr,
+      const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()) override;
 
-private:
+ private:
   std::string yaml_directory_ = "";
   bool received_first_point_cloud_ = false;
   std::shared_ptr<DP> prev_cloud_ptr_ = std::make_shared<DP>();
   std::shared_ptr<DP> curr_cloud_ptr_ = std::make_shared<DP>();
   PM::ICP icp_;
-  std::unordered_map<std::string, double> default_settings_ = { { "leafsize", 0.8 } };
+  std::unordered_map<std::string, double> default_settings_ = {{"leafsize", 0.8}};
 };
 }  // namespace registration
 }  // namespace sl_sensor

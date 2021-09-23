@@ -1,61 +1,63 @@
-#include "sl_sensor_codec/phase_shift_utilities.hpp"
 #include "sl_sensor_codec/two_plus_one_with_tpu_decoder.hpp"
+#include "sl_sensor_codec/phase_shift_utilities.hpp"
 
 #include <math.h>
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 // Decoder
-TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(unsigned int screen_cols, unsigned int screen_rows,
-                                                   CodecDirection dir, unsigned int number_phases_horizontal,
+TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(unsigned int screen_cols,
+                                                   unsigned int screen_rows, CodecDirection dir,
+                                                   unsigned int number_phases_horizontal,
                                                    unsigned int number_phases_vertical)
-  : Decoder(screen_cols, screen_rows, dir)
-  , number_phases_horizontal_(number_phases_horizontal)
-  , number_phases_vertical_(number_phases_vertical)
-{
+    : Decoder(screen_cols, screen_rows, dir),
+      number_phases_horizontal_(number_phases_horizontal),
+      number_phases_vertical_(number_phases_vertical) {
   number_patterns_ = (dir == CodecDirection::kBoth) ? 10 : 5;
-  frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
+  frames_.resize(number_patterns_,
+                 cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
 }
 
-TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(const YAML::Node& node) : Decoder(node)
-{
-  number_phases_horizontal_ =
-      (node["number_phases_horizontal"]) ? node["number_phases_horizontal"].as<int>() : number_phases_horizontal_;
-  number_phases_vertical_ =
-      (node["number_phases_vertical"]) ? node["number_phases_vertical"].as<int>() : number_phases_vertical_;
-  shading_threshold_ = (node["shading_threshold"]) ? node["shading_threshold"].as<double>() : shading_threshold_;
-  average_intensity_ = (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
+TwoPlusOneWithTpuDecoder::TwoPlusOneWithTpuDecoder(const YAML::Node& node) : Decoder(node) {
+  number_phases_horizontal_ = (node["number_phases_horizontal"])
+                                  ? node["number_phases_horizontal"].as<int>()
+                                  : number_phases_horizontal_;
+  number_phases_vertical_ = (node["number_phases_vertical"])
+                                ? node["number_phases_vertical"].as<int>()
+                                : number_phases_vertical_;
+  shading_threshold_ =
+      (node["shading_threshold"]) ? node["shading_threshold"].as<double>() : shading_threshold_;
+  average_intensity_ =
+      (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
 
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 10 : 5;
-  frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
+  frames_.resize(number_patterns_,
+                 cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
 }
 
-void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& mask, cv::Mat& shading)
-{
+void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& mask,
+                                            cv::Mat& shading) {
   // Set default output formats
   up = cv::Mat(0, 0, CV_32FC1);
   vp = cv::Mat(0, 0, CV_32FC1);
   mask = cv::Mat(0, 0, CV_8UC1);
   shading = cv::Mat(0, 0, CV_8UC1);
 
-  if (direction_ == CodecDirection::kHorizontal)
-  {
-    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
-                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_horizontal_, up);
-  }
-  else if (direction_ == CodecDirection::kVertical)
-  {
-    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
-                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_rows_, number_phases_vertical_, vp);
-  }
-  else
-  {
-    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]), cv::Mat_<float>(frames_[2]),
-                 cv::Mat_<float>(frames_[3]), cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_horizontal_, up);
-    ComputePhase(cv::Mat_<float>(frames_[5]), cv::Mat_<float>(frames_[6]), cv::Mat_<float>(frames_[7]),
-                 cv::Mat_<float>(frames_[8]), cv::Mat_<float>(frames_[9]), screen_rows_, number_phases_vertical_, vp);
+  if (direction_ == CodecDirection::kHorizontal) {
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]),
+                 cv::Mat_<float>(frames_[2]), cv::Mat_<float>(frames_[3]),
+                 cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_horizontal_, up);
+  } else if (direction_ == CodecDirection::kVertical) {
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]),
+                 cv::Mat_<float>(frames_[2]), cv::Mat_<float>(frames_[3]),
+                 cv::Mat_<float>(frames_[4]), screen_rows_, number_phases_vertical_, vp);
+  } else {
+    ComputePhase(cv::Mat_<float>(frames_[0]), cv::Mat_<float>(frames_[1]),
+                 cv::Mat_<float>(frames_[2]), cv::Mat_<float>(frames_[3]),
+                 cv::Mat_<float>(frames_[4]), screen_cols_, number_phases_horizontal_, up);
+    ComputePhase(cv::Mat_<float>(frames_[5]), cv::Mat_<float>(frames_[6]),
+                 cv::Mat_<float>(frames_[7]), cv::Mat_<float>(frames_[8]),
+                 cv::Mat_<float>(frames_[9]), screen_rows_, number_phases_vertical_, vp);
   }
 
   // Calculate modulation
@@ -65,10 +67,10 @@ void TwoPlusOneWithTpuDecoder::DecodeFrames(cv::Mat& up, cv::Mat& vp, cv::Mat& m
   mask = shading > shading_threshold_;
 }
 
-void TwoPlusOneWithTpuDecoder::ComputePhase(const cv::Mat& i_1, const cv::Mat& i_2, const cv::Mat& i_3,
-                                            const cv::Mat& i_4, const cv::Mat& i_5, unsigned int max_pixel,
-                                            unsigned int number_phases, cv::Mat& output_phase)
-{
+void TwoPlusOneWithTpuDecoder::ComputePhase(const cv::Mat& i_1, const cv::Mat& i_2,
+                                            const cv::Mat& i_3, const cv::Mat& i_4,
+                                            const cv::Mat& i_5, unsigned int max_pixel,
+                                            unsigned int number_phases, cv::Mat& output_phase) {
   cv::phase(i_1 - i_2, i_3 - i_2, output_phase);
   cv::Mat cue;
   cv::phase(i_4 - i_2, i_5 - i_2, cue);

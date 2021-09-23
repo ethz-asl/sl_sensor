@@ -4,31 +4,25 @@
 #include <fstream>
 #include <iostream>
 
-namespace sl_sensor
-{
-namespace calibration
-{
-void OrientCheckerBoardCorners(std::vector<cv::Point2f>& corners)
-{
-  // If first corner in the vector is lower than the last corner, we reverse the order of the vector so the first corner
-  // is always at the top left corner of the image
-  // Note: Remember that camera frame axis is located at top left corner of image
-  if (corners.front().y > corners.back().y)
-  {
+namespace sl_sensor {
+namespace calibration {
+void OrientCheckerBoardCorners(std::vector<cv::Point2f>& corners) {
+  // If first corner in the vector is lower than the last corner, we reverse the order of the vector
+  // so the first corner is always at the top left corner of the image Note: Remember that camera
+  // frame axis is located at top left corner of image
+  if (corners.front().y > corners.back().y) {
     std::reverse(corners.begin(), corners.end());
   }
 }
 
 bool FindCheckerboardAndRefineCorners(const cv::Mat& image, const cv::Size& checkerboard_size,
-                                      std::vector<cv::Point2f>& checkerboard_corners)
-{
+                                      std::vector<cv::Point2f>& checkerboard_corners) {
   checkerboard_corners.clear();
 
-  bool checkerboard_detected =
-      cv::findChessboardCorners(image, checkerboard_size, checkerboard_corners, cv::CALIB_CB_ADAPTIVE_THRESH);
+  bool checkerboard_detected = cv::findChessboardCorners(
+      image, checkerboard_size, checkerboard_corners, cv::CALIB_CB_ADAPTIVE_THRESH);
 
-  if (!checkerboard_detected)
-  {
+  if (!checkerboard_detected) {
     return false;
   }
 
@@ -37,10 +31,11 @@ bool FindCheckerboardAndRefineCorners(const cv::Mat& image, const cv::Size& chec
   return true;
 }
 
-void GetNeighbourhoodPoints(const cv::Point2f& cam_coordinate, const cv::Mat& mask, const cv::Mat& up,
-                            const cv::Mat& vp, std::vector<cv::Point2f>& neighbourhood_camera_coordinates,
-                            std::vector<cv::Point2f>& neighbourhood_projector_coordinates, unsigned int window_radius)
-{
+void GetNeighbourhoodPoints(const cv::Point2f& cam_coordinate, const cv::Mat& mask,
+                            const cv::Mat& up, const cv::Mat& vp,
+                            std::vector<cv::Point2f>& neighbourhood_camera_coordinates,
+                            std::vector<cv::Point2f>& neighbourhood_projector_coordinates,
+                            unsigned int window_radius) {
   unsigned int resolution_x_cam = mask.cols;
   unsigned int resolution_y_cam = mask.rows;
 
@@ -50,13 +45,10 @@ void GetNeighbourhoodPoints(const cv::Point2f& cam_coordinate, const cv::Mat& ma
   unsigned int start_w = std::max(int(cam_coordinate.x + 0.5) - window_radius, 0u);
   unsigned int stop_w = std::min(int(cam_coordinate.x + 0.5) + window_radius, resolution_x_cam - 1);
 
-  for (unsigned int h = start_h; h <= stop_h; h++)
-  {
-    for (unsigned int w = start_w; w <= stop_w; w++)
-    {
+  for (unsigned int h = start_h; h <= stop_h; h++) {
+    for (unsigned int w = start_w; w <= stop_w; w++) {
       // Only consider neighbourhood pixels that are within the mask
-      if (mask.at<bool>(h, w))
-      {
+      if (mask.at<bool>(h, w)) {
         neighbourhood_camera_coordinates.push_back(cv::Point2f(w, h));
 
         float neighbourhood_projector_u = up.at<float>(h, w);
@@ -68,68 +60,68 @@ void GetNeighbourhoodPoints(const cv::Point2f& cam_coordinate, const cv::Mat& ma
   }
 }
 
-bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coordinate, const cv::Mat& mask,
-                                                    const cv::Mat& up, const cv::Mat& vp, unsigned int window_radius,
+bool ExtractProjectorCoordinateUsingLocalHomography(const cv::Point2f& cam_coordinate,
+                                                    const cv::Mat& mask, const cv::Mat& up,
+                                                    const cv::Mat& vp, unsigned int window_radius,
                                                     unsigned int minimum_valid_pixels,
-                                                    cv::Point2f& output_proj_coordinate)
-{
+                                                    cv::Point2f& output_proj_coordinate) {
   std::vector<cv::Point2f> neighbourhood_camera_coordinates, neighbourhood_projector_coordinates;
 
   GetNeighbourhoodPoints(cam_coordinate, mask, up, vp, neighbourhood_camera_coordinates,
                          neighbourhood_projector_coordinates, window_radius);
 
-  if (neighbourhood_projector_coordinates.size() < minimum_valid_pixels)
-  {
+  if (neighbourhood_projector_coordinates.size() < minimum_valid_pixels) {
     return false;
   }
 
-  cv::Mat H = cv::findHomography(neighbourhood_camera_coordinates, neighbourhood_projector_coordinates, cv::LMEDS);
+  cv::Mat H = cv::findHomography(neighbourhood_camera_coordinates,
+                                 neighbourhood_projector_coordinates, cv::LMEDS);
 
-  if (H.empty())
-  {
+  if (H.empty()) {
     return false;
   }
 
   // Compute corresponding projector corner coordinate
-  cv::Point3d Q = cv::Point3d(cv::Mat(H * cv::Mat(cv::Point3d(cam_coordinate.x, cam_coordinate.y, 1.0))));
+  cv::Point3d Q =
+      cv::Point3d(cv::Mat(H * cv::Mat(cv::Point3d(cam_coordinate.x, cam_coordinate.y, 1.0))));
   output_proj_coordinate = cv::Point2f(Q.x / Q.z, Q.y / Q.z);
 
   return true;
 }
 
-cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point, const cv::Mat& intrinsic_matrix,
-                                 const cv::Mat& lens_distortion_coefficients)
-{
-  std::vector<cv::Point2f> distorted_point_vec = { distorted_point };
+cv::Point2f UndistortSinglePoint(const cv::Point2f& distorted_point,
+                                 const cv::Mat& intrinsic_matrix,
+                                 const cv::Mat& lens_distortion_coefficients) {
+  std::vector<cv::Point2f> distorted_point_vec = {distorted_point};
   std::vector<cv::Point2f> undistorted_point_vec;
-  cv::Mat temp_projection_mat(3, 4,
-                              CV_32F);  // We need to provide a projection matrix to convert back from homogeneous image
-                                        // coordinates. See cv::undistortPoints documentation for more information
+  cv::Mat temp_projection_mat(
+      3, 4,
+      CV_32F);  // We need to provide a projection matrix to convert back from homogeneous image
+                // coordinates. See cv::undistortPoints documentation for more information
   intrinsic_matrix.copyTo(temp_projection_mat(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix, lens_distortion_coefficients,
-                      cv::noArray(), temp_projection_mat);
+  cv::undistortPoints(distorted_point_vec, undistorted_point_vec, intrinsic_matrix,
+                      lens_distortion_coefficients, cv::noArray(), temp_projection_mat);
   return undistorted_point_vec[0];
 }
 
 void WriteResidualTextFiles(const std::string& directory, const std::vector<std::string>& filenames,
-                            const std::vector<double>& residuals, const std::vector<int>& camera_indices)
-{
-  assert((camera_indices == residuals.size() / 2) && "Number of residual entries do not match number of camera indices "
-                                                     "provided");
+                            const std::vector<double>& residuals,
+                            const std::vector<int>& camera_indices) {
+  assert((camera_indices == residuals.size() / 2) &&
+         "Number of residual entries do not match number of camera indices "
+         "provided");
 
   const std::string delimiter = " ";
 
   // Initialise text tiles
   std::vector<std::ofstream> files;
-  for (const auto& filename : filenames)
-  {
+  for (const auto& filename : filenames) {
     std::string full_filename = directory + filename;
     files.push_back(std::ofstream(full_filename.c_str()));
   }
 
   // For each pair of residual values, write into the correct file
-  for (size_t i = 0; i < residuals.size() / 2; i++)
-  {
+  for (size_t i = 0; i < residuals.size() / 2; i++) {
     double residual_x = residuals[i * 2];
     double residual_y = residuals[i * 2 + 1];
     int camera_index = camera_indices[i];
@@ -137,14 +129,13 @@ void WriteResidualTextFiles(const std::string& directory, const std::vector<std:
   }
 
   // Close all files
-  for (auto& file : files)
-  {
+  for (auto& file : files) {
     file.close();
   }
 }
 
-void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output_transformation_matrix)
-{
+void SwapFramesCVMat(const cv::Mat& input_transformation_matrix,
+                     cv::Mat& output_transformation_matrix) {
   output_transformation_matrix = cv::Mat::eye(4, 4, CV_32F);
   cv::Mat rotation_mat = cv::Mat::eye(3, 3, CV_32F);
   cv::Mat translation_vec = cv::Mat::eye(3, 1, CV_32F);
@@ -159,10 +150,9 @@ void SwapFramesCVMat(const cv::Mat& input_transformation_matrix, cv::Mat& output
 }
 
 void WriteResidualTextFile(const std::string& directory, const std::string& filename,
-                           const std::vector<double>& residuals)
-{
+                           const std::vector<double>& residuals) {
   size_t number_points = residuals.size() / 2;
-  WriteResidualTextFiles(directory, std::vector<std::string>{ filename }, residuals,
+  WriteResidualTextFiles(directory, std::vector<std::string>{filename}, residuals,
                          std::vector<int>(number_points, 0));
 }
 

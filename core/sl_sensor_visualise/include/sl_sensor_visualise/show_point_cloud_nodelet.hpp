@@ -12,19 +12,16 @@
 #include <mutex>
 #include <thread>
 
-namespace sl_sensor
-{
-namespace visualise
-{
+namespace sl_sensor {
+namespace visualise {
 /**
  * @brief Nodelet that displays a published point cloud message
  */
-class ShowPointCloudNodelet : public nodelet::Nodelet
-{
-public:
+class ShowPointCloudNodelet : public nodelet::Nodelet {
+ public:
   ShowPointCloudNodelet();
 
-private:
+ private:
   virtual void onInit();
 
   void Update();
@@ -41,7 +38,8 @@ private:
   std::string camera_parameters_filename_ = "";
 
   std::unique_ptr<pcl::visualization::PCLVisualizer> visualiser_ptr_;
-  std::unique_ptr<pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI>> colour_handler_ptr;
+  std::unique_ptr<pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI>>
+      colour_handler_ptr;
   std::shared_ptr<std::thread> main_loop_thread_ptr_;
   std::mutex mutex_;
 };

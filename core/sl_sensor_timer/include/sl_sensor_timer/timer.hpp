@@ -3,17 +3,14 @@
 #include <iostream>
 #include <string>
 
-namespace sl_sensor
-{
-namespace timer
-{
+namespace sl_sensor {
+namespace timer {
 /**
  * @brief Timer class object to measure average time taken a specific process
  *
  */
-class Timer
-{
-public:
+class Timer {
+ public:
   /**
    * @brief Construct a new Timer object
    *
@@ -52,7 +49,7 @@ public:
    */
   ~Timer();
 
-private:
+ private:
   std::string _name = "";
   bool _timing_in_progess = false;
   int _counter = 0;

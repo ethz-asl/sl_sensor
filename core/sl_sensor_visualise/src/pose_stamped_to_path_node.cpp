@@ -4,8 +4,7 @@
 
 using namespace sl_sensor::visualise;
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "pose_stamped_to_path");
   ros::NodeHandle nh_public;

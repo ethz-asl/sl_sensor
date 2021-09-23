@@ -9,17 +9,14 @@
 #include <string>
 #include "sl_sensor_io/tum_pose.hpp"
 
-namespace sl_sensor
-{
-namespace io
-{
+namespace sl_sensor {
+namespace io {
 /**
  * @brief Class objects that reads a sequence of poses in TUM format
  *
  */
-class TumCsvReader
-{
-public:
+class TumCsvReader {
+ public:
   /**
    * @brief Construct a new Tum Csv Reader object
    *
@@ -36,7 +33,7 @@ public:
    */
   bool GetNextRow(TumPose& pose);
 
-private:
+ private:
   char delimiter_ = ' ';
   std::unique_ptr<std::ifstream> stream_ptr_;
 };

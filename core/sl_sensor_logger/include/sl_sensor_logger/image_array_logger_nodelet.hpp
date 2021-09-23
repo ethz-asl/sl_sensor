@@ -7,16 +7,13 @@
 
 #include "sl_sensor_logger/logger_nodelet.hpp"
 
-namespace sl_sensor
-{
-namespace logger
-{
-class ImageArrayLoggerNodelet : public sl_sensor::logger::LoggerNodelet
-{
-public:
+namespace sl_sensor {
+namespace logger {
+class ImageArrayLoggerNodelet : public sl_sensor::logger::LoggerNodelet {
+ public:
   ImageArrayLoggerNodelet();
 
-private:
+ private:
   ros::Subscriber image_array_sub_;
   std::string image_array_sub_topic_ = "/image_array_receive";
   std::string log_directory_ = "";

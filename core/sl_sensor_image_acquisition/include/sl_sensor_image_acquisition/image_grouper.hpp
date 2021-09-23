@@ -5,29 +5,27 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace image_acquisition
-{
+namespace sl_sensor {
+namespace image_acquisition {
 /**
  * @brief Class object that helps to group images for a single camera
  *
  */
-class ImageGrouper
-{
-public:
+class ImageGrouper {
+ public:
   /**
    * @brief Construct a new Image Grouper object
    *
    * @param image_sub_topic - Topic to subscribe to for Images
    * @param number_images_per_group - Number of images would be grouped together
    * @param image_trigger_period - Time between camera triggers from the versavis
-   * @param lower_bound_tol - Images within the range -1.0 * lower_bound_tol <= target time <= upper_bound_tol will be
-   * accepted
+   * @param lower_bound_tol - Images within the range -1.0 * lower_bound_tol <= target time <=
+   * upper_bound_tol will be accepted
    * @param upper_bound_tol - See above
    */
   ImageGrouper(std::string image_sub_topic = "/image", int number_images_per_group = 1,
-               double image_trigger_period = 0.01, double lower_bound_tol = 0.01, double upper_bound_tol = 0.01);
+               double image_trigger_period = 0.01, double lower_bound_tol = 0.01,
+               double upper_bound_tol = 0.01);
 
   /**
    * @brief Setup subscriber
@@ -81,14 +79,15 @@ public:
    * @brief Attempt to obtain a group of images that belongs to a given projector time
    *
    * @param projector_time - Time projector trigger
-   * @param result_image_vec - If successful, this will be a non-empty vector with number_images_per_group_ number of
-   * images
-   * @param clear_image_buffer_if_successful - If successful retrieval, clear the image buffer up till the most recent
-   * image in result_image_vec
+   * @param result_image_vec - If successful, this will be a non-empty vector with
+   * number_images_per_group_ number of images
+   * @param clear_image_buffer_if_successful - If successful retrieval, clear the image buffer up
+   * till the most recent image in result_image_vec
    * @return true - Image group retrieval successful
    * @return false - Image group retrieval unsuccessful
    */
-  bool RetrieveImageGroup(const ros::Time& projector_time, std::vector<sensor_msgs::ImageConstPtr>& result_image_vec,
+  bool RetrieveImageGroup(const ros::Time& projector_time,
+                          std::vector<sensor_msgs::ImageConstPtr>& result_image_vec,
                           bool clear_image_buffer_if_successful = true);
 
   /**
@@ -105,15 +104,17 @@ public:
   void ClearBuffer();
 
   /**
-   * @brief Get the Latest Image in the image buffer and clear it. If buffer is empty, returns a null pointer
+   * @brief Get the Latest Image in the image buffer and clear it. If buffer is empty, returns a
+   * null pointer
    *
    * @return sensor_msgs::ImageConstPtr - Ptr to retrieved image
    */
   sensor_msgs::ImageConstPtr GetLatestImageAndClearBuffer();
 
-private:
+ private:
   /**
-   * @brief Clear image buffer of all images before target_time (no mutex lock, to be managed internally)
+   * @brief Clear image buffer of all images before target_time (no mutex lock, to be managed
+   * internally)
    *
    * @param target_time
    */

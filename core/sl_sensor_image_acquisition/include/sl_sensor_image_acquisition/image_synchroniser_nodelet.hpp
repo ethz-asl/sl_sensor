@@ -16,21 +16,18 @@
 #include "sl_sensor_image_acquisition/NotifyBadData.h"
 #include "sl_sensor_image_acquisition/image_grouper.hpp"
 
-namespace sl_sensor
-{
-namespace image_acquisition
-{
+namespace sl_sensor {
+namespace image_acquisition {
 /**
- * @brief Nodelet that groups images based on projector trigger timings for multiple cameras. Publishes the grouped
- * images in an Image Array message
+ * @brief Nodelet that groups images based on projector trigger timings for multiple cameras.
+ * Publishes the grouped images in an Image Array message
  *
  */
-class ImageSynchroniserNodelet : public nodelet::Nodelet
-{
-public:
+class ImageSynchroniserNodelet : public nodelet::Nodelet {
+ public:
   ImageSynchroniserNodelet();
 
-private:
+ private:
   ros::Publisher image_array_pub_;
   ros::Subscriber projector_timing_sub_;
   ros::ServiceServer synchroniser_service_;
@@ -68,18 +65,21 @@ private:
   void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
 
   /**
-   * @brief Function that will be called upon a service call to start/stop operation of image synchroniser
+   * @brief Function that will be called upon a service call to start/stop operation of image
+   * synchroniser
    *
    * @param req
    * @param res
    * @return true
    * @return false
    */
-  bool ProcessImageSynchroniserCommand(sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
-                                       sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
+  bool ProcessImageSynchroniserCommand(
+      sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
+      sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
 
   /**
-   * @brief Function that will be called upon to freeze image synchroniser temporarily due to bad quality images
+   * @brief Function that will be called upon to freeze image synchroniser temporarily due to bad
+   * quality images
    *
    * @param req
    * @param res
@@ -90,7 +90,8 @@ private:
                             sl_sensor_image_acquisition::NotifyBadData::Response& res);
 
   /**
-   * @brief Attempt to obtain and publish an image group based when in projector is in hardware trigger mode
+   * @brief Attempt to obtain and publish an image group based when in projector is in hardware
+   * trigger mode
    *
    * @return true
    * @return false
@@ -98,7 +99,8 @@ private:
   bool ExecuteCommandHardwareTrigger();
 
   /**
-   * @brief Attempt to obtain and publish an image group based when in projector is in software trigger mode
+   * @brief Attempt to obtain and publish an image group based when in projector is in software
+   * trigger mode
    *
    * @return true
    * @return false
@@ -117,8 +119,7 @@ private:
    * @brief Struct to keep track of the state of the Synchroniser
    *
    */
-  struct SynchroniserState
-  {
+  struct SynchroniserState {
     std::string pattern_name = "";
     bool is_running = false;
     bool is_hardware_trigger = false;
@@ -129,8 +130,7 @@ private:
 
     SynchroniserState(){};
 
-    void Reset()
-    {
+    void Reset() {
       pattern_name = "";
       is_running = false;
       is_hardware_trigger = false;
@@ -150,26 +150,25 @@ private:
   void MainLoop();
 
   /**
-   * @brief To be called when syncrhoniser is no longer in use (clear ImageGroupers, reset state of Synchroniser, etc)
+   * @brief To be called when syncrhoniser is no longer in use (clear ImageGroupers, reset state of
+   * Synchroniser, etc)
    *
    */
   void Cleanup();
 
   /**
-   * @brief Move elements from a nested vector to a vector. Note: Nested vector will be empty at the end of the
-   * operation
+   * @brief Move elements from a nested vector to a vector. Note: Nested vector will be empty at the
+   * end of the operation
    *
    * @tparam T - Variable stored in the vectors
    * @param input - input nested vector
    * @param output - output nested vector
    */
   template <typename T>
-  void MergeNestedVectors(std::vector<std::vector<T>>& input, std::vector<T>& output)
-  {
+  void MergeNestedVectors(std::vector<std::vector<T>>& input, std::vector<T>& output) {
     output.clear();
 
-    for (int i = 0; i < (int)input.size(); i++)
-    {
+    for (int i = 0; i < (int)input.size(); i++) {
       std::move(input[i].begin(), input[i].end(), std::back_inserter(output));
       input[i].clear();
     }

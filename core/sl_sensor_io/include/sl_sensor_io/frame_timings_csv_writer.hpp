@@ -9,17 +9,15 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace io
-{
+namespace sl_sensor {
+namespace io {
 /**
- * @brief Writes a csv file were each row is a series of timestamps that correspond to a single pattern sequence
+ * @brief Writes a csv file were each row is a series of timestamps that correspond to a single
+ * pattern sequence
  *
  */
-class FrameTimingsCsvWriter
-{
-public:
+class FrameTimingsCsvWriter {
+ public:
   /**
    * @brief Construct a new Frame Timings Csv Writer object
    *
@@ -34,7 +32,7 @@ public:
    */
   void WriteNextRow(const std::vector<uint64_t>& timestamp_vec);
 
-private:
+ private:
   char delimiter_ = ' ';
   std::fstream stream_;
 };

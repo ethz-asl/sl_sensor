@@ -1,24 +1,19 @@
 #include "sl_sensor_io/tum_csv_reader.hpp"
 
-namespace sl_sensor
-{
-namespace io
-{
-TumCsvReader::TumCsvReader(const std::string& filename)
-{
+namespace sl_sensor {
+namespace io {
+TumCsvReader::TumCsvReader(const std::string& filename) {
   // Create an input filestream
 
   stream_ptr_ = std::make_unique<std::ifstream>(filename);
 
   // Make sure the file is open
-  if (!stream_ptr_->is_open())
-  {
+  if (!stream_ptr_->is_open()) {
     throw std::runtime_error("Could not open file " + filename);
   }
 }
 
-bool TumCsvReader::GetNextRow(TumPose& pose)
-{
+bool TumCsvReader::GetNextRow(TumPose& pose) {
   std::string line = "";
   std::string word = "";
 
@@ -33,14 +28,12 @@ bool TumCsvReader::GetNextRow(TumPose& pose)
   // read every column data of a row and
   // store it in a string variable, 'word'
   std::vector<std::string> row_entries = {};
-  while (std::getline(stream, word, delimiter_))
-  {
+  while (std::getline(stream, word, delimiter_)) {
     row_entries.push_back(word);
   }
 
   // Store data in pose
-  if (row_entries.size() == 8)
-  {
+  if (row_entries.size() == 8) {
     pose.timestamp = std::stoull(row_entries.at(0));
     pose.x = std::stod(row_entries.at(1));
     pose.y = std::stod(row_entries.at(2));
@@ -51,9 +44,7 @@ bool TumCsvReader::GetNextRow(TumPose& pose)
     pose.qw = std::stod(row_entries.at(7));
 
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }

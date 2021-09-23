@@ -5,10 +5,8 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-namespace sl_sensor
-{
-namespace registration
-{
+namespace sl_sensor {
+namespace registration {
 /**
  * @brief Voxel subsample point cloud
  *
@@ -18,24 +16,20 @@ namespace registration
  * @return pcl::PointCloud<PointT>::Ptr - Smart pointer to subsampled point cloud
  */
 template <typename PointT>
-inline typename pcl::PointCloud<PointT>::Ptr
-GetSubsampledPointCloud(typename pcl::PointCloud<PointT>::Ptr input_cloud_ptr, double leafsize = 0.8f)
-{
+inline typename pcl::PointCloud<PointT>::Ptr GetSubsampledPointCloud(
+    typename pcl::PointCloud<PointT>::Ptr input_cloud_ptr, double leafsize = 0.8f) {
   typedef typename pcl::PointCloud<PointT>::Ptr point_t_pc_ptr;
   typedef typename pcl::PointCloud<PointT> point_t_pc;
   typedef typename pcl::VoxelGrid<PointT> point_t_voxel_grid;
 
   point_t_pc_ptr output_cloud_ptr(new point_t_pc);
 
-  if (leafsize != 0.0)
-  {
+  if (leafsize != 0.0) {
     point_t_voxel_grid voxel_filter;
     voxel_filter.setInputCloud(input_cloud_ptr);
     voxel_filter.setLeafSize(leafsize, leafsize, leafsize);
     voxel_filter.filter(*output_cloud_ptr);
-  }
-  else
-  {
+  } else {
     *output_cloud_ptr = *input_cloud_ptr;
   }
 
@@ -51,8 +45,8 @@ GetSubsampledPointCloud(typename pcl::PointCloud<PointT>::Ptr input_cloud_ptr, d
  * @param scale -scaling factor
  */
 template <typename PointT>
-inline void ScalePointCloud(const pcl::PointCloud<PointT> &cloud_in, pcl::PointCloud<PointT> &cloud_out, double scale)
-{
+inline void ScalePointCloud(const pcl::PointCloud<PointT> &cloud_in,
+                            pcl::PointCloud<PointT> &cloud_out, double scale) {
   Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
   transform(0, 0) = scale;
   transform(1, 1) = scale;
@@ -69,9 +63,8 @@ inline void ScalePointCloud(const pcl::PointCloud<PointT> &cloud_in, pcl::PointC
  * @return pcl::PointCloud<PointT>::Ptr - Smart pointer of output point cloud
  */
 template <typename PointT>
-inline typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(typename pcl::PointCloud<PointT>::Ptr cloud_in_ptr,
-                                                             double scale)
-{
+inline typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(
+    typename pcl::PointCloud<PointT>::Ptr cloud_in_ptr, double scale) {
   typedef typename pcl::PointCloud<PointT>::Ptr point_t_pc_ptr;
   typedef typename pcl::PointCloud<PointT> point_t_pc;
 

@@ -4,13 +4,11 @@
 
 #include <opencv2/opencv.hpp>
 
-namespace sl_sensor
-{
-namespace codec
-{
+namespace sl_sensor {
+namespace codec {
 /**
- * @brief Generates an 8-bit [length x 1] (0-255) matrix using the equation: average_intensity + modulation_intensity *
- * cos(2 * M_PI * i / pitch - phase) where i is the current row indice
+ * @brief Generates an 8-bit [length x 1] (0-255) matrix using the equation: average_intensity +
+ * modulation_intensity * cos(2 * M_PI * i / pitch - phase) where i is the current row indice
  *
  * @param length - length of matrix
  * @param phase - phase offset
@@ -19,8 +17,8 @@ namespace codec
  * @param modulation_intensity - modulation vlaue (0-1)
  * @return cv::Mat
  */
-cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_intensity = 0.5,
-                           double modulation_intensity = 0.5);
+cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch,
+                           double average_intensity = 0.5, double modulation_intensity = 0.5);
 
 /**
  * @brief Unwrapped phase computation for N=3 Phase shift profilometry

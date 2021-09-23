@@ -14,20 +14,17 @@
 
 #include "sl_sensor_reconstruction/triangulator.hpp"
 
-namespace sl_sensor
-{
-namespace reconstruction
-{
+namespace sl_sensor {
+namespace reconstruction {
 /**
  * @brief Nodelet that generates point clouds from decoded images
  *
  */
-class TriangulatorNodelet : public nodelet::Nodelet
-{
-public:
+class TriangulatorNodelet : public nodelet::Nodelet {
+ public:
   TriangulatorNodelet();
 
-private:
+ private:
   virtual void onInit();
 
   void ImageArrayCb(const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array);
@@ -64,8 +61,8 @@ private:
   std::string frame_camera_parameters_filename_ =
       "";  // Camera parameters file for the that we would transform the point cloud to
   Eigen::Matrix4f transform_sensor_tri_ =
-      Eigen::Matrix4f::Identity();  // Transform between camera that performs the triangulation and the desired sensor
-                                    // frame, only used if
+      Eigen::Matrix4f::Identity();  // Transform between camera that performs the triangulation and
+                                    // the desired sensor frame, only used if
   // frame_camera_parameters_filename_ is specified
 
   // Scaling parameters
@@ -73,8 +70,7 @@ private:
   float scaling_factor_ = 1.0;
 
   template <typename PointT>
-  void ApplyCropBox(typename pcl::PointCloud<PointT>::Ptr pc_ptr)
-  {
+  void ApplyCropBox(typename pcl::PointCloud<PointT>::Ptr pc_ptr) {
     pcl::CropBox<PointT> crop_box;
     crop_box.setMin(Eigen::Vector4f(crop_box_x_min_, crop_box_y_min_, crop_box_z_min_, 1.0));
     crop_box.setMax(Eigen::Vector4f(crop_box_x_max_, crop_box_y_max_, crop_box_z_max_, 1.0));
@@ -84,8 +80,7 @@ private:
 
   template <typename PointT>
   void PublishPointCloud(typename pcl::PointCloud<PointT>::Ptr pc_ptr,
-                         const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
-  {
+                         const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr) {
     // Publish point cloud
     sensor_msgs::PointCloud2Ptr pc_msg_ptr = boost::make_shared<sensor_msgs::PointCloud2>();
     pcl::toROSMsg(*pc_ptr, *pc_msg_ptr);
@@ -103,9 +98,8 @@ private:
    * @return pcl::PointCloud<PointT>::Ptr - Smart pointer of output point cloud
    */
   template <typename PointT>
-  typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(typename pcl::PointCloud<PointT>::Ptr cloud_in_ptr,
-                                                        double scale)
-  {
+  typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(
+      typename pcl::PointCloud<PointT>::Ptr cloud_in_ptr, double scale) {
     typedef typename pcl::PointCloud<PointT>::Ptr point_t_pc_ptr;
     typedef typename pcl::PointCloud<PointT> point_t_pc;
 
@@ -121,24 +115,21 @@ private:
   }
 
   template <typename PointT>
-  void PostProcessAndPublishPointCloud(typename pcl::PointCloud<PointT>::Ptr pc_ptr,
-                                       const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr)
-  {
+  void PostProcessAndPublishPointCloud(
+      typename pcl::PointCloud<PointT>::Ptr pc_ptr,
+      const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr) {
     // Apply box filter if specified (point cloud will no longer be organised!)
-    if (apply_crop_box_)
-    {
+    if (apply_crop_box_) {
       ApplyCropBox<PointT>(pc_ptr);
     }
 
     // Transform to the coordinate frame of the specified camera, if specified
-    if (frame_camera_provided_)
-    {
+    if (frame_camera_provided_) {
       pcl::transformPointCloud(*pc_ptr, *pc_ptr, transform_sensor_tri_);
     }
 
     // Scale point cloud if desired
-    if (apply_scaling_)
-    {
+    if (apply_scaling_) {
       pc_ptr = ScalePointCloud<PointT>(pc_ptr, scaling_factor_);
     }
 

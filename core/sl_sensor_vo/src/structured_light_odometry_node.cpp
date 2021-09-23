@@ -2,8 +2,7 @@
 #include <ros/ros.h>
 #include "sl_sensor_vo/structured_light_odometry.hpp"
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "structured_light_odometry_node");
   ros::NodeHandle nh;
@@ -11,8 +10,7 @@ int main(int argc, char** argv)
   // Create StructuredLightOdometry class object
   sl_sensor::vo::StructuredLightOdometry structured_light_odometry(nh);
 
-  while (ros::ok())
-  {
+  while (ros::ok()) {
     structured_light_odometry.LoopOnce();
     ros::spinOnce();
   }

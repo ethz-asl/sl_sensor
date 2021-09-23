@@ -9,16 +9,13 @@
 
 #include "sl_sensor_logger/logger_nodelet.hpp"
 
-namespace sl_sensor
-{
-namespace logger
-{
-class PointCloudLoggerNodelet : public sl_sensor::logger::LoggerNodelet
-{
-public:
+namespace sl_sensor {
+namespace logger {
+class PointCloudLoggerNodelet : public sl_sensor::logger::LoggerNodelet {
+ public:
   PointCloudLoggerNodelet();
 
-private:
+ private:
   virtual void onInit() override;
 
   void PointCloudCb(const sensor_msgs::PointCloud2ConstPtr& pc_msg_ptr);
