@@ -27,7 +27,7 @@ void ImageGrouper::Init(ros::NodeHandle nh)
 
 void ImageGrouper::ImageCb(const sensor_msgs::ImageConstPtr& image_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // Add image to buffer only if Start() has been called
   if (is_running_)
@@ -38,13 +38,13 @@ void ImageGrouper::ImageCb(const sensor_msgs::ImageConstPtr& image_ptr)
 
 void ImageGrouper::Start()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   is_running_ = true;
 };
 
 void ImageGrouper::Stop()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   is_running_ = false;
 
   // Clear image buffer
@@ -73,7 +73,7 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
 {
   bool success = false;
 
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // If not enough projector timings / images we do not attempt any matching
   if (!is_running_ || (int)image_ptr_buffer_.size() < number_images_per_group_)
@@ -135,7 +135,7 @@ bool ImageGrouper::RetrieveImageGroup(const ros::Time& projector_time,
 
 void ImageGrouper::ClearAllImagesFromBufferBeforeTiming(const ros::Time& target_time)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   ClearAllImagesFromBufferBeforeTimingNoLock(target_time);
 }
 
@@ -185,7 +185,7 @@ bool ImageGrouper::GetImagePtrFromBuffer(const ros::Time& target_time, sensor_ms
 
 sensor_msgs::ImageConstPtr ImageGrouper::GetLatestImageAndClearBuffer()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // We make a copy of the latest image pointer (not just get the reference) in the buffer
   auto pointer = sensor_msgs::ImageConstPtr((image_ptr_buffer_.empty()) ? nullptr : image_ptr_buffer_.back());

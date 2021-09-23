@@ -6,21 +6,21 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>TODO</license>
+  <license>BSD3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
 
-  <depend>roscpp</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_io</depend>
-  <depend>sl_sensor_conversions</depend>
-  <depend>sl_sensor_slstudio</depend>
-  <depend>versavis</depend>
-  <depend>pcl_ros</depend>
   <depend>cv_bridge</depend>
+  <depend>roscpp</depend>
   <depend>geometry_msgs</depend>  
+  <depend>pcl_ros</depend>
   <depend>sensor_msgs</depend>  
+  <depend>sl_sensor_conversions</depend>
+  <depend>sl_sensor_io</depend>
+  <depend>sl_sensor_slstudio</depend>
+  <depend>sl_sensor_timer</depend>
+  <depend>versavis</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

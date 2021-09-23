@@ -1,0 +1,17 @@
+<library path="src">
+  <class name="SL Sensor Scanning GUI" type="sl_sensor_scanning_gui.sl_sensor_scanning.SLSensorScanningPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      GUI to help with 3D scanning with the SL Sensor
+    </description>
+    <qtgui>
+      <group>
+        <label>SL Sensor</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins for SL Sensor</statustip>
+      </group>
+      <label>Scanning Interface</label>
+      <icon type="theme">media-playback-start</icon>
+      <statustip>GUI to perform scanning with SL Sensor</statustip>
+    </qtgui>
+  </class>
+</library>

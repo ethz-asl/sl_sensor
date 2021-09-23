@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #pragma once
 
 #include <vector>
@@ -16,7 +18,7 @@ class PhaseShiftWithTpuDecoder : public Decoder
 public:
   PhaseShiftWithTpuDecoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir,
                            unsigned int number_phases);
-  PhaseShiftWithTpuDecoder(ros::NodeHandle nh);
+  PhaseShiftWithTpuDecoder(const YAML::Node &node);
   virtual void DecodeFrames(cv::Mat &up, cv::Mat &vp, cv::Mat &mask, cv::Mat &shading) override;
 
 private:

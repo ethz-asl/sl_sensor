@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<intrinsic_mat type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>f</dt>
+  <data>
+    2.24874023e+03 0. 8.56760803e+02 0. 2.24874023e+03 1.16561755e+03 0.
+    0. 1.</data></intrinsic_mat>
+<lens_distortion type_id="opencv-matrix">
+  <rows>5</rows>
+  <cols>1</cols>
+  <dt>f</dt>
+  <data>
+    8.67874101e-02 -2.37119079e-01 0. 0. 1.60063729e-01</data></lens_distortion>
+<calibration_error>3.6413954804406473e-01</calibration_error>
+<resolution_x>1824</resolution_x>
+<resolution_y>1140</resolution_y>
+</opencv_storage>

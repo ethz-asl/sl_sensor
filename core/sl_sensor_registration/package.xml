@@ -6,24 +6,26 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>TODO</license>
+  <license>BSD3</license>
+
+  <build_depend>libpointmatcher</build_depend>
+  <build_depend>libpointmatcher_ros</build_depend>
+  
+  <build_export_depend>libpointmatcher</build_export_depend>
+  <build_export_depend>libpointmatcher_ros</build_export_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>catkin_simple</buildtool_depend>
 
-  <depend>roscpp</depend>
   <depend>geometry_msgs</depend>
-  <depend>sensor_msgs</depend>
   <depend>eigen_catkin</depend>
   <depend>pcl_ros</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_io</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
   <depend>sl_sensor_conversions</depend>
+  <depend>sl_sensor_io</depend>
+  <depend>sl_sensor_timer</depend>
 
-  <build_depend>libpointmatcher</build_depend>
-  <build_depend>libpointmatcher_ros</build_depend>
-  <build_export_depend>libpointmatcher</build_export_depend>
-  <build_export_depend>libpointmatcher_ros</build_export_depend>
   <exec_depend>libpointmatcher</exec_depend>
   <exec_depend>libpointmatcher_ros</exec_depend>
 

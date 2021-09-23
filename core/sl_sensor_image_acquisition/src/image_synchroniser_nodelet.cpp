@@ -2,6 +2,8 @@
 #include "sl_sensor_image_acquisition/image_array_utilities.hpp"
 #include "sl_sensor_image_acquisition/image_synchroniser_nodelet.hpp"
 
+#include <nodelet/nodelet.h>
+#include <pluginlib/class_list_macros.h>
 #include <sl_sensor_projector/CommandProjector.h>
 #include <iterator>
 #include <sl_sensor_projector/lightcrafter_4500.hpp>
@@ -21,16 +23,18 @@ void ImageSynchroniserNodelet::onInit()
   private_nh_ = getPrivateNodeHandle();
 
   // Obtain key information from private node handle
+  nh_.param<std::string>("image_synchroniser_service_name", image_synchroniser_service_name_,
+                         image_synchroniser_service_name_);
+  nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
+
   private_nh_.param<double>("lower_bound_tol", lower_bound_tol_, lower_bound_tol_);
   private_nh_.param<double>("upper_bound_tol", upper_bound_tol_, upper_bound_tol_);
   private_nh_.param<double>("image_trigger_period", image_trigger_period_, image_trigger_period_);
-
   private_nh_.param<std::string>("projector_topic", projector_timing_sub_topic_, projector_timing_sub_topic_);
   private_nh_.param<std::string>("output_topic", image_array_pub_topic_, image_array_pub_topic_);
   private_nh_.param<std::string>("frame_id", frame_id_, frame_id_);
-
   private_nh_.param<std::string>("projector_yaml_directory", projector_yaml_directory_, projector_yaml_directory_);
-  private_nh_.param<std::string>("projector_service_name", projector_service_name_, projector_service_name_);
+  private_nh_.param<std::string>("fixed_pattern_name", fixed_pattern_name_, fixed_pattern_name_);
 
   std::string image_topics_full_string = {};
   private_nh_.param<std::string>("image_topics", image_topics_full_string, image_topics_full_string);
@@ -40,15 +44,15 @@ void ImageSynchroniserNodelet::onInit()
   image_array_pub_ = nh_.advertise<sl_sensor_image_acquisition::ImageArray>(image_array_pub_topic_, 10);
   projector_timing_sub_ =
       nh_.subscribe(projector_timing_sub_topic_, 10, &ImageSynchroniserNodelet::ProjectorTimeCb, this);
-  synchroniser_service_ = nh_.advertiseService("command_image_synchroniser",
+  synchroniser_service_ = nh_.advertiseService(image_synchroniser_service_name_,
                                                &ImageSynchroniserNodelet::ProcessImageSynchroniserCommand, this);
 
   // Setup and initialise ImageGroupers, one for each camera / image topic provided
   for (const auto& topic : image_topics)
   {
+    // We set images per group to 1 for now, will be set based on service request message
     auto temp_grouper_ptr =
         std::make_unique<ImageGrouper>(topic, 1, image_trigger_period_, lower_bound_tol_, upper_bound_tol_);
-    // We set images per group to 1 for now, will be set based on service request message
     image_grouper_ptrs_.push_back(std::move(temp_grouper_ptr));
   }
 
@@ -60,13 +64,17 @@ void ImageSynchroniserNodelet::onInit()
   // Load Projector Config
   projector_config_ = YAML::LoadFile(projector_yaml_directory_);
 
-  // Init Service Client to projector
+  // Init Service Client to projector, the projector service name is retrieved from the Projector YAML file
+  if (projector_service_name_.empty())
+  {
+    ROS_INFO("[ImageSynchroniserNodelet] Empty projector service name, service may not be set up correctly!");
+  }
   projector_client_ = nh_.serviceClient<sl_sensor_projector::CommandProjector>(projector_service_name_);
   SendProjectorCommand("black", 0);
 
   // Create thread for main loop
   main_loop_thread_ptr_ =
-      boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ImageSynchroniserNodelet::MainLoop, this)));
+      std::shared_ptr<std::thread>(new std::thread(std::bind(&ImageSynchroniserNodelet::MainLoop, this)));
 }
 
 void ImageSynchroniserNodelet::SendProjectorCommand(const std::string& command, int pattern_no)
@@ -82,7 +90,7 @@ void ImageSynchroniserNodelet::SendProjectorCommand(const std::string& command, 
 
 void ImageSynchroniserNodelet::ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // If synchroniser is running, we add projector timing to buffer
   if (synchroniser_state_.is_running && synchroniser_state_.is_hardware_trigger)
@@ -97,7 +105,7 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 {
   std::string command(req.command);
 
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   res.success = true;
 
@@ -111,6 +119,28 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
 
     // Check if pattern exists in projector's YAML file
     std::string pattern_name(req.pattern_name);
+
+    if (!fixed_pattern_name_.empty() && fixed_pattern_name_ != pattern_name)
+    {
+      std::string message;
+
+      if (pattern_name.empty())
+      {
+        message = "[ImageSynchroniserNodelet] Service call contains an empty pattern name entry. Will project the "
+                  "fixed pattern " +
+                  fixed_pattern_name_ + " instead.";
+      }
+      else
+      {
+        message = "[ImageSynchroniserNodelet] Service call contains a pattern name " + pattern_name +
+                  " that is different from the fixed pattern name provided " + fixed_pattern_name_ + ". Will project " +
+                  fixed_pattern_name_ + " instead.";
+      }
+
+      ROS_INFO("%s", message.c_str());
+      pattern_name = fixed_pattern_name_;
+    }
+
     bool pattern_exists = projector::Lightcrafter4500::PatternExists(projector_config_, pattern_name);
 
     if (pattern_exists)
@@ -147,6 +177,10 @@ bool ImageSynchroniserNodelet::ProcessImageSynchroniserCommand(
       ROS_INFO("[ImageSynchroniserNodelet] Cannot execute command, pattern does not exist");
       res.success = false;
     }
+  }
+  else if (command.empty())
+  {
+    ROS_INFO("[ImageSynchroniserNodelet] Received a service call with an empty command, did you forget to fill it in?");
   }
   else if (command == "stop")
   {
@@ -204,7 +238,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     ClearAllProjectorTimingsFromBufferBeforeTiming(successful_projector_time);
 
     // Clear image buffers in image groupers
-    for (int i = 0; i < (int)image_grouper_ptrs_.size(); i++)
+    for (size_t i = 0; i < image_grouper_ptrs_.size(); i++)
     {
       image_grouper_ptrs_[i]->ClearAllImagesFromBufferBeforeTiming(nested_img_ptr_vec[i].back()->header.stamp);
     }
@@ -212,7 +246,9 @@ bool ImageSynchroniserNodelet::ExecuteCommandHardwareTrigger()
     // Process and publish image array
     std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
     MergeNestedVectors(nested_img_ptr_vec, imgs_to_publish);
-    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_);
+
+    PublishImageArray(image_array_pub_, imgs_to_publish, successful_projector_time, frame_id_,
+                      (int)image_grouper_ptrs_.size());
   }
 
   return success;
@@ -240,7 +276,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
                                                             std::vector<sensor_msgs::ImageConstPtr>());
 
   // For each pattern
-  for (int i = 0; i < synchroniser_state_.number_images_per_scan; i++)
+  for (size_t i = 0; i < (size_t)synchroniser_state_.number_images_per_scan; i++)
   {
     // Command projector to display pattern
     SendProjectorCommand(synchroniser_state_.pattern_name, i);
@@ -249,7 +285,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
     ros::Duration(synchroniser_state_.delay + image_trigger_period_).sleep();
 
     // For each camera, get the latest image in the buffer
-    for (int j = 0; j < (int)image_grouper_ptrs_.size(); j++)
+    for (size_t j = 0; j < image_grouper_ptrs_.size(); j++)
     {
       auto img_ptr = image_grouper_ptrs_[j]->GetLatestImageAndClearBuffer();
 
@@ -268,7 +304,7 @@ bool ImageSynchroniserNodelet::ExecuteCommandSoftwareTrigger()
   // Merge all vectors together and publish
   std::vector<sensor_msgs::ImageConstPtr> imgs_to_publish = {};
   MergeNestedVectors(temp, imgs_to_publish);
-  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_);
+  PublishImageArray(image_array_pub_, imgs_to_publish, ros::Time::now(), frame_id_, (int)image_grouper_ptrs_.size());
 
   return true;
 }
@@ -278,29 +314,43 @@ void ImageSynchroniserNodelet::MainLoop()
   while (ros::ok())
   {
     bool is_running;
+
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::scoped_lock lock(mutex_);
       is_running = synchroniser_state_.is_running;
     }
 
     if (is_running)
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      std::scoped_lock lock(mutex_);
 
-      // If running, we try to retrieve an image sequence
-      bool success_this_iteration =
-          (synchroniser_state_.is_hardware_trigger) ? ExecuteCommandHardwareTrigger() : ExecuteCommandSoftwareTrigger();
-
-      // If successful, we update the number of scans retrieved
-      if (success_this_iteration)
+      if (!bad_data_)
       {
-        synchroniser_state_.current_number_scans++;
+        // If running and data is good, we try to retrieve an image sequence
+        bool success_this_iteration = (synchroniser_state_.is_hardware_trigger) ? ExecuteCommandHardwareTrigger() :
+                                                                                  ExecuteCommandSoftwareTrigger();
 
-        // If we have met the target number, we reset and cleanup
-        if (synchroniser_state_.target_number_scans > 0 &&
-            synchroniser_state_.current_number_scans >= synchroniser_state_.target_number_scans)
+        // If successful, we update the number of scans retrieved
+        if (success_this_iteration)
         {
-          Cleanup();
+          synchroniser_state_.current_number_scans++;
+
+          // If we have met the target number, we reset and cleanup
+          if (synchroniser_state_.target_number_scans > 0 &&
+              synchroniser_state_.current_number_scans >= synchroniser_state_.target_number_scans)
+          {
+            Cleanup();
+          }
+        }
+      }
+      else
+      {
+        // If bad data, we clear all projector time / image buffers since we assume all incoming data will be bad
+        projector_time_buffer_.clear();
+
+        for (const auto& grouper_ptr : image_grouper_ptrs_)
+        {
+          grouper_ptr->ClearBuffer();
         }
       }
     }
@@ -339,6 +389,15 @@ std::vector<std::string> ImageSynchroniserNodelet::SplitString(const std::string
 
   res.push_back(s.substr(pos_start));
   return res;
+}
+
+bool ImageSynchroniserNodelet::ProcessNotifyBadData(sl_sensor_image_acquisition::NotifyBadData::Request& req,
+                                                    sl_sensor_image_acquisition::NotifyBadData::Response& res)
+{
+  std::scoped_lock lock(mutex_);
+  bad_data_ = req.bad_data;
+  res.success = true;
+  return true;
 }
 
 }  // namespace image_acquisition

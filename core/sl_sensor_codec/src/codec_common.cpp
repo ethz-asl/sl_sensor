@@ -1,20 +1,25 @@
 
 #include "sl_sensor_codec/codec_common.hpp"
 
+#include <sl_sensor_projector/projector_utils.hpp>
+
 namespace sl_sensor
 {
 namespace codec
 {
-std::tuple<int, int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros::NodeHandle nh)
+std::tuple<unsigned int, unsigned int, CodecDirection> GetBasicCodecInformationFromYAMLNode(const YAML::Node& node)
 {
-  int screen_rows = 0;
-  int screen_cols = 0;
+  unsigned int screen_rows = 0;
+  unsigned int screen_cols = 0;
+
   std::string direction_str = "";
+  std::string projector_yaml_directory = "";
+
   CodecDirection direction = CodecDirection::kHorizontal;
 
-  nh.param<int>("screen_rows", screen_rows, 0);
-  nh.param<int>("screen_cols", screen_cols, 0);
-  nh.param<std::string>("direction", direction_str, "horizontal");
+  projector_yaml_directory = (node["projector_yaml_directory"]) ? node["projector_yaml_directory"].as<std::string>() :
+                                                                  projector_yaml_directory;
+  direction_str = (node["direction"]) ? node["direction"].as<std::string>() : direction_str;
 
   if (direction_str == "horizontal")
   {
@@ -30,9 +35,10 @@ std::tuple<int, int, CodecDirection> GetBasicCodecInformationFromNodeHandle(ros:
   }
   else
   {
-    ROS_INFO("[Codec] Error parsing error direction, setting to horizontal");
     direction = CodecDirection::kHorizontal;
   }
+
+  sl_sensor::projector::GetProjectorResolution(projector_yaml_directory, screen_rows, screen_cols);
 
   return std::make_tuple(screen_rows, screen_cols, direction);
 }

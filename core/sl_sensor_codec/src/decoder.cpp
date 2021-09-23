@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_codec/decoder.hpp"
 
 #include <tuple>
@@ -11,24 +13,29 @@ Decoder::Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirect
 {
 }
 
-Decoder::Decoder(ros::NodeHandle nh)
+Decoder::Decoder(const YAML::Node& node)
 {
-  InitFromRosNodeHandle(nh);
+  InitFromYAMLNode(node);
 }
 
-unsigned int Decoder::GetNumberPatterns()
+unsigned int Decoder::GetNumberPatterns() const
 {
   return number_patterns_;
 }
 
-CodecDirection Decoder::GetDirection()
+CodecDirection Decoder::GetDirection() const
 {
   return direction_;
 }
 
-void Decoder::InitFromRosNodeHandle(ros::NodeHandle nh)
+void Decoder::SetFrames(std::vector<cv::Mat>& frames)
 {
-  std::tuple<int, int, CodecDirection> result = GetBasicCodecInformationFromNodeHandle(nh);
+  frames_ = std::move(frames);
+}
+
+void Decoder::InitFromYAMLNode(const YAML::Node& node)
+{
+  std::tuple<unsigned int, unsigned int, CodecDirection> result = GetBasicCodecInformationFromYAMLNode(node);
   screen_rows_ = std::get<0>(result);
   screen_cols_ = std::get<1>(result);
   direction_ = std::get<2>(result);

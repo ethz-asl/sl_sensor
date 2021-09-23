@@ -4,6 +4,7 @@ find_package(OpenCV REQUIRED)
 
 find_package(catkin_simple REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 catkin_simple(ALL_DEPS_REQUIRED)
 
@@ -21,11 +22,19 @@ cs_add_library(${PROJECT_NAME}
   src/decoder_nodelet.cpp
   src/phase_shift_with_tpu_encoder.cpp
   src/phase_shift_with_tpu_decoder.cpp
+  src/two_plus_one_with_tpu_encoder.cpp
+  src/two_plus_one_with_tpu_decoder.cpp
   )
-
-
+  
 target_include_directories(${PROJECT_NAME} PUBLIC "/include")
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+
+##############
+# EXECUTABLES #
+##############
+
+cs_add_executable(generate_patterns_node src/generate_patterns_node.cpp)
+target_link_libraries(generate_patterns_node ${PROJECT_NAME} ${OpenCV_LIBS} yaml-cpp)
 
 ##########
 # EXPORT #

@@ -9,6 +9,7 @@ catkin_simple(ALL_DEPS_REQUIRED)
 
 add_definitions(-Wall -Wextra)
 set (CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
 #############
 # LIBRARIES #
@@ -17,7 +18,6 @@ cs_add_library(${PROJECT_NAME}
   src/triangulator.cpp
   src/triangulator_nodelet.cpp
 )
-
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${PCL_LIBRARIES})

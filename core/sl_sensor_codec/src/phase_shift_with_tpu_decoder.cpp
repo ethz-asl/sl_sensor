@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_codec/phase_shift_utilities.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_decoder.hpp"
 
@@ -16,10 +18,10 @@ PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(unsigned int screen_cols, uns
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector
 }
 
-PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(ros::NodeHandle nh) : Decoder(nh)
+PhaseShiftWithTpuDecoder::PhaseShiftWithTpuDecoder(const YAML::Node &node) : Decoder(node)
 {
-  nh.param<int>("number_phases", number_phases_, number_phases_);
-  nh.param<int>("shading_threshold", shading_threshold_, shading_threshold_);
+  number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
+  shading_threshold_ = (node["shading_threshold"]) ? node["shading_threshold"].as<int>() : shading_threshold_;
 
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 12 : 6;
   frames_.resize(number_patterns_, cv::Mat(0, 0, CV_8UC1));  // Set number of elements in frames_ vector

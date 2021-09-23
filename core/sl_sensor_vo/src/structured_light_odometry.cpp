@@ -551,7 +551,7 @@ bool StructuredLightOdometry::GetNextImageSequenceFromSubscribers(std::vector<cv
 {
   bool success = false;
 
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   // If not enough projector timings / images we do not attempt any matching
   if (projector_time_buffer_.empty() || (int)image_ptr_buffer_.size() < number_patterns_per_frame_)
@@ -692,13 +692,13 @@ bool StructuredLightOdometry::GetImageFromImageBuffer(const ros::Time &target_ti
 
 void StructuredLightOdometry::ImageCb(const sensor_msgs::ImageConstPtr &image_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   image_ptr_buffer_.push_back(image_ptr);
 }
 
 void StructuredLightOdometry::ProjectorTimeCb(const versavis::TimeNumberedConstPtr &time_numbered_ptr)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::scoped_lock lock(mutex_);
   projector_time_buffer_.push_back(time_numbered_ptr->time);
 }
 

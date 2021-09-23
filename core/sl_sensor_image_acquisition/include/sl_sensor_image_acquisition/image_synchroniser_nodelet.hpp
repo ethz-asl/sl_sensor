@@ -7,12 +7,13 @@
 #include <versavis/TimeNumbered.h>
 #include <yaml-cpp/yaml.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/thread.hpp>
 #include <memory>
+#include <thread>
 #include <vector>
 
 #include "sl_sensor_image_acquisition/CommandImageSynchroniser.h"
 #include "sl_sensor_image_acquisition/ImageArray.h"
+#include "sl_sensor_image_acquisition/NotifyBadData.h"
 #include "sl_sensor_image_acquisition/image_grouper.hpp"
 
 namespace sl_sensor
@@ -37,10 +38,12 @@ private:
   std::string image_array_pub_topic_ = "/image_synchroniser_output";
   std::string projector_timing_sub_topic_ = "/projector_timing";
   std::string frame_id_ = "";
-
   std::string projector_yaml_directory_ = "";
+  std::string fixed_pattern_name_ = "";
+  std::string image_synchroniser_service_name_ = "command_image_synchroniser";
+  std::string projector_service_name_ = "command_projector";
 
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   std::vector<ros::Time> projector_time_buffer_;
 
@@ -50,21 +53,22 @@ private:
   std::vector<std::unique_ptr<ImageGrouper>> image_grouper_ptrs_ = {};
 
   YAML::Node projector_config_;
-  std::string projector_service_name_;
   ros::ServiceClient projector_client_;
 
   double lower_bound_tol_ = 0.0f;
   double upper_bound_tol_ = 0.0f;
   double image_trigger_period_ = 0.0f;
 
-  boost::shared_ptr<boost::thread> main_loop_thread_ptr_;
+  std::shared_ptr<std::thread> main_loop_thread_ptr_;
+
+  bool bad_data_ = false;
 
   virtual void onInit();
 
   void ProjectorTimeCb(const versavis::TimeNumberedConstPtr& time_numbered_ptr);
 
   /**
-   * @brief Function that will be called upon a service call
+   * @brief Function that will be called upon a service call to start/stop operation of image synchroniser
    *
    * @param req
    * @param res
@@ -73,6 +77,17 @@ private:
    */
   bool ProcessImageSynchroniserCommand(sl_sensor_image_acquisition::CommandImageSynchroniser::Request& req,
                                        sl_sensor_image_acquisition::CommandImageSynchroniser::Response& res);
+
+  /**
+   * @brief Function that will be called upon to freeze image synchroniser temporarily due to bad quality images
+   *
+   * @param req
+   * @param res
+   * @return true
+   * @return false
+   */
+  bool ProcessNotifyBadData(sl_sensor_image_acquisition::NotifyBadData::Request& req,
+                            sl_sensor_image_acquisition::NotifyBadData::Response& res);
 
   /**
    * @brief Attempt to obtain and publish an image group based when in projector is in hardware trigger mode
@@ -91,8 +106,8 @@ private:
   bool ExecuteCommandSoftwareTrigger();
 
   /**
-   * @brief Send a service call to the projector
-   *
+   * @brief Send a service call to the projector.
+   * @note If disable projector is set, this function does not do anything
    * @param command - Command to send
    * @param pattern_no - Pattern number
    */

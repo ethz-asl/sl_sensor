@@ -1,0 +1,19 @@
+<launch>
+  <arg name="open_dashboard" value="true" />
+
+  <arg name="save_point_cloud" value="false" />
+  <arg name="save_images" value="false" />
+  <arg name="save_header" value="log" />
+
+  <arg name="primary_camera_parameters_filename"  value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+  <arg name="secondary_camera_parameters_filename"  value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
+  <arg name="projector_parameters_filename" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+  <arg name="primary_camera_name" value="cam2"/>
+  <arg name="secondary_camera_name" value="cam1"/>
+  <arg name="projector_pattern_name" value="two_plus_one_tpu_vertical" />
+  <arg name="decoder_name" value="two_plus_one_with_tpu" />
+  <arg name="pattern_direction" value="vertical" />
+  <arg name="colour_image_index" value="1" />
+
+  <include file="$(find sl_sensor)/launch/dual_camera_projector_colour_scanning.launch" pass_all_args="true"/>
+</launch>

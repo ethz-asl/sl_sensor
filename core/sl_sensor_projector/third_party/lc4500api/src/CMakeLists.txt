@@ -28,7 +28,6 @@ dlpc350_common.cpp
 dlpc350_firmware.cpp
 dlpc350_usb.cpp
 hid.Libusb.c
-usb.cpp
 ${HEADER_LIST})
 
 # We need this directory, and users of our library will need it too

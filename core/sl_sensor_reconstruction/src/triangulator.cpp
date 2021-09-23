@@ -1,4 +1,7 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include <math.h>
+#include <omp.h>
 #include <iostream>
 #include "sl_sensor_reconstruction/triangulator.hpp"
 
@@ -8,40 +11,76 @@ namespace sl_sensor
 {
 namespace reconstruction
 {
-CalibrationData Triangulator::GetCalibrationData()
+std::pair<ProjectorParameters, CameraParameters> Triangulator::GetCalibrationParams()
 {
-  return calibration_data_;
+  return std::make_pair(projector_parameters_, primary_camera_parameters_);
 }
 
-Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(calibration)
+Triangulator::Triangulator(const calibration::ProjectorParameters &projector_parameters,
+                           const calibration::CameraParameters &primary_camera_parameters,
+                           const calibration::CameraParameters &secondary_camera_parameters)
+  : projector_parameters_(projector_parameters)
+  , primary_camera_parameters_(primary_camera_parameters)
+  , secondary_camera_parameters_(secondary_camera_parameters)
+{
+  InitTriangulationParameters();
+  InitColouringParameters();
+}
+
+Triangulator::Triangulator(const calibration::ProjectorParameters &projector_parameters,
+                           const calibration::CameraParameters &primary_camera_parameters)
+  : projector_parameters_(projector_parameters), primary_camera_parameters_(primary_camera_parameters)
+{
+  InitTriangulationParameters();
+}
+
+void Triangulator::InitColouringParameters()
+{
+  colour_shading_enabled_ = true;
+
+  cv::Mat transform_p_c1 = primary_camera_parameters_.GetTransformationMatrix();
+  cv::Mat transform_c2_p = secondary_camera_parameters_.GetInverseTransformationMatrix();
+  cv::Mat transform_c2_c1 = transform_c2_p * transform_p_c1;
+
+  cv::Mat rot = cv::Mat(3, 3, CV_32F);
+  cv::Mat trans = cv::Mat(3, 1, CV_32F);
+
+  transform_c2_c1(cv::Range(0, 3), cv::Range(0, 3)).copyTo(rot);
+  transform_c2_c1(cv::Range(0, 3), cv::Range(3, 4)).copyTo(trans);
+
+  cv::Rodrigues(rot, colour_camera_parameters_.rvec);
+  colour_camera_parameters_.tvec = trans;
+  colour_camera_parameters_.lens_distortion = secondary_camera_parameters_.lens_distortion();
+  colour_camera_parameters_.intrinsic_mat = secondary_camera_parameters_.intrinsic_mat();
+}
+
+void Triangulator::InitTriangulationParameters()
 {
   // Precompute uc_, vc_ maps
-  uc_.create(calibration_data_.frame_height_, calibration_data_.frame_width_, CV_32F);
-  vc_.create(calibration_data_.frame_height_, calibration_data_.frame_width_, CV_32F);
+  uc_.create(primary_camera_parameters_.resolution_y(), primary_camera_parameters_.resolution_x(), CV_32F);
+  vc_.create(primary_camera_parameters_.resolution_y(), primary_camera_parameters_.resolution_x(), CV_32F);
 
-  for (unsigned int row = 0; row < (unsigned int)calibration_data_.frame_height_; row++)
+  for (unsigned int row = 0; row < (unsigned int)primary_camera_parameters_.resolution_y(); row++)
   {
-    for (unsigned int col = 0; col < (unsigned int)calibration_data_.frame_width_; col++)
+    for (unsigned int col = 0; col < (unsigned int)primary_camera_parameters_.resolution_x(); col++)
     {
       uc_.at<float>(row, col) = col;
       vc_.at<float>(row, col) = row;
     }
   }
 
+  // Compute camera matrix from calibration data
+  projection_matrix_camera_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
+  cv::Mat(primary_camera_parameters_.intrinsic_mat())
+      .copyTo(projection_matrix_camera_(cv::Range(0, 3), cv::Range(0, 3)));
+
+  projection_matrix_projector_ =
+      cv::Mat(projector_parameters_.intrinsic_mat()) * primary_camera_parameters_.GetProjectionMatrix();
+
   // Precompute determinant tensor
-  Pc_ = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(calibration_data_.Kc_).copyTo(Pc_(cv::Range(0, 3), cv::Range(0, 3)));
-
-  Pp_ = cv::Mat(3, 4, CV_32F);
-  cv::Mat temp(3, 4, CV_32F);
-  cv::Mat(calibration_data_.Rp_).copyTo(temp(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::Mat(calibration_data_.Tp_).copyTo(temp(cv::Range(0, 3), cv::Range(3, 4)));
-  Pp_ = cv::Mat(calibration_data_.Kp_) * temp;
-
-  cv::Mat e = cv::Mat::eye(4, 4, CV_32F);
-
-  int sz[] = { 4, 3, 3, 3 };
-  cv::Mat C(4, sz, CV_32F, cv::Scalar::all(0));
+  int determinant_tensor_size[] = { 4, 3, 3, 3 };  // Dimensions of determinant tensor
+  cv::Mat basis_vectors = cv::Mat::eye(4, 4, CV_32F);
+  determinant_tensor_ = cv::Mat(4, determinant_tensor_size, CV_32F, cv::Scalar::all(0));
   for (int k = 0; k < 4; k++)
   {
     for (int i = 0; i < 3; i++)
@@ -51,51 +90,49 @@ Triangulator::Triangulator(CalibrationData calibration) : calibration_data_(cali
         for (int l = 0; l < 3; l++)
         {
           cv::Mat op(4, 4, CV_32F);
-          Pc_.row(i).copyTo(op.row(0));
-          Pc_.row(j).copyTo(op.row(1));
-          Pp_.row(l).copyTo(op.row(2));
-          e.row(k).copyTo(op.row(3));
-          C.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
+          projection_matrix_camera_.row(i).copyTo(op.row(0));
+          projection_matrix_camera_.row(j).copyTo(op.row(1));
+          projection_matrix_projector_.row(l).copyTo(op.row(2));
+          basis_vectors.row(k).copyTo(op.row(3));
+          determinant_tensor_.at<float>(cv::Vec4i(k, i, j, l)) = cv::determinant(op.t());
         }
       }
     }
   }
-  determinant_tensor_ = C;
 
   // Precompute lens correction maps
   cv::Mat eye = cv::Mat::eye(3, 3, CV_32F);
-  cv::initUndistortRectifyMap(calibration_data_.Kc_, calibration_data_.kc_, eye, calibration_data_.Kc_,
-                              cv::Size(calibration_data_.frame_width_, calibration_data_.frame_height_), CV_16SC2,
-                              lens_map_1_, lens_map_2_);
+  cv::initUndistortRectifyMap(
+      primary_camera_parameters_.intrinsic_mat(), primary_camera_parameters_.lens_distortion(), eye,
+      primary_camera_parameters_.intrinsic_mat(),
+      cv::Size(primary_camera_parameters_.resolution_x(), primary_camera_parameters_.resolution_y()), CV_16SC2,
+      lens_map_1_, lens_map_2_);
 
   // Precompute parts of xyzw
+  cv::Mat &dt = determinant_tensor_;
   xyzw_precompute_offset_.resize(4);
   xyzw_precompute_factor_.resize(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    xyzw_precompute_offset_[i] = C.at<float>(cv::Vec4i(i, 0, 1, 0)) - C.at<float>(cv::Vec4i(i, 2, 1, 0)) * uc_ -
-                                 C.at<float>(cv::Vec4i(i, 0, 2, 0)) * vc_;
-    xyzw_precompute_factor_[i] = -C.at<float>(cv::Vec4i(i, 0, 1, 2)) + C.at<float>(cv::Vec4i(i, 2, 1, 2)) * uc_ +
-                                 C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vc_;
+    xyzw_precompute_offset_[i] = dt.at<float>(cv::Vec4i(i, 0, 1, 0)) - dt.at<float>(cv::Vec4i(i, 2, 1, 0)) * uc_ -
+                                 dt.at<float>(cv::Vec4i(i, 0, 2, 0)) * vc_;
+    xyzw_precompute_factor_[i] = -dt.at<float>(cv::Vec4i(i, 0, 1, 2)) + dt.at<float>(cv::Vec4i(i, 2, 1, 2)) * uc_ +
+                                 dt.at<float>(cv::Vec4i(i, 0, 2, 2)) * vc_;
   }
 
   // Precompute camera coordinates matrix in UpVpTriangulate
-  int number_pixels_ = calibration_data_.frame_height_ * calibration_data_.frame_width_;
+  number_pixels_ = primary_camera_parameters_.resolution_y() * primary_camera_parameters_.resolution_x();
   proj_points_cam_ = cv::Mat(2, number_pixels_, CV_32F);
 
   uc_.reshape(0, 1).copyTo(proj_points_cam_.row(0));
   vc_.reshape(0, 1).copyTo(proj_points_cam_.row(1));
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp,
-                                                               const cv::Mat &mask, const cv::Mat &shading)
+void Triangulator::UndistortImages(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, const cv::Mat &shading,
+                                   cv::Mat &up_undistorted, cv::Mat &vp_undistorted, cv::Mat &mask_undistorted,
+                                   cv::Mat &shading_undistorted)
 {
-  cv::Mat up_undistorted;
-  cv::Mat vp_undistorted;
-  cv::Mat mask_undistorted;
-  cv::Mat shading_undistorted;
-
-  // Undistort up, mask and shading
+  // Undistort up, vp, mask and shading
   if (!up.empty())
   {
     cv::remap(up, up_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
@@ -105,50 +142,167 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up
     cv::remap(vp, vp_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
   }
 
-  cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
-  cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  if (!mask.empty())
+  {
+    cv::remap(mask, mask_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  }
 
+  if (!shading.empty())
+  {
+    cv::remap(shading, shading_undistorted, lens_map_1_, lens_map_2_, cv::INTER_LINEAR);
+  }
+}
+
+void Triangulator::Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, cv::Mat &xyz)
+
+{
   // Triangulate
-  cv::Mat xyz;
   if (!up.empty() && vp.empty())
   {
-    TriangulateFromUp(up_undistorted, xyz);
+    TriangulateFromUp(up, xyz);
   }
   else if (!vp.empty() && up.empty())
   {
-    TriangulateFromVp(vp_undistorted, xyz);
+    TriangulateFromVp(vp, xyz);
   }
   else if (!up.empty() && !vp.empty())
   {
-    TriangulateFromUpVp(up_undistorted, vp_undistorted, xyz);
+    TriangulateFromUpVp(up, vp, xyz);
   }
 
   // Apply Mask
   cv::Mat masked_xyz(uc_.size(), CV_32FC3, cv::Scalar(NAN, NAN, NAN));
-  xyz.copyTo(masked_xyz, mask_undistorted);
+  xyz.copyTo(masked_xyz, mask);
+}
 
-  // Convert to pcl dense point cloud
-  pcl::PointCloud<pcl::PointXYZI>::Ptr pcl_pc_ptr(new pcl::PointCloud<pcl::PointXYZI>());
+pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp,
+                                                                         const cv::Mat &mask, const cv::Mat &shading)
+{
+  // Undistort input
+  cv::Mat up_undistorted;
+  cv::Mat vp_undistorted;
+  cv::Mat mask_undistorted;
+  cv::Mat shading_undistorted;
+  UndistortImages(up, vp, mask, shading, up_undistorted, vp_undistorted, mask_undistorted, shading_undistorted);
 
-  pcl_pc_ptr->width = masked_xyz.cols;
-  pcl_pc_ptr->height = masked_xyz.rows;
-  pcl_pc_ptr->is_dense = true;
+  // Perform triangulation
+  cv::Mat xyz;
+  Triangulate(up_undistorted, vp_undistorted, mask_undistorted, xyz);
 
-  pcl_pc_ptr->points.resize(masked_xyz.rows * masked_xyz.cols);
+  // Convert coordinates to point cloud, with shading as intensity values
+  return ConvertToMonochomePCLPointCLoud(xyz, mask_undistorted, shading_undistorted);
+}
 
-  for (int row = 0; row < masked_xyz.rows; row++)
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::TriangulateColour(const cv::Mat &up, const cv::Mat &vp,
+                                                                       const cv::Mat &mask,
+                                                                       const cv::Mat &colour_shading)
+{
+  if (!colour_shading_enabled_)
+  {
+    std::cerr << "[Triangulator] Error: TriangulateColour called when Triangulator was not configured to generate "
+                 "coloured point cloud. Returning empty pointer!"
+              << std::endl;
+    return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
+  }
+
+  // Undistort input
+  cv::Mat up_undistorted;
+  cv::Mat vp_undistorted;
+  cv::Mat mask_undistorted;
+  cv::Mat shading_undistorted;
+  UndistortImages(up, vp, mask, cv::Mat(), up_undistorted, vp_undistorted, mask_undistorted, shading_undistorted);
+
+  // Perform triangulation
+  cv::Mat xyz;
+  Triangulate(up_undistorted, vp_undistorted, mask_undistorted, xyz);
+
+  // Convert coordinates to point cloud, with shading as intensity values
+  return ConvertToColourPCLPointCloud(xyz, mask_undistorted, colour_shading);
+}
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::ConvertToColourPCLPointCloud(const cv::Mat &xyz,
+                                                                                  const cv::Mat &mask,
+                                                                                  const cv::Mat &colour_shading)
+{
+  pcl::PointXYZRGB default_point;
+  default_point.x = NAN;
+  default_point.y = NAN;
+  default_point.z = NAN;
+
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_pc_ptr(
+      new pcl::PointCloud<pcl::PointXYZRGB>(xyz.cols, xyz.rows, default_point));
+
+  pcl_pc_ptr->points.resize(xyz.rows * xyz.cols);
+
+#pragma omp parallel for
+  for (int row = 0; row < xyz.rows; row++)
   {
     int offset = row * pcl_pc_ptr->width;
-    for (int col = 0; col < masked_xyz.cols; col++)
+    for (int col = 0; col < xyz.cols; col++)
     {
-      const cv::Vec3f point_coords = masked_xyz.at<cv::Vec3f>(row, col);
-      unsigned char shade = shading_undistorted.at<unsigned char>(row, col);
-      pcl::PointXYZI point;
-      point.x = point_coords[0];
-      point.y = point_coords[1];
-      point.z = point_coords[2];
-      point.intensity = shade;
-      pcl_pc_ptr->points[offset + col] = point;
+      if (mask.at<bool>(row, col) == true)
+      {
+        std::vector<cv::Point2f> output_point_vec;
+
+        // We project 3D point to secondary camera's image to get pixel coordinate
+        cv::projectPoints(std::vector<cv::Vec3f>{ xyz.at<cv::Vec3f>(row, col) }, colour_camera_parameters_.rvec,
+                          colour_camera_parameters_.tvec, colour_camera_parameters_.intrinsic_mat,
+                          colour_camera_parameters_.lens_distortion, output_point_vec);
+
+        cv::Point2f &output_point = output_point_vec.at(0);
+
+        // If pixel coordinate is witin the coloured image, we populate the point cloud with the cloud 3D point
+        if (output_point.x > 0 && output_point.y > 0 && output_point.x < xyz.cols && output_point.y < xyz.rows)
+        {
+          const cv::Vec3f point_coords = xyz.at<cv::Vec3f>(row, col);
+
+          const int coord_x = std::floor(output_point.x);
+          const int coord_y = std::floor(output_point.y);
+          pcl::PointXYZRGB &point = pcl_pc_ptr->points[offset + col];
+          point.x = point_coords[0];
+          point.y = point_coords[1];
+          point.z = point_coords[2];
+          point.r = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[2];
+          point.g = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[1];
+          point.b = colour_shading.at<cv::Vec3b>(coord_y, coord_x)[0];
+        }
+      }
+    }
+  }
+
+  return pcl_pc_ptr;
+}
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz,
+                                                                                   const cv::Mat &mask,
+                                                                                   const cv::Mat &shading)
+{
+  pcl::PointXYZI default_point;
+  default_point.x = NAN;
+  default_point.y = NAN;
+  default_point.z = NAN;
+
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcl_pc_ptr(
+      new pcl::PointCloud<pcl::PointXYZI>(xyz.cols, xyz.rows, default_point));
+
+  pcl_pc_ptr->points.resize(xyz.rows * xyz.cols);
+
+#pragma omp parallel for
+  for (int row = 0; row < xyz.rows; row++)
+  {
+    int offset = row * pcl_pc_ptr->width;
+    for (int col = 0; col < xyz.cols; col++)
+    {
+      if (mask.at<bool>(row, col) == true)
+      {
+        const cv::Vec3f point_coords = xyz.at<cv::Vec3f>(row, col);
+        pcl::PointXYZI point;
+        point.x = point_coords[0];
+        point.y = point_coords[1];
+        point.z = point_coords[2];
+        point.intensity = shading.at<unsigned char>(row, col);
+        pcl_pc_ptr->points[offset + col] = point;
+      }
     }
   }
 
@@ -157,8 +311,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::Triangulate(const cv::Mat &up
 
 void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
 {
-  // Solve for xyzw using determinant tensor
-  cv::Mat C = determinant_tensor_;
+  // Solve for xyzw
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
@@ -180,20 +333,22 @@ void Triangulator::TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz)
 void Triangulator::TriangulateFromVp(const cv::Mat &vp, cv::Mat &xyz)
 {
   // Solve for xyzw using determinant tensor
-  cv::Mat C = determinant_tensor_;
+  cv::Mat &dt = determinant_tensor_;
   std::vector<cv::Mat> xyzw(4);
   for (unsigned int i = 0; i < 4; i++)
   {
-    xyzw[i] = C.at<float>(cv::Vec4i(i, 0, 1, 1)) - C.at<float>(cv::Vec4i(i, 2, 1, 1)) * uc_ -
-              C.at<float>(cv::Vec4i(i, 0, 2, 1)) * vc_ - C.at<float>(cv::Vec4i(i, 0, 1, 2)) * vp +
-              C.at<float>(cv::Vec4i(i, 2, 1, 2)) * vp.mul(uc_) + C.at<float>(cv::Vec4i(i, 0, 2, 2)) * vp.mul(vc_);
+    xyzw[i] = dt.at<float>(cv::Vec4i(i, 0, 1, 1)) - dt.at<float>(cv::Vec4i(i, 2, 1, 1)) * uc_ -
+              dt.at<float>(cv::Vec4i(i, 0, 2, 1)) * vc_ - dt.at<float>(cv::Vec4i(i, 0, 1, 2)) * vp +
+              dt.at<float>(cv::Vec4i(i, 2, 1, 2)) * vp.mul(uc_) + dt.at<float>(cv::Vec4i(i, 0, 2, 2)) * vp.mul(vc_);
   }
 
   // Convert to non homogenous coordinates
   cv::Mat winv;
   cv::divide(1.0, xyzw[3], winv);
   for (unsigned int i = 0; i < 3; i++)
+  {
     xyzw[i] = xyzw[i].mul(winv);
+  }
 
   // Merge
   cv::merge(std::vector<cv::Mat>(xyzw.begin(), xyzw.begin() + 3), xyz);
@@ -208,9 +363,12 @@ void Triangulator::TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv:
   vp.clone().reshape(0, 1).copyTo(proj_points_proj.row(1));
 
   cv::Mat xyzw;
-  cv::triangulatePoints(Pc_, Pp_, proj_points_cam_, proj_points_proj, xyzw);
+  cv::triangulatePoints(projection_matrix_camera_, projection_matrix_projector_, proj_points_cam_, proj_points_proj,
+                        xyzw);
 
   xyz.create(3, number_pixels_, CV_32F);
+
+#pragma omp parallel for
   for (int i = 0; i < number_pixels_; i++)
   {
     xyz.at<float>(0, i) = xyzw.at<float>(0, i) / xyzw.at<float>(3, i);

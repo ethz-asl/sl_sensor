@@ -7,13 +7,3 @@
   Frame grabber nodelet.
   </description>
 </library>
-
-<library path="lib/libsl_sensor_image_acquisition">
-  <class name="sl_sensor_image_acquisition/ImageArrayLoggerNodelet"
-         type="sl_sensor::image_acquisition::ImageArrayLoggerNodelet"
-         base_class_type="nodelet::Nodelet">
-  </class>
-  <description>
-  Frame Array Logger nodelet.
-  </description>
-</library>

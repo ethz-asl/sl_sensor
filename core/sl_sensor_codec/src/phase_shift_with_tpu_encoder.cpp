@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #include "sl_sensor_codec/phase_shift_utilities.hpp"
 #include "sl_sensor_codec/phase_shift_with_tpu_encoder.hpp"
 
@@ -16,11 +18,14 @@ PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(unsigned int screen_cols, uns
   GeneratePatterns();
 }
 
-PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(ros::NodeHandle nh) : Encoder(nh)
+PhaseShiftWithTpuEncoder::PhaseShiftWithTpuEncoder(const YAML::Node &node) : Encoder(node)
 {
   number_patterns_ = (direction_ == CodecDirection::kBoth) ? 12 : 6;
 
-  nh.param<int>("number_phases", number_phases_, number_phases_);
+  number_phases_ = (node["number_phases"]) ? node["number_phases"].as<int>() : number_phases_;
+  average_intensity_ = (node["average_intensity"]) ? node["average_intensity"].as<double>() : average_intensity_;
+  modulation_intensity_ =
+      (node["modulation_intensity"]) ? node["modulation_intensity"].as<double>() : modulation_intensity_;
 
   GeneratePatterns();
 }
@@ -35,7 +40,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = (float)screen_cols_ / (float)number_phases_;
       cv::Mat pattern(1, 1, CV_8U);
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_intensity_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -46,7 +51,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = screen_cols_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_cols_, phase, pitch);
+      pattern = ComputePhaseVector(screen_cols_, phase, pitch, average_intensity_, modulation_intensity_);
       pattern = pattern.t();
       patterns_.push_back(pattern);
     }
@@ -60,7 +65,7 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = (float)screen_rows_ / (float)number_phases_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_intensity_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
 
@@ -70,15 +75,10 @@ void PhaseShiftWithTpuEncoder::GeneratePatterns()
       float phase = 2.0 * M_PI / 3.0 * i;
       float pitch = screen_rows_;
       cv::Mat pattern;
-      pattern = ComputePhaseVector(screen_rows_, phase, pitch);
+      pattern = ComputePhaseVector(screen_rows_, phase, pitch, average_intensity_, modulation_intensity_);
       patterns_.push_back(pattern);
     }
   }
-}
-
-cv::Mat PhaseShiftWithTpuEncoder::GetEncodingPattern(size_t depth)
-{
-  return patterns_[depth];
 }
 
 }  // namespace codec

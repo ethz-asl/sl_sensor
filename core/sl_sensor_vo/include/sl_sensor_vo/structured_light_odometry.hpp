@@ -30,9 +30,9 @@
 #include <versavis/TimeNumbered.h>
 #include <yaml-cpp/yaml.h>
 
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 #include <unordered_map>
 
@@ -129,7 +129,7 @@ private:
   std::unique_ptr<sl_sensor::slstudio::ImageUndistorter> image_undistorter_ptr_;
 
   // mutex to prevent vo pipeline and subscribers to access the same variables at the same time
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   // Timer setup
   int timer_counter_ = 0;

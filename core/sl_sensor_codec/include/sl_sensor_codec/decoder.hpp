@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #pragma once
 
 #include <ros/ros.h>
@@ -26,26 +28,21 @@ public:
    */
   Decoder(unsigned int screen_cols, unsigned int screen_rows, CodecDirection dir = CodecDirection::kHorizontal);
 
-  /**
-   * @brief Constructor using a ROS node handle
-   *
-   * @param nh
-   */
-  Decoder(ros::NodeHandle nh);
+  Decoder(const YAML::Node &node);
 
   /**
    * @brief Get number of patterns in the sequence
    *
    * @return unsigned int
    */
-  unsigned int GetNumberPatterns();
+  unsigned int GetNumberPatterns() const;
 
   /**
    * @brief Get direction of pattern
    *
    * @return CodecDirection
    */
-  CodecDirection GetDirection();
+  CodecDirection GetDirection() const;
 
   /**
    * @brief Set an image to be decoded
@@ -54,6 +51,13 @@ public:
    * @param number - image indice
    */
   void SetFrame(const cv::Mat &frame, unsigned int number);
+
+  /**
+   * @brief Set images to be decoded
+   *
+   * @param frames - images to be decoded
+   */
+  void SetFrames(std::vector<cv::Mat> &frames);
 
   /**
    * @brief Decode Frames
@@ -78,7 +82,7 @@ protected:
    *
    * @param nh
    */
-  void InitFromRosNodeHandle(ros::NodeHandle nh);
+  void InitFromYAMLNode(const YAML::Node &node);
 };
 
 }  // namespace codec

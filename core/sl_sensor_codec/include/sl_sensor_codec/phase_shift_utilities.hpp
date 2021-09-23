@@ -1,3 +1,5 @@
+// Code adapted from SLStudio https://github.com/jakobwilm/slstudio
+
 #pragma once
 
 #include <opencv2/opencv.hpp>
@@ -7,17 +9,17 @@ namespace sl_sensor
 namespace codec
 {
 /**
- * @brief Generates an 8-bit [length x 1] (0-255) matrix using the equation: average_value + modulation_intensity *
+ * @brief Generates an 8-bit [length x 1] (0-255) matrix using the equation: average_intensity + modulation_intensity *
  * cos(2 * M_PI * i / pitch - phase) where i is the current row indice
  *
  * @param length - length of matrix
  * @param phase - phase offset
  * @param pitch - pitch of cosine wave
- * @param average_value - average value (0-1)
+ * @param average_intensity - average value (0-1)
  * @param modulation_intensity - modulation vlaue (0-1)
  * @return cv::Mat
  */
-cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_value = 0.5,
+cv::Mat ComputePhaseVector(unsigned int length, float phase, float pitch, double average_intensity = 0.5,
                            double modulation_intensity = 0.5);
 
 /**
