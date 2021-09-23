@@ -11,6 +11,11 @@
 
 namespace sl_sensor {
 namespace logger {
+
+/**
+ * @brief Nodelet that subscribes to a topic for sensor_msgs::PointCloud2 messages and saves
+ * individual PCs as .pcd files
+ */
 class PointCloudLoggerNodelet : public sl_sensor::logger::LoggerNodelet {
  public:
   PointCloudLoggerNodelet();
