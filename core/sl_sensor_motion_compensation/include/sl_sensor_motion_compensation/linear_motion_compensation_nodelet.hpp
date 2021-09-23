@@ -25,10 +25,12 @@ private:
   std::string sub_topic_ = "/image_array_input";
   std::string pub_topic_ = "/image_array_output";
   std::string pattern_direction_ = "both";
+  std::string filter_id_ = "";
   ShiftingOption shifting_option_ = ShiftingOption::kBothDirectionsShifting;
 
   double subsample_factor_ = 1.0f;
-  int reference_indice_ = 1;
+  int reference_index_ = 1;
+  int camera_index_ = 0;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;

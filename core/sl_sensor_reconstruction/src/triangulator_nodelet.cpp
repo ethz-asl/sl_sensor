@@ -5,11 +5,10 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <algorithm>
+#include <opencv2/core/eigen.hpp>
 #include <sl_sensor_calibration/camera_parameters.hpp>
 #include <sl_sensor_calibration/projector_parameters.hpp>
 #include <sl_sensor_image_acquisition/image_array_utilities.hpp>
-
-#include <pcl/visualization/cloud_viewer.h>  // for debugging
 
 using namespace sl_sensor::calibration;
 using namespace sl_sensor::image_acquisition;
@@ -29,12 +28,11 @@ void TriangulatorNodelet::onInit()
   // Obtain information from private node handle
   private_nh_.param<std::string>("input_topic", image_array_sub_topic_, image_array_sub_topic_);
   private_nh_.param<std::string>("output_topic", pc_pub_topic_, pc_pub_topic_);
-  private_nh_.param<std::string>("primary_camera_parameters_filename", primary_camera_parameters_filename_,
-                                 primary_camera_parameters_filename_);
-  private_nh_.param<std::string>("secondary_camera_parameters_filename", secondary_camera_parameters_filename_,
-                                 secondary_camera_parameters_filename_);
+  private_nh_.param<std::string>("triangulation_camera_parameters_filename", triangulation_camera_parameters_filename_,
+                                 triangulation_camera_parameters_filename_);
   private_nh_.param<std::string>("projector_parameters_filename", projector_parameters_filename_,
                                  projector_parameters_filename_);
+
   private_nh_.param<bool>("apply_crop_box", apply_crop_box_, apply_crop_box_);
   private_nh_.param<float>("crop_box_x_min", crop_box_x_min_, crop_box_x_min_);
   private_nh_.param<float>("crop_box_y_min", crop_box_y_min_, crop_box_y_min_);
@@ -44,20 +42,28 @@ void TriangulatorNodelet::onInit()
   private_nh_.param<float>("crop_box_z_max", crop_box_z_max_, crop_box_z_max_);
 
   private_nh_.param<bool>("colour_shading_enabled", colour_shading_enabled_, colour_shading_enabled_);
+  private_nh_.param<std::string>("colour_camera_parameters_filename", colour_camera_parameters_filename_,
+                                 colour_camera_parameters_filename_);
 
-  // Load Camera Calibration Data
-  CameraParameters primary_camera_parameters;
-  if (primary_camera_parameters.Load(primary_camera_parameters_filename_))
+  private_nh_.param<std::string>("frame_camera_parameters_filename", frame_camera_parameters_filename_,
+                                 frame_camera_parameters_filename_);
+
+  private_nh_.param<bool>("apply_scaling", apply_scaling_, apply_scaling_);
+  private_nh_.param<float>("scaling_factor", scaling_factor_, scaling_factor_);
+
+  // Load camera and projector parameters
+  CameraParameters triangulation_camera_parameters;
+  if (triangulation_camera_parameters.Load(triangulation_camera_parameters_filename_))
   {
     ROS_INFO("[TriangulatorNodelet] Primary camera parameters loaded successfully.");
   }
   else
   {
-    ROS_ERROR("[TriangulatorNodelet] Failed to load primary camera parameters!");
+    ROS_ERROR("[TriangulatorNodelet] Failed to load triangulation camera parameters!");
   }
 
-  ROS_INFO("[TriangulatorNodelet] Loaded primary camera parameters: ");
-  std::cout << primary_camera_parameters << std::endl;
+  ROS_INFO("[TriangulatorNodelet] Loaded triangulation camera parameters: ");
+  std::cout << triangulation_camera_parameters << std::endl;
 
   ProjectorParameters projector_parameters;
   if (projector_parameters.Load(projector_parameters_filename_))
@@ -72,31 +78,55 @@ void TriangulatorNodelet::onInit()
   ROS_INFO("[TriangulatorNodelet] Loaded projector parameters: ");
   std::cout << projector_parameters << std::endl;
 
-  CameraParameters secondary_camera_parameters;
+  CameraParameters colour_camera_parameters;
   if (colour_shading_enabled_)
   {
-    if (secondary_camera_parameters.Load(secondary_camera_parameters_filename_))
+    if (colour_camera_parameters.Load(colour_camera_parameters_filename_))
     {
-      ROS_INFO("[TriangulatorNodelet] Secondary camera parameters loaded successfully.");
+      ROS_INFO("[TriangulatorNodelet] Colour camera parameters loaded successfully.");
     }
     else
     {
-      ROS_ERROR("[TriangulatorNodelet] Failed to load secondary camera parameters!");
+      ROS_ERROR("[TriangulatorNodelet] Failed to load colour camera parameters!");
     }
 
-    ROS_INFO("[TriangulatorNodelet] Loaded secondary camera parameters: ");
-    std::cout << secondary_camera_parameters << std::endl;
+    ROS_INFO("[TriangulatorNodelet] Loaded colour camera parameters: ");
+    std::cout << colour_camera_parameters << std::endl;
   }
 
   // Setup Triangulator
   if (colour_shading_enabled_)
   {
     triangulator_ptr_ =
-        std::make_unique<Triangulator>(projector_parameters, primary_camera_parameters, secondary_camera_parameters);
+        std::make_unique<Triangulator>(projector_parameters, triangulation_camera_parameters, colour_camera_parameters);
   }
   else
   {
-    triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, primary_camera_parameters);
+    triangulator_ptr_ = std::make_unique<Triangulator>(projector_parameters, triangulation_camera_parameters);
+  }
+
+  CameraParameters frame_camera_parameters;  // This contains transformation information between the projector and the
+                                             // camera in which you want to set as the sensor frame
+  if (!frame_camera_parameters_filename_.empty())
+  {
+    if (frame_camera_parameters.Load(frame_camera_parameters_filename_))
+    {
+      // Compute transform between camera that points are triangulated in wrt sensor frame
+      cv::Mat cv_mat_transform_frame_tri = frame_camera_parameters.GetInverseTransformationMatrix() *
+                                           triangulation_camera_parameters.GetTransformationMatrix();
+
+      // Store as eigen matrix for use during callback
+      cv::cv2eigen(cv_mat_transform_frame_tri, transform_sensor_tri_);
+
+      frame_camera_provided_ = true;
+
+      ROS_INFO("[TriangulatorNodelet] Loaded frame camera parameters: ");
+      std::cout << frame_camera_parameters << std::endl;
+    }
+    else
+    {
+      ROS_ERROR("[TriangulatorNodelet] Failed to load frame camera parameters!");
+    }
   }
 
   // Setup publisher and subscriber
@@ -112,9 +142,7 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
   if (expected_images != image_array_ptr->data.size())
   {
     ROS_INFO("[TriangulatorNodelet] Number of images in image array does not match requirements for triangulator. "
-             "Ignoring "
-             "this "
-             "image array message");
+             "Ignoring this image array message");
     return;
   }
 
@@ -128,14 +156,8 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     auto pc_ptr = triangulator_ptr_->TriangulateColour(cv_img_ptr_vec.at(0)->image, cv_img_ptr_vec.at(1)->image,
                                                        cv_img_ptr_vec.at(2)->image, cv_img_ptr_vec.at(4)->image);
 
-    // Apply box filter if specified (point cloud will no longer be organised!)
-    if (apply_crop_box_)
-    {
-      ApplyCropBox<pcl::PointXYZRGB>(pc_ptr);
-    }
-
-    // Publish point cloud
-    PublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);
+    // Additional processing and then publish point cloud
+    PostProcessAndPublishPointCloud<pcl::PointXYZRGB>(pc_ptr, image_array_ptr);
   }
   else
   {
@@ -143,14 +165,8 @@ void TriangulatorNodelet::ImageArrayCb(const sl_sensor_image_acquisition::ImageA
     auto pc_ptr = triangulator_ptr_->TriangulateMonochrome(cv_img_ptr_vec.at(0)->image, cv_img_ptr_vec.at(1)->image,
                                                            cv_img_ptr_vec.at(2)->image, cv_img_ptr_vec.at(3)->image);
 
-    // Apply box filter if specified (point cloud will no longer be organised!)
-    if (apply_crop_box_)
-    {
-      ApplyCropBox<pcl::PointXYZI>(pc_ptr);
-    }
-
-    // Publish point cloud
-    PublishPointCloud<pcl::PointXYZI>(pc_ptr, image_array_ptr);
+    // Additional processing and then publish point cloud
+    PostProcessAndPublishPointCloud<pcl::PointXYZI>(pc_ptr, image_array_ptr);
   }
 }
 

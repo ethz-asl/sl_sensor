@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <yaml-cpp/yaml.h>
+#include <algorithm>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
@@ -98,6 +99,8 @@ int main(int argc, char** argv)
   int window_radius = 10;
   int minimum_valid_pixels = 50;
 
+  float reprojection_error_warning_threshold = 0.0f;
+
   private_nh.param<std::string>("camera_folder_name", camera_folder_name, camera_folder_name);
   private_nh.param<std::string>("projector_folder_name", projector_folder_name, projector_folder_name);
   private_nh.param<std::string>("directories", directories, directories);
@@ -132,12 +135,15 @@ int main(int argc, char** argv)
   private_nh.param<std::string>("projector_calibration_init_yaml", projector_calibration_init_yaml,
                                 projector_calibration_init_yaml);
 
-  private_nh.param<int>("checkerboard_rows", checkerboard_rows, checkerboard_rows);
-  private_nh.param<int>("checkerboard_cols", checkerboard_cols, checkerboard_cols);
+  private_nh.param<int>("checkerboard_num_rows", checkerboard_rows, checkerboard_rows);
+  private_nh.param<int>("checkerboard_num_cols", checkerboard_cols, checkerboard_cols);
   private_nh.param<double>("checkerboard_size", checkerboard_size, checkerboard_size);
 
   private_nh.param<int>("window_radius", window_radius, window_radius);
   private_nh.param<int>("minimum_valid_pixels", minimum_valid_pixels, minimum_valid_pixels);
+
+  private_nh.param<float>("reprojection_error_warning_threshold", reprojection_error_warning_threshold,
+                          reprojection_error_warning_threshold);
 
   private_nh.param<std::string>("output_camera_parameters_filename", output_camera_parameters_filename,
                                 output_camera_parameters_filename);
@@ -196,6 +202,7 @@ int main(int argc, char** argv)
   calibrator.SetCameraCalibrationFlags(camera_calibration_flags);
   calibrator.SetProjectorCalibrationFlags(projector_calibration_flags);
   calibrator.SetLocalHomographySettings(window_radius, minimum_valid_pixels);
+  calibrator.SetReprojectionErrorWarningThreshold(reprojection_error_warning_threshold);
 
   // Add calibration sequences to calibrator
   int counter = 0;
@@ -243,8 +250,10 @@ int main(int argc, char** argv)
     {
       std::string stem = entry.path().stem().u8string();
 
-      // If stem is in the list of filenames to ignore, skip to next entry
-      if (files_to_ignore_vec[counter].find(stem) != files_to_ignore_vec[counter].end())
+      // If stem is in the list of filenames to ignore or stem is not a number (contains chars that are not digits),
+      // skip to next entry
+      if (files_to_ignore_vec[counter].find(stem) != files_to_ignore_vec[counter].end() ||
+          !std::all_of(stem.begin(), stem.end(), [](char c) { return std::isdigit(c); }))
       {
         std::cout << "Ignoring files named " << stem << std::endl;
         continue;

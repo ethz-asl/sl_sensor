@@ -38,6 +38,7 @@ private:
   std::string codec_yaml_directory_ = "";
   std::string direction_ = "";
   std::string projector_yaml_directory_ = "";
+  std::string filter_id_ = "";
 
   std::unique_ptr<Decoder> decoder_ptr_;
 

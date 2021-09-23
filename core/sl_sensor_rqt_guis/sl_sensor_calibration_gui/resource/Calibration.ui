@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>202</width>
-    <height>81</height>
+    <width>370</width>
+    <height>135</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,20 +18,20 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>201</width>
-     <height>81</height>
+     <width>345</width>
+     <height>112</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="_2">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
        <widget class="QPushButton" name="grabNextSequence">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -44,7 +44,7 @@
       <item>
        <widget class="QPushButton" name="erasePreviousSequence">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

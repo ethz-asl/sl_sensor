@@ -21,7 +21,8 @@ cv::Mat AccessMatInVec(const std::vector<cv::Mat>& mat_vec, size_t index);
 bool DirectoryExists(const char* path);
 void SavePatterns(const Encoder& encoder, const cv::Mat& map1, const cv::Mat& map2, unsigned int screen_cols,
                   unsigned int screen_rows, bool is_diamond_pixel, const std::string& encoder_name,
-                  const std::string& label, const std::string& current_folder_directory);
+                  const std::string& label, const std::string& current_folder_directory,
+                  bool correct_for_lens_distortion);
 
 int main(int argc, char** argv)
 {
@@ -91,7 +92,6 @@ int main(int argc, char** argv)
     // images into a BGR bit map, we can separate them cleanly (i.e. one BGR image should only have pattern sequences
     // for one direction). The rationale is that if you want to perform hardware triggering, the less BGR images you
     // have to load, the better.
-
     node[encoder_name]["projector_yaml_directory"] = projector_yaml_directory;
 
     node[encoder_name]["direction"] = "horizontal";
@@ -112,11 +112,16 @@ int main(int argc, char** argv)
     Encoder::InitDistortMap(projector_parameters.intrinsic_mat(), projector_parameters.lens_distortion(), map_size,
                             map1, map2);
 
+    // Check if we want to perform lens distortion for this encoder (should only disable for calibration pattern)
+    bool correct_for_lens_distortion = node[encoder_name]["disable_lens_distortion_correction"] ?
+                                           !node[encoder_name]["disable_lens_distortion_correction"].as<bool>() :
+                                           true;
+
     // Generate patterns
     SavePatterns(*horz_encoder_ptr, map1, map2, screen_cols, screen_rows, is_diamond_pixel, encoder_name,
-                 std::string{ "horizontal" }, current_folder_directory);
+                 std::string{ "horizontal" }, current_folder_directory, correct_for_lens_distortion);
     SavePatterns(*vert_encoder_ptr, map1, map2, screen_cols, screen_rows, is_diamond_pixel, encoder_name,
-                 std::string{ "vertical" }, current_folder_directory);
+                 std::string{ "vertical" }, current_folder_directory, correct_for_lens_distortion);
   }
 
   ROS_INFO("Patterns Generated Successfully!");
@@ -160,7 +165,8 @@ bool DirectoryExists(const char* path)
 
 void SavePatterns(const Encoder& encoder, const cv::Mat& map1, const cv::Mat& map2, unsigned int screen_cols,
                   unsigned int screen_rows, bool is_diamond_pixel, const std::string& encoder_name,
-                  const std::string& label, const std::string& current_folder_directory)
+                  const std::string& label, const std::string& current_folder_directory,
+                  bool correct_for_lens_distortion)
 {
   std::vector<cv::Mat> patterns = encoder.GetEncodingPatterns();
   std::vector<cv::Mat> processed_patterns;
@@ -176,8 +182,11 @@ void SavePatterns(const Encoder& encoder, const cv::Mat& map1, const cv::Mat& ma
         cv::repeat(current_pattern, screen_rows / current_pattern.rows + 1, screen_cols / current_pattern.cols + 1);
     current_pattern = current_pattern(cv::Range(0, screen_rows), cv::Range(0, screen_cols));
 
-    // correct for lens distortion
-    cv::remap(current_pattern, current_pattern, map1, map2, CV_INTER_CUBIC);
+    // correct for lens distortion, if desired
+    if (correct_for_lens_distortion)
+    {
+      cv::remap(current_pattern, current_pattern, map1, map2, CV_INTER_CUBIC);
+    }
 
     if (is_diamond_pixel)
     {

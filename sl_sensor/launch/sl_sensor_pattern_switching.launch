@@ -1,0 +1,126 @@
+<launch>
+
+<arg name="open_dashboard" doc="Whether to open rqt scanning dashboard" default="true" />
+
+<arg name="save_point_cloud" doc="Save point clouds" default="false" />
+<arg name="save_images" doc="Save images" default="false" />
+<arg name="save_header" doc="Header appended to start of saved files" default="log" />
+
+<arg name="horizontal_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml" />
+<arg name="vertical_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+<arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+<arg name="horizontal_camera_name" doc="Name of camera as declared in in versavis" default="cam1"/>
+<arg name="vertical_camera_name" doc="Name of camera as declared in in versavis" default="cam2"/>
+
+<arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
+
+<!-- Uncomment this for PSP with TPU Pattern -->
+<arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_horizontal" />
+<arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
+<arg name="decoder_name" doc="Name of decoder" default="phase_shift_with_tpu" />
+
+<!-- Uncomment this for Two Plus One with TPU Pattern -->
+<?ignore
+<arg name="horizontal_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_horizontal" />
+<arg name="vertical_projector_pattern_name" doc="Name of pattern sequence to project" default="two_plus_one_tpu_vertical" />
+<arg name="decoder_name" doc="Name of decoder" default="two_plus_one_with_tpu" />
+?>
+
+<!-- Change this based on whether you are scanning statically or in linear motion-->
+<arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="false" />
+
+<!-- Change TF based on your needs (e.g. If you sensor is attached to a robotic arm) -->
+<arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
+<node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
+<!--node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 3.1415 0 1.5708 ENDEFFECTOR $(arg frame_id) 10" /-->
+
+<!-- Projector Node -->
+<include file="$(find sl_sensor_projector)/launch/lightcrafter_4500_projector.launch" />
+
+<!-- Initialise Reconstruction Nodelet Pipeline -->
+<node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen">
+  <param name="num_worker_threads" value="20" />
+</node>
+
+<!-- Image Synchroniser -->
+<include file="$(find sl_sensor_image_acquisition)/launch/image_synchroniser.launch" pass_all_args="true">
+  <arg name="image_topics" value="/versavis/$(arg horizontal_camera_name)/image_raw /versavis/$(arg vertical_camera_name)/image_raw" />
+</include>
+
+<!-- Motion Compensation if desired -->
+<group if="$(arg enable_linear_motion_compensation)">
+  <node pkg="nodelet" type="nodelet" name="linear_motion_compensation_horizontal" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
+    <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
+    <param name="pattern_direction" type="str" value="horizontal" />
+    <param name="output_topic" type="str" value="/linear_motion_compensation/aligned_images_horizontal" />
+    <param name="camera_index" type="int" value="0" />
+    <param name="filter_id" type="str" value="$(arg horizontal_projector_pattern_name)" />
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="linear_motion_compensation_vertical" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
+    <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
+    <param name="pattern_direction" type="str" value="vertical" />
+    <param name="output_topic" type="str" value="/linear_motion_compensation/aligned_images_vertical" />
+    <param name="camera_index" type="int" value="1" />
+    <param name="filter_id" type="str" value="$(arg vertical_projector_pattern_name)" />
+  </node>
+</group>
+
+<!-- Decoders -->
+<node pkg="nodelet" type="nodelet" name="decoder_horizontal" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
+  <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="horizontal" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
+  <param name="output_topic" type="str" value="/decoder_horizontal/decoded_images" />
+  <param name="filter_id" type="str" value="$(arg horizontal_projector_pattern_name)" />
+</node>		  
+
+<node pkg="nodelet" type="nodelet" name="decoder_vertical" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
+  <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="vertical" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
+  <param name="output_topic" type="str" value="/decoder_vertical/decoded_images" />
+  <param name="cameras_to_decode_indices" type="str" value="1" />
+  <param name="filter_id" type="str" value="$(arg vertical_projector_pattern_name)" />
+</node>		  
+
+<!--If set Decoder input topic based on whether there is motion compensation -->
+<group if="$(arg enable_linear_motion_compensation)">
+  <param name="decoder_horizontal/input_topic" type="str" value="/linear_motion_compensation/aligned_images_horizontal" />
+  <param name="decoder_vertical/input_topic" type="str" value="/linear_motion_compensation/aligned_images_vertical" />
+  <!-- If there is a motion compensation nodelet, then decoder will only receive a single set of images as compared to getting images from the synchroniser where it will receive images from both cameras. Hence we set index to zero-->
+  <param name="decoder_vertical/cameras_to_decode_indices" type="str" value="0" />
+</group>
+
+<!-- Triangulator -->
+<node pkg="nodelet" type="nodelet" name="triangulator_horizontal" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
+  <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
+  <param name="input_topic" type="str" value="/decoder_horizontal/decoded_images" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg horizontal_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
+  <param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" /> <!-- Translate to frame of vertical pattern camera (top camera)-->
+</node>		  
+
+<node pkg="nodelet" type="nodelet" name="triangulator_vertical" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
+  <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
+  <param name="input_topic" type="str" value="/decoder_vertical/decoded_images" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
+</node>		  
+
+<!-- Loggers -->
+<include file="$(find sl_sensor_logger)/launch/launch_loggers.launch" pass_all_args="true"/>
+
+<!-- RQT Scanning Dashboard if desired -->
+<group if="$(arg open_dashboard)">
+  <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch" />
+  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch">
+    <arg name="projector_pattern_names" value="$(arg horizontal_projector_pattern_name) $(arg vertical_projector_pattern_name)"/>
+  </include>
+</group>
+
+</launch>

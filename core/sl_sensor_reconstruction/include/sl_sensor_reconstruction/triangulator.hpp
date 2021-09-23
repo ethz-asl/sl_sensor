@@ -27,7 +27,7 @@ public:
    * @param camera_parameters  camera parameters
    */
   Triangulator(const calibration::ProjectorParameters &projector_parameters,
-               const calibration::CameraParameters &primary_camera_parameters);
+               const calibration::CameraParameters &triangulation_camera_parameters);
 
   /**
    * @brief Construct a new Triangulator object
@@ -35,7 +35,7 @@ public:
    * @param camera_parameters  camera parameters
    */
   Triangulator(const calibration::ProjectorParameters &projector_parameters,
-               const calibration::CameraParameters &primary_camera_parameters,
+               const calibration::CameraParameters &triangulation_camera_parameters,
                const calibration::CameraParameters &secondary_camera_parameters);
 
   /**
@@ -91,7 +91,7 @@ private:
 
   void Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, cv::Mat &xyz);
 
-  void InitColouringParameters();
+  void InitColourShadingInfo();
 
   void InitTriangulationParameters();
 
@@ -102,7 +102,11 @@ private:
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr ConvertToColourPCLPointCloud(const cv::Mat &xyz, const cv::Mat &mask,
                                                                       const cv::Mat &colour_shading);
 
-  struct ColourShadingParameters
+  /**
+   * @brief Struct to hold information required to get rgb information from coloured image from colour camera
+   *
+   */
+  struct ColourShadingInfo
   {
     cv::Mat rvec;
     cv::Mat tvec;
@@ -111,10 +115,10 @@ private:
   };
 
   calibration::ProjectorParameters projector_parameters_;
-  calibration::CameraParameters primary_camera_parameters_;
-  calibration::CameraParameters secondary_camera_parameters_;
+  calibration::CameraParameters triangulation_camera_parameters_;
+  calibration::CameraParameters colour_camera_parameters_;
 
-  ColourShadingParameters colour_camera_parameters_;
+  ColourShadingInfo colour_shading_info_;
 
   cv::Mat determinant_tensor_;
   cv::Mat uc_, vc_;

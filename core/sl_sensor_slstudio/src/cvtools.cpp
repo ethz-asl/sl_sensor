@@ -17,7 +17,7 @@ namespace slstudio
 {
 namespace cvtools
 {
-void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                              std::vector<cv::Point2d> &shifts)
 
 {
@@ -25,9 +25,9 @@ void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_s
 
   for (int i = 0; i < image_sequence.size(); i++)
   {
-    if (i != reference_indice)
+    if (i != reference_index)
     {
-      shifts.push_back(cv::phaseCorrelate(image_sequence[reference_indice], image_sequence[i]));
+      shifts.push_back(cv::phaseCorrelate(image_sequence[reference_index], image_sequence[i]));
     }
     else
     {
@@ -36,19 +36,19 @@ void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_s
   }
 }
 
-void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_indice,
+void phase_correlate_register_image_sequence(const std::vector<cv::Mat> &image_sequence, int reference_index,
                                              std::vector<cv::Point2d> &shifts, double subsample_factor)
 
 {
   if (subsample_factor <= 0.0f)
   {
-    phase_correlate_register_image_sequence(image_sequence, reference_indice, shifts);
+    phase_correlate_register_image_sequence(image_sequence, reference_index, shifts);
   }
   else
   {
     std::vector<cv::Mat> subsampled_image_sequence = {};
     subsample_image_sequence(image_sequence, subsampled_image_sequence, subsample_factor);
-    phase_correlate_register_image_sequence(subsampled_image_sequence, reference_indice, shifts);
+    phase_correlate_register_image_sequence(subsampled_image_sequence, reference_index, shifts);
 
     for (auto &shift : shifts)
     {

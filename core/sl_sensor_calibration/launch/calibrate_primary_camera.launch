@@ -4,39 +4,49 @@
   <!-- The primary camera is the camera that we will use to calibrate the projector intrinsics. -->
   <!-- In addition, during the extrinsics refinement using bundle adjustment, all points will be in the frame of the primary camera-->
 
+  <!-- To indicate that a particular sequence should be ignored during calibration, simply add a 'r' character at the front of the name of the shading image -->
+  <!-- E.g. If you want 12.bmp to be ignored (may be due to corner outliers with large reprojection errors), simply rename it to r12.bmp -->
+
+  <arg name="save_filename" doc="Name of folder where images will be saved" default="test_acquisition_session" />
+  <arg name="save_directory" doc="Directory where folder will with images will be generated" default="$(find sl_sensor_calibration)/calibration_sessions/" />
+  <arg name="camera_folder_name" doc="Folder name within the save_filename folder where the camera shading and mask images are saved" default="cam2" />
+  <arg name="projector_folder_name" doc="Folder name within the save_filename folder where the projector decoded images are saved" default="proj2" />
+  <arg name="output_camera_parameters_filename" doc="Save directory for primary camera calibration file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+  <arg name="output_projector_parameters_filename" doc="Save directory for projector calibration file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
+
   <node pkg="sl_sensor_calibration" type="calibrator_node" name="calibrator_node" output="screen" required="true" >
 
-    <param name="output_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
-    <param name="output_projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
+    <param name="directories" type="str" value="$(arg save_directory)$(arg save_filename)/" />
+    <param name="output_camera_parameters_filename" type="str" value="$(arg output_camera_parameters_filename)"/>
+    <param name="output_projector_parameters_filename" type="str" value="$(arg output_projector_parameters_filename)"/>
 
-    <param name="camera_folder_name" type="string" value="cam2" />
-    <param name="projector_folder_name" type="string" value="proj2" />
-    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/cam_2/" />
-    <param name="ignore_1" type="string" value="" />
-    <param name="projector_yaml_directory" type="string" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
+    <param name="camera_folder_name" type="str" value="$(arg camera_folder_name)" />
+    <param name="projector_folder_name" type="str" value="$(arg projector_folder_name)" />
+    <param name="projector_yaml_directory" type="str" value="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml"/>
 
+    <!-- Calibration options for primary camera. Refer OpenCV's cv::calibrateCamera method for more information-->
+    <!-- Adjust to your own needs -->
     <param name="camera_fix_principle_point" type="bool" value="0" />
     <param name="camera_fix_aspect_ratio" type="bool" value="0" />
     <param name="camera_fix_k2" type="bool" value="0" />
     <param name="camera_fix_k3" type="bool" value="0" />
     <param name="camera_zero_tangential_distortion" type="bool" value="0" />
     <param name="camera_fix_values" type="bool" value="0" />
-    <param name="camera_use_initial_guess" type="bool" value="0" />
-    <param name="camera_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
+    <!-- Calibration options for projector. Refer OpenCV's cv::calibrateCamera method for more information-->
+    <!-- Adjust to your own needs -->
     <param name="projector_fix_principle_point" type="bool" value="0" />
     <param name="projector_fix_aspect_ratio" type="bool" value="1" />
     <param name="projector_fix_k2" type="bool" value="0" />
     <param name="projector_fix_k3" type="bool" value="0" />
     <param name="projector_zero_tangential_distortion" type="bool" value="1" />
     <param name="projector_fix_values" type="bool" value="0" />
-    <param name="projector_use_initial_guess" type="bool" value="0" />
-    <param name="projector_calibration_init_yaml" type="string" value="$(find sl_sensor_calibration)/calibration_files/init.xml" />
 
+    <!-- Load calibration board details and local homography calibration parameters -->
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
-    <param name="residuals_save_folder" type="string" value="$(find sl_sensor_calibration)/residual_files/" />
-    <param name="residuals_file_label" type="string" value="pri_cam_calib" />
+    <param name="residuals_save_folder" type="str" value="$(find sl_sensor_calibration)/residual_files/" />
+    <param name="residuals_file_label" type="str" value="pri_cam" />
 
   </node>
 

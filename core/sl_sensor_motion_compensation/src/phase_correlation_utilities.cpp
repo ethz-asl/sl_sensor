@@ -5,15 +5,15 @@ namespace sl_sensor
 namespace motion_compensation
 {
 void PhaseCorrelateAlignImageSequence(const std::vector<cv::Mat> &input_image_sequence,
-                                      std::vector<cv::Mat> &output_image_sequence, size_t reference_indice,
+                                      std::vector<cv::Mat> &output_image_sequence, size_t reference_index,
                                       double subsample_factor, ShiftingOption shifting_option)
 {
   std::vector<cv::Point2d> shifts;
-  PhaseCorrelateRegisterImageSequence(input_image_sequence, reference_indice, shifts, subsample_factor);
+  PhaseCorrelateRegisterImageSequence(input_image_sequence, reference_index, shifts, subsample_factor);
   ApplyShiftsToImageSequence(input_image_sequence, output_image_sequence, shifts, shifting_option);
 }
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_index,
                                          std::vector<cv::Point2d> &shifts)
 {
   shifts.clear();
@@ -36,9 +36,9 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
 
   for (size_t i = 0; i < image_seq_to_register.size(); i++)
   {
-    if (i != reference_indice)
+    if (i != reference_index)
     {
-      shifts.push_back(cv::phaseCorrelate(image_seq_to_register[reference_indice], image_seq_to_register[i]));
+      shifts.push_back(cv::phaseCorrelate(image_seq_to_register[reference_index], image_seq_to_register[i]));
     }
     else
     {
@@ -47,18 +47,18 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
   }
 }
 
-void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_indice,
+void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence, size_t reference_index,
                                          std::vector<cv::Point2d> &shifts, double subsample_factor)
 {
   if (subsample_factor <= 0.0f)
   {
-    PhaseCorrelateRegisterImageSequence(image_sequence, reference_indice, shifts);
+    PhaseCorrelateRegisterImageSequence(image_sequence, reference_index, shifts);
   }
   else
   {
     std::vector<cv::Mat> subsampled_image_sequence = {};
     SubsampleImageSequence(image_sequence, subsampled_image_sequence, subsample_factor);
-    PhaseCorrelateRegisterImageSequence(subsampled_image_sequence, reference_indice, shifts);
+    PhaseCorrelateRegisterImageSequence(subsampled_image_sequence, reference_index, shifts);
 
     for (auto &shift : shifts)
     {

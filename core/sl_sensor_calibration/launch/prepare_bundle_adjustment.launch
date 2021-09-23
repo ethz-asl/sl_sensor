@@ -2,20 +2,27 @@
 
   <node pkg="sl_sensor_calibration" type="dual_camera_calibration_preparator_node" name="dual_camera_calibration_preparator_node" required="true" output="screen">
 
-    <param name="pri_camera_folder_name" type="string" value="cam2" />
-    <param name="sec_camera_folder_name" type="string" value="cam1" />
-    <param name="pri_projector_folder_name" type="string" value="proj2" />
-    <param name="sec_projector_folder_name" type="string" value="proj1" />
-    <param name="directories" type="string" value="$(find sl_sensor_calibration)/calibration_sessions/both/" />
-    <param name="bundle_adjustment_problem_output_filename" type="string" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
-    <param name="ignore_1" type="string" value="" />
+    <!-- Indicate where the calibration files from pairwise calibration are saved-->
+    <param name="pri_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
+    <param name="sec_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
+    <param name="projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
 
-    <param name="pri_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml"/>
-    <param name="sec_camera_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
-    <param name="projector_parameters_filename" type="string" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
+    <!-- Where calibration sequences where the calibration board can be seen by both cameras are saved, change if necessary-->
+    <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/both/" />
 
+    <!-- Folder names within the above directory where image files for primary/secondary camera and projectors are saved-->
+    <param name="pri_camera_folder_name" type="str" value="cam2" />
+    <param name="pri_projector_folder_name" type="str" value="proj2" />
+    <param name="sec_camera_folder_name" type="str" value="cam1" />
+    <param name="sec_projector_folder_name" type="str" value="proj1" />
+    
+    <!-- Where BA problem file will be saved-->
+    <param name="bundle_adjustment_problem_output_filename" type="str" value="$(find sl_sensor_calibration)/bundle_adjustment_problem_files/ba_problem.txt" />
+
+    <!-- Load calibration board details -->
     <rosparam command="load" file="$(find sl_sensor_calibration)/param/default_parameters.yaml" />
 
+    <!-- Only use corner points in BA if the decoded projector coordinates from primary and secondary camera have an L2 distance below this value-->
     <param name="projector_acceptance_tol" type="double" value="0.25" />
  
   </node>

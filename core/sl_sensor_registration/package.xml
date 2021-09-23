@@ -19,6 +19,7 @@
 
   <depend>geometry_msgs</depend>
   <depend>eigen_catkin</depend>
+  <depend>open3d_conversions</depend>
   <depend>pcl_ros</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>

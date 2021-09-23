@@ -1,9 +1,14 @@
+# Topic which acquisition nodelet with obtain decoded images to save
 image_array_sub_topic: "/decoder/decoded_images"
 
 # Checkerboard number excludes the outer most layer of squares (i.e. number of saddle point corners)
-checkerboard_num_rows: 14
-checkerboard_num_cols: 12
+checkerboard_num_rows: 9
+checkerboard_num_cols: 14
+checkerboard_size: 15 # In the unit that you want the point cloud to be in 
 
 # Local homography calibration settings
 window_radius: 10
 minimum_valid_pixels: 50
+
+# Calibrator settings
+reprojection_error_warning_threshold: 1.0 # Calibration will warn in terminal if the reprojection error of a corner point exceeds this amount

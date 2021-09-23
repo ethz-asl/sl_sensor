@@ -6,7 +6,7 @@
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="save_header" doc="Header appended to start of saved files" default="log" />
 
-<arg name="primary_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
+<arg name="triangulation_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
 <arg name="camera_name" doc="Name of camera as declared in in versavis" default="cam2"/>
 <arg name="projector_pattern_name" doc="Name of pattern sequence to project" default="psp_tpu_vertical" />
@@ -15,7 +15,6 @@
 <arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="false" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>
-
 
 <node pkg="tf" type="static_transform_publisher" name="map_to_sl_sensor"  args="0 0 0 0 0 0 1 map $(arg frame_id) 10" />
 
@@ -33,42 +32,45 @@
   <arg name="fixed_pattern_name" value="$(arg projector_pattern_name)" />
 </include>
 
-<!-- Motion Compensation if desired-->
+<!-- Motion Compensation if desired -->
 <group if="$(arg enable_linear_motion_compensation)">
   <node pkg="nodelet" type="nodelet" name="linear_motion_compensation" args="load sl_sensor_motion_compensation/LinearMotionCompensationNodelet standalone_nodelet" output="screen">
     <rosparam command="load" file="$(find sl_sensor_motion_compensation)/param/linear_motion_compensation_default_parameters.yaml" />
-    <param name="pattern_direction" type="string" value="$(arg pattern_direction)" />
+    <param name="pattern_direction" type="str" value="$(arg pattern_direction)" />
   </node>
 </group>
 
 <!-- Decoder -->
 <node pkg="nodelet" type="nodelet" name="decoder" args="load sl_sensor_codec/DecoderNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_codec)/param/default_parameters.yaml" />
-  <param name="codec_yaml_directory" type="string" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
-  <param name="projector_yaml_directory" type="string" value="$(arg projector_yaml_directory)" /> 
-  <param name="direction" type="string" value="$(arg pattern_direction)" />
-  <param name="decoder_name" type="string" value="$(arg decoder_name)" />
+  <param name="codec_yaml_directory" type="str" value="$(find sl_sensor_codec)/codec_yaml/codec_config.yaml" /> 
+  <param name="projector_yaml_directory" type="str" value="$(arg projector_yaml_directory)" /> 
+  <param name="direction" type="str" value="$(arg pattern_direction)" />
+  <param name="decoder_name" type="str" value="$(arg decoder_name)" />
 </node>		  
 
-<!--If linear motion compensation is enabled, we need to reroute the rostopics-->
+<!--If linear motion compensation is enabled, we need to reroute the rostopics -->
 <group if="$(arg enable_linear_motion_compensation)">
-  <param name="decoder/input_topic" type="string" value="/linear_motion_compensation/aligned_images" />
+  <param name="decoder/input_topic" type="str" value="/linear_motion_compensation/aligned_images" />
 </group>    
 
 <!-- Triangulator -->
 <node pkg="nodelet" type="nodelet" name="triangulator" args="load sl_sensor_reconstruction/TriangulatorNodelet standalone_nodelet" output="screen">
   <rosparam command="load" file="$(find sl_sensor_reconstruction)/param/default_parameters.yaml" />
-  <param name="primary_camera_parameters_filename" type="string" value="$(arg primary_camera_parameters_filename)" />
-  <param name="projector_parameters_filename" type="string" value="$(arg projector_parameters_filename)" />
+  <param name="triangulation_camera_parameters_filename" type="str" value="$(arg triangulation_camera_parameters_filename)" />
+  <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
 </node>		  
 
 <!-- Loggers -->
 <include file="$(find sl_sensor_logger)/launch/launch_loggers.launch" pass_all_args="true"/>
 
-<!-- RQT Scanning Dashboard if desired-->
+<!-- RQT Scanning Dashboard if desired -->
 <group if="$(arg open_dashboard)">
   <include file="$(find sl_sensor)/launch/display_point_cloud_rviz.launch" />
-  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch" />
+  
+  <include file="$(find sl_sensor_rqt_guis_common)/launch/run_rqt_scanning_dashboard.launch">
+    <arg name="projector_pattern_names" value="$(arg projector_pattern_name)"/>
+  </include>
 </group>
 
 </launch>

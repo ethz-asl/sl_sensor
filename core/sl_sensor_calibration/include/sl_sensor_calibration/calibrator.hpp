@@ -31,6 +31,7 @@ public:
 
   bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params,
                  std::vector<double>& projector_residuals, std::vector<double>& camera_residuals);
+  void SetReprojectionErrorWarningThreshold(float threshold);
   void Clear();
 
 private:
@@ -43,6 +44,7 @@ private:
   double checkerboard_size_ = 10;
   unsigned int resolution_x_cam_ = 0;
   unsigned int resolution_y_cam_ = 0;
+  float reprojection_error_warning_threshold_ = 1.0f;
 
   CalibrationFlags camera_calibration_flags_;
   CalibrationFlags projector_calibration_flags_;

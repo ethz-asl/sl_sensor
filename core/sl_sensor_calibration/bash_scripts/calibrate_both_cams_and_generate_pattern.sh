@@ -1,0 +1,7 @@
+#!/bin/bash
+
+roslaunch sl_sensor_calibration calibrate_primary_camera.launch;
+roslaunch sl_sensor_calibration calibrate_secondary_camera.launch;
+roslaunch sl_sensor_codec generate_patterns.launch;
+roslaunch sl_sensor_calibration view_primary_camera_calibration_residuals.launch
+roslaunch sl_sensor_calibration view_secondary_camera_calibration_residuals.launch
