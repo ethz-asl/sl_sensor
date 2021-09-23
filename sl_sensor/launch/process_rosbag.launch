@@ -10,7 +10,7 @@
 <arg name="vertical_camera_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/primary_camera/primary_camera.xml" />
 <arg name="projector_parameters_filename" doc="camera parameter xml file" default="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml" />
 
-<arg name="base_frame_id" doc="If specified, will transform point cloud to a particular frame in tf" default="world"/>
+<arg name="base_frame_id" doc="If specified, will transform point cloud to a particular frame in tf" default="world"/> <!--Change this to the tf frame you want the PC to be in upon saving. Set to empty for it to be in the sensor frame -->
 <arg name="enable_linear_motion_compensation" doc="Launch motion compensation nodelet" default="true" />
 <arg name="projector_yaml_directory" doc="projector_yaml_directory" default="$(find sl_sensor_projector)/projector_yaml/lightcrafter4500.yaml" />
 <arg name="frame_id" doc="frame_id used for headers in the published messages" default="sl_sensor"/>

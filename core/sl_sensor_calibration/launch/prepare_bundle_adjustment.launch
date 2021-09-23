@@ -7,7 +7,7 @@
     <param name="sec_camera_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/secondary_camera/secondary_camera.xml"/>
     <param name="projector_parameters_filename" type="str" value="$(find sl_sensor_calibration)/calibration_files/projector/projector.xml"/>
 
-    <!-- Where calibration sequences where the calibration board can be seen by both cameras are saved-->
+    <!-- Where calibration sequences where the calibration board can be seen by both cameras are saved, change if necessary-->
     <param name="directories" type="str" value="$(find sl_sensor_calibration)/calibration_sessions/both/" />
 
     <!-- Folder names within the above directory where image files for primary/secondary camera and projectors are saved-->

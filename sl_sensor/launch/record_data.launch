@@ -25,7 +25,7 @@
   
   <!-- Record Rosbags here (change directory as required)-->
   <node pkg="rosbag" type="record" name="rosbag_record"
-    args="record -o /home/Desktop/rosbags/ /tf_static /tf /image_synchroniser/grouped_images" 
+    args="record -o /home/ltf/rosbags/ /tf_static /tf /image_synchroniser/grouped_images" 
     launch-prefix="bash -c 'sleep $(arg start_delay); $0 $@' "/>
 
   <!-- Initialise RVIZ if desired-->
