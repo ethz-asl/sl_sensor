@@ -13,19 +13,13 @@
   
   <depend>sl_sensor_calibration</depend>	
   <depend>sl_sensor_codec</depend>	
-  <depend>sl_sensor_conversions</depend>
   <depend>sl_sensor_image_acquisition</depend>	
-  <depend>sl_sensor_io</depend>
   <depend>sl_sensor_logger</depend>	
   <depend>sl_sensor_motion_compensation</depend>	
   <depend>sl_sensor_projector</depend>	
   <depend>sl_sensor_reconstruction</depend>
   <depend>sl_sensor_registration</depend>	
   <depend>sl_sensor_rqt_guis_common</depend>
-  <depend>sl_sensor_slstudio</depend>
-  <depend>sl_sensor_timer</depend>
-  <depend>sl_sensor_visualise</depend>
-  <depend>sl_sensor_vo</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
