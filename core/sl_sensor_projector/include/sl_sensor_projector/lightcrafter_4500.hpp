@@ -151,7 +151,8 @@ class Lightcrafter4500 {
   unsigned int backup_exposure_period_us_ = 1000000;
   LightcrafterSinglePattern backup_single_pattern_ =
       LightcrafterSinglePattern(0, 0, 8, 7, 0, false, false, true, false);
-  unsigned char backup_rgb_[3] = {104, 135, 130};
+  unsigned char backup_rgb_[3] = {
+      104, 135, 130};  // This is the default LED settings from the official TI Lightcrafter GUI
 };
 
 }  // namespace projector
