@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_CALIBRATION_CALIBRATION_SEQUENCE_ACQUISITION_NODELET_HPP_
+#define SL_SENSOR_CALIBRATION_CALIBRATION_SEQUENCE_ACQUISITION_NODELET_HPP_
 
 #include <cv_bridge/cv_bridge.h>
 #include <nodelet/nodelet.h>
@@ -140,3 +141,5 @@ class CalibrationSequenceAcquisitionNodelet : public nodelet::Nodelet {
 
 PLUGINLIB_EXPORT_CLASS(sl_sensor::calibration::CalibrationSequenceAcquisitionNodelet,
                        nodelet::Nodelet);
+
+#endif  // SL_SENSOR_CALIBRATION_CALIBRATION_SEQUENCE_ACQUISITION_NODELET_HPP_

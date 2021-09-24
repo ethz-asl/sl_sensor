@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_HPP_
+#define SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_HPP_
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -28,8 +30,9 @@ class PointCloudRegistrationAlgorithm {
    * @param reference_pc - Point cloud to be registered
    * @param guess - initial guess transform
    */
-  virtual void RegisterPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr reference_pc,
-                                  const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()){};
+  virtual void RegisterPointCloud(
+      [[maybe_unused]] const pcl::PointCloud<pcl::PointXYZ>::Ptr reference_pc,
+      [[maybe_unused]] const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()){};
 
   /**
    * @brief Register point cloud (XYZRGB points). By default, will convert point cloud to XYZ format
@@ -73,5 +76,6 @@ class PointCloudRegistrationAlgorithm {
   std::unordered_map<std::string, double> settings_ = {};
 };
 }  // namespace registration
-
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_HPP_

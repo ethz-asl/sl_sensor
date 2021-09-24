@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_PROJECTOR_LIGHTCRAFTER_4500_HPP_
+#define SL_SENSOR_PROJECTOR_LIGHTCRAFTER_4500_HPP_
 
 #include "sl_sensor_projector/lightcrafter_4500_api.hpp"
 #include "sl_sensor_projector/lightcrafter_single_pattern.hpp"
@@ -157,3 +158,5 @@ class Lightcrafter4500 {
 
 }  // namespace projector
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_PROJECTOR_LIGHTCRAFTER_4500_HPP_

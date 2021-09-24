@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <sl_sensor_projector/projector_utils.hpp>
+#include <sl_sensor_projector/projector_utilities.hpp>
 
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/dual_camera_calibration_preparator.hpp"

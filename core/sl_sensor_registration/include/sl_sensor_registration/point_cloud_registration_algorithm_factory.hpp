@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_FACTORY_HPP_
+#define SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_FACTORY_HPP_
 
 #include <memory>
 #include "sl_sensor_registration/libpointmatcher_icp.hpp"
@@ -38,5 +39,6 @@ class PointCloudRegistrationAlgorithmFactory {
   };
 };
 }  // namespace registration
-
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_REGISTRATION_POINT_CLOUD_REGISTRATION_ALGORITHM_FACTORY_HPP_

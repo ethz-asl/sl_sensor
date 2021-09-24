@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_NODELET_HPP_
+#define SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_NODELET_HPP_
 
 #include <nodelet/nodelet.h>
 #include <pcl/filters/crop_box.h>
@@ -175,3 +176,5 @@ class TriangulatorNodelet : public nodelet::Nodelet {
 }  // namespace sl_sensor
 
 PLUGINLIB_EXPORT_CLASS(sl_sensor::reconstruction::TriangulatorNodelet, nodelet::Nodelet);
+
+#endif  // SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_NODELET_HPP_

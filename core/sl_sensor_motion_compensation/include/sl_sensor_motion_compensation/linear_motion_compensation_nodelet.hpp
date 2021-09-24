@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_MOTION_COMPENSATION_LINEAR_MOTION_COMPENSATION_NODELET_HPP_
+#define SL_SENSOR_MOTION_COMPENSATION_LINEAR_MOTION_COMPENSATION_NODELET_HPP_
 
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
@@ -50,3 +51,5 @@ class LinearMotionCompensationNodelet : public nodelet::Nodelet {
 
 PLUGINLIB_EXPORT_CLASS(sl_sensor::motion_compensation::LinearMotionCompensationNodelet,
                        nodelet::Nodelet);
+
+#endif  // SL_SENSOR_MOTION_COMPENSATION_LINEAR_MOTION_COMPENSATION_NODELET_HPP_

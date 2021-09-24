@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_CODEC_CODEC_FACTORY_HPP_
+#define SL_SENSOR_CODEC_CODEC_FACTORY_HPP_
 
 #include <memory>
 #include <string>
@@ -82,3 +83,5 @@ const std::vector<std::string> CodecFactory::codec_names_ = {"calibration", "pha
 
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_CODEC_FACTORY_HPP_

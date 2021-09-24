@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_LOGGER_LOGGER_NODELET_HPP_
+#define SL_SENSOR_LOGGER_LOGGER_NODELET_HPP_
 
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
@@ -38,3 +39,5 @@ class LoggerNodelet : public nodelet::Nodelet {
 
 }  // namespace logger
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_LOGGER_LOGGER_NODELET_HPP_

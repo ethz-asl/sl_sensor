@@ -2,7 +2,7 @@
 
 #include "sl_sensor_calibration/camera_parameters.hpp"
 
-#include "sl_sensor_calibration/calibration_utils.hpp"
+#include "sl_sensor_calibration/calibration_utilities.hpp"
 
 namespace sl_sensor {
 namespace calibration {

@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef SL_SENSOR_CODEC_DECODER_HPP_
+#define SL_SENSOR_CODEC_DECODER_HPP_
 
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
@@ -85,3 +86,5 @@ class Decoder {
 
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_DECODER_HPP_

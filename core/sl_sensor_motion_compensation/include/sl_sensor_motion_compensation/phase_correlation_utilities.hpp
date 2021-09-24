@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_MOTION_COMPENSATION_PHASE_CORRELATION_UTILITIES_HPP_
+#define SL_SENSOR_MOTION_COMPENSATION_PHASE_CORRELATION_UTILITIES_HPP_
 
 #include <opencv2/opencv.hpp>
 #include <string>
@@ -86,3 +87,5 @@ void SubsampleImageSequence(const std::vector<cv::Mat> &image_sequence_input,
 
 }  // namespace motion_compensation
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_MOTION_COMPENSATION_PHASE_CORRELATION_UTILITIES_HPP_

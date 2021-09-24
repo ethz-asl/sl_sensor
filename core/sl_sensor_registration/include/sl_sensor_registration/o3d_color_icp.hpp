@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SL_SENSOR_REGISTRATION_O3D_COLOR_ICP_HPP_
+#define SL_SENSOR_REGISTRATION_O3D_COLOR_ICP_HPP_
+
 #include <open3d/Open3D.h>
 #include <open3d/pipelines/registration/ColoredICP.h>
 #include <boost/make_shared.hpp>
@@ -71,3 +73,5 @@ class O3dColorIcp : public PointCloudRegistrationAlgorithm {
 };
 }  // namespace registration
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_REGISTRATION_O3D_COLOR_ICP_HPP_

@@ -1,7 +1,7 @@
 
 #include "sl_sensor_codec/codec_common.hpp"
 
-#include <sl_sensor_projector/projector_utils.hpp>
+#include <sl_sensor_projector/projector_utilities.hpp>
 
 namespace sl_sensor {
 namespace codec {

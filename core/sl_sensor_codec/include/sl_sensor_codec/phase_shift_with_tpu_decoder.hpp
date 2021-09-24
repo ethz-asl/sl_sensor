@@ -1,5 +1,8 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
+#ifndef SL_SENSOR_CODEC_PHASE_SHIFT_WITH_TPU_DECODER_HPP_
+#define SL_SENSOR_CODEC_PHASE_SHIFT_WITH_TPU_DECODER_HPP_
+
 #pragma once
 
 #include <vector>
@@ -26,3 +29,5 @@ class PhaseShiftWithTpuDecoder : public Decoder {
 };
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_PHASE_SHIFT_WITH_TPU_DECODER_HPP_

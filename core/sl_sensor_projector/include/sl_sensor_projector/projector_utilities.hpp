@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SL_SENSOR_PROJECTOR_PROJECTOR_UTILITIES_HPP_
+#define SL_SENSOR_PROJECTOR_PROJECTOR_UTILITIES_HPP_
+
 #include <yaml-cpp/yaml.h>
 #include <utility>
 
@@ -61,3 +63,5 @@ inline bool GetIsDiamondPixel(const std::string& yaml_directory) {
 
 }  // namespace projector
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_PROJECTOR_PROJECTOR_UTILITIES_HPP_

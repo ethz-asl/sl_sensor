@@ -26,7 +26,7 @@
 #include "multicamera-calibration/BAProblem.hpp"
 #include "multicamera-calibration/SnavelyReprojectionError.hpp"
 
-#include "sl_sensor_calibration/calibration_utils.hpp"
+#include "sl_sensor_calibration/calibration_utilities.hpp"
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
 
@@ -40,8 +40,7 @@
 
 using namespace sl_sensor::calibration;
 
-bool SetOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
-{
+bool SetOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_intrinsics = false) {
   const int num_points = problem.num_points();
   const int point_block_size = problem.point_block_size();
   double* points = problem.mutable_points();
@@ -52,35 +51,29 @@ bool SetOrdering(BAProblem& problem, ceres::Solver::Options& options, bool fix_i
   ceres::ParameterBlockOrdering* inner_ordering = new ceres::ParameterBlockOrdering();
   // The points come before the cameras.
   // First argument is the pointer to the value to be optimised, Second argument is the group number
-  for (int i = 0; i < num_points; ++i)
-  {
+  for (int i = 0; i < num_points; ++i) {
     ordering->AddElementToGroup(points + point_block_size * i, 0);
     inner_ordering->AddElementToGroup(points + point_block_size * i, 0);
   }
-  for (int i = 0; i < num_cameras; ++i)
-  {
+  for (int i = 0; i < num_cameras; ++i) {
     ordering->AddElementToGroup(cameras + camera_block_size * i, 1);
     inner_ordering->AddElementToGroup(cameras + camera_block_size * i, 1);
-    if (fix_intrinsics == false)
-    {
+    if (fix_intrinsics == false) {
       ordering->AddElementToGroup(cameras + 6 + camera_block_size * i, 2);
       inner_ordering->AddElementToGroup(cameras + 6 + camera_block_size * i, 2);
     }
   }
   options.linear_solver_ordering.reset(ordering);
-  if (options.use_inner_iterations)
-  {
+  if (options.use_inner_iterations) {
     options.inner_iteration_ordering.reset(inner_ordering);
-  }
-  else
-  {
+  } else {
     delete inner_ordering;
   }
   return true;
 }
 
-bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_intrinsics = false)
-{
+bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem,
+                       bool fix_intrinsics = false) {
   // Create residuals for each observation in the bundle adjustment problem. The
   // parameters for cameras and points are added automatically.
   const double* observations = ba_problem.observations();
@@ -88,8 +81,7 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   const double* fixed_observations = ba_problem.fixed_observations();
   const int num_fixed_observations = ba_problem.num_fixed_observations();
 
-  for (size_t i = 0; i < (size_t)num_observations; ++i)
-  {
+  for (size_t i = 0; i < (size_t)num_observations; ++i) {
     // Each Residual block takes a point and a camera as input and outputs a 2
     // dimensional residual. Internally, the cost function stores the observed
     // image location and compares the reprojection against the observation.
@@ -98,17 +90,18 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
     ceres::LossFunction* loss_function = new ceres::HuberLoss(1);
     double* mutable_camera = ba_problem.mutable_camera_for_observation(i);
     double* mutable_point = ba_problem.mutable_point_for_observation(i);
-    problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6, mutable_point);
+    problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6,
+                             mutable_point);
   }
 
-  for (size_t i = 0; i < (size_t)num_fixed_observations; ++i)
-  {
-    ceres::CostFunction* cost_function =
-        SnavelyReprojectionError::Create(fixed_observations[2 * i + 0], fixed_observations[2 * i + 1]);
+  for (size_t i = 0; i < (size_t)num_fixed_observations; ++i) {
+    ceres::CostFunction* cost_function = SnavelyReprojectionError::Create(
+        fixed_observations[2 * i + 0], fixed_observations[2 * i + 1]);
     ceres::LossFunction* loss_function = new ceres::HuberLoss(1);
     double* mutable_camera = ba_problem.mutable_camera_for_fixed_observation(i);
     double* fixed_point = ba_problem.fixed_point_for_observation(i);
-    problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6, fixed_point);
+    problem.AddResidualBlock(cost_function, loss_function, mutable_camera, mutable_camera + 6,
+                             fixed_point);
     problem.SetParameterBlockConstant(fixed_point);
   }
 
@@ -119,22 +112,18 @@ bool BuildCeresProblem(BAProblem& ba_problem, ceres::Problem& problem, bool fix_
   // We set extrinsics for first camera to be fixed
   problem.SetParameterBlockConstant(cameras);
 
-  for (int i = 0; i < num_cameras; ++i)
-  {
-    if (fix_intrinsics)
-    {
+  for (int i = 0; i < num_cameras; ++i) {
+    if (fix_intrinsics) {
       problem.SetParameterBlockConstant(cameras + camera_block_size * i + 6);
-    }
-    else
-    {
+    } else {
       problem.SetParameterBlockVariable(cameras + camera_block_size * i + 6);
     }
   }
   return true;
 }
 
-bool BuildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, bool fix_intrinsics = false)
-{
+bool BuildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options,
+                       bool fix_intrinsics = false) {
   options.linear_solver_type = ceres::ITERATIVE_SCHUR;
   options.preconditioner_type = ceres::SCHUR_JACOBI;
   options.use_inner_iterations = true;
@@ -150,26 +139,26 @@ bool BuildCeresOptions(BAProblem& ba_problem, ceres::Solver::Options& options, b
   return true;
 }
 
-void ExtractCameraParametersFromBAProblem(BAProblem& ba_problem, int camera_index, cv::Matx33f& intrinsic_mat,
+void ExtractCameraParametersFromBAProblem(BAProblem& ba_problem, int camera_index,
+                                          cv::Matx33f& intrinsic_mat,
                                           cv::Vec<float, 5>& lens_distortion, cv::Matx33f& rot_mat,
-                                          cv::Vec3f& trans_vec)
-{
+                                          cv::Vec3f& trans_vec) {
   double* params = ba_problem.mutable_camera_for_observation(camera_index);
 
-  cv::Mat rvec = cv::Mat(std::vector<float>{ (float)params[0], (float)params[1], (float)params[2] }, true);
+  cv::Mat rvec =
+      cv::Mat(std::vector<float>{(float)params[0], (float)params[1], (float)params[2]}, true);
   cv::Rodrigues(rvec, rot_mat);
 
   trans_vec = cv::Vec3f((float)params[3], (float)params[4], (float)params[5]);
 
-  intrinsic_mat =
-      cv::Matx33f((float)params[6], 0.0, (float)params[8], 0.0, (float)params[7], (float)params[9], 0.0, 0.0, 1.0);
+  intrinsic_mat = cv::Matx33f((float)params[6], 0.0, (float)params[8], 0.0, (float)params[7],
+                              (float)params[9], 0.0, 0.0, 1.0);
 
-  lens_distortion =
-      cv::Vec<float, 5>((float)params[10], (float)params[11], (float)params[13], (float)params[14], (float)params[12]);
+  lens_distortion = cv::Vec<float, 5>((float)params[10], (float)params[11], (float)params[13],
+                                      (float)params[14], (float)params[12]);
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   // Init ros node
   ros::init(argc, argv, "dual_camera_calibration_preparator");
   ros::NodeHandle nh_public;
@@ -187,16 +176,20 @@ int main(int argc, char** argv)
   std::string output_proj_parameters_file;
 
   // Process parameters
-  private_nh.param<std::string>("input_ba_problem_file", input_ba_problem_file, input_ba_problem_file);
-  private_nh.param<std::string>("output_ba_problem_file", output_ba_problem_file, output_ba_problem_file);
+  private_nh.param<std::string>("input_ba_problem_file", input_ba_problem_file,
+                                input_ba_problem_file);
+  private_nh.param<std::string>("output_ba_problem_file", output_ba_problem_file,
+                                output_ba_problem_file);
   private_nh.param<std::string>("intrinsic_adjustment_mode", intrinsic_adjustment,
                                 intrinsic_adjustment);  // fixed, unconstrained or two_pass
-  private_nh.param<std::string>("residuals_save_folder", residuals_save_folder, residuals_save_folder);
+  private_nh.param<std::string>("residuals_save_folder", residuals_save_folder,
+                                residuals_save_folder);
   private_nh.param<std::string>("input_pri_cam_parameters_file", input_pri_cam_parameters_file,
                                 input_pri_cam_parameters_file);
   private_nh.param<std::string>("input_sec_cam_parameters_file", input_sec_cam_parameters_file,
                                 input_sec_cam_parameters_file);
-  private_nh.param<std::string>("input_proj_parameters_file", input_proj_parameters_file, input_proj_parameters_file);
+  private_nh.param<std::string>("input_proj_parameters_file", input_proj_parameters_file,
+                                input_proj_parameters_file);
   private_nh.param<std::string>("output_pri_cam_parameters_file", output_pri_cam_parameters_file,
                                 output_pri_cam_parameters_file);
   private_nh.param<std::string>("output_sec_cam_parameters_file", output_sec_cam_parameters_file,
@@ -222,29 +215,29 @@ int main(int argc, char** argv)
   std::vector<double> initial_residuals;
   std::vector<int> camera_indices;
 
-  for (size_t i = 0; i < (size_t)(ba_problem.num_observations() + ba_problem.num_fixed_observations()); i++)
-  {
+  for (size_t i = 0;
+       i < (size_t)(ba_problem.num_observations() + ba_problem.num_fixed_observations()); i++) {
     camera_indices.push_back(ba_problem.GetCameraIndex(i));
   }
 
   double initial_cost;
-  problem->Evaluate(ceres::Problem::EvaluateOptions(), &initial_cost, &initial_residuals, nullptr, nullptr);
+  problem->Evaluate(ceres::Problem::EvaluateOptions(), &initial_cost, &initial_residuals, nullptr,
+                    nullptr);
 
-  if (!std::string(residuals_save_folder).empty())
-  {
-    WriteResidualTextFiles(
-        std::string(residuals_save_folder),
-        { "pri_cam_residuals_pre_ba.txt", "proj_residuals_pre_ba.txt", "sec_cam_residuals_pre_ba.txt" },
-        initial_residuals, camera_indices);
+  if (!std::string(residuals_save_folder).empty()) {
+    WriteResidualTextFiles(std::string(residuals_save_folder),
+                           {"pri_cam_residuals_pre_ba.txt", "proj_residuals_pre_ba.txt",
+                            "sec_cam_residuals_pre_ba.txt"},
+                           initial_residuals, camera_indices);
   }
 
   // Solve BA problem
   ceres::Solve(options, problem, &summary);
   std::cout << summary.FullReport() << "\n";
 
-  // If second pass is desired, run BA problem again, but this time optimising for intrinsics as well
-  if (two_pass)
-  {
+  // If second pass is desired, run BA problem again, but this time optimising for intrinsics as
+  // well
+  if (two_pass) {
     delete problem;
     problem = new ceres::Problem;
     BuildCeresProblem(ba_problem, *problem);
@@ -256,12 +249,13 @@ int main(int argc, char** argv)
   // Compute residuals after solving
   std::vector<double> final_residuals;
   double final_cost;
-  problem->Evaluate(ceres::Problem::EvaluateOptions(), &final_cost, &final_residuals, nullptr, nullptr);
-  if (!std::string(residuals_save_folder).empty())
-  {
-    WriteResidualTextFiles(std::string(residuals_save_folder),
-                           { "pri_cam_residuals_ba.txt", "proj_residuals_ba.txt", "sec_cam_residuals_ba.txt" },
-                           final_residuals, camera_indices);
+  problem->Evaluate(ceres::Problem::EvaluateOptions(), &final_cost, &final_residuals, nullptr,
+                    nullptr);
+  if (!std::string(residuals_save_folder).empty()) {
+    WriteResidualTextFiles(
+        std::string(residuals_save_folder),
+        {"pri_cam_residuals_ba.txt", "proj_residuals_ba.txt", "sec_cam_residuals_ba.txt"},
+        final_residuals, camera_indices);
   }
 
   // Extract calibration parameters from BA Problem
@@ -272,60 +266,69 @@ int main(int argc, char** argv)
   cv::Matx33f pri_cam_intrinsics;
   cv::Vec<float, 5> pri_cam_lens_distortion;
 
-  ExtractCameraParametersFromBAProblem(ba_problem, 0, pri_cam_intrinsics, pri_cam_lens_distortion, pri_cam_rot_mat,
-                                       pri_cam_trans);
+  ExtractCameraParametersFromBAProblem(ba_problem, 0, pri_cam_intrinsics, pri_cam_lens_distortion,
+                                       pri_cam_rot_mat, pri_cam_trans);
 
   // Projector
   cv::Matx33f proj_rot_mat;
   cv::Vec3f proj_trans;
   cv::Matx33f proj_intrinsics;
   cv::Vec<float, 5> proj_lens_distortion;
-  ExtractCameraParametersFromBAProblem(ba_problem, 1, proj_intrinsics, proj_lens_distortion, proj_rot_mat, proj_trans);
+  ExtractCameraParametersFromBAProblem(ba_problem, 1, proj_intrinsics, proj_lens_distortion,
+                                       proj_rot_mat, proj_trans);
 
   // Secondary Camera
   cv::Matx33f rot_mat_sc_to_pc;
   cv::Vec3f trans_sc_to_pc;
   cv::Matx33f sec_cam_intrinsics;
   cv::Vec<float, 5> sec_cam_lens_distortion;
-  ExtractCameraParametersFromBAProblem(ba_problem, 2, sec_cam_intrinsics, sec_cam_lens_distortion, rot_mat_sc_to_pc,
-                                       trans_sc_to_pc);
+  ExtractCameraParametersFromBAProblem(ba_problem, 2, sec_cam_intrinsics, sec_cam_lens_distortion,
+                                       rot_mat_sc_to_pc, trans_sc_to_pc);
 
-  // Save parameters (We need to open the original parameter files to fill in the camera/projector resolutions)
+  // Save parameters (We need to open the original parameter files to fill in the camera/projector
+  // resolutions)
   CameraParameters initial_pri_cam_params(input_pri_cam_parameters_file);
-  CameraParameters pri_cam_params(pri_cam_intrinsics, pri_cam_lens_distortion, 0, initial_pri_cam_params.resolution_x(),
-                                  initial_pri_cam_params.resolution_y(), proj_rot_mat, proj_trans, 0);
+  CameraParameters pri_cam_params(
+      pri_cam_intrinsics, pri_cam_lens_distortion, 0, initial_pri_cam_params.resolution_x(),
+      initial_pri_cam_params.resolution_y(), proj_rot_mat, proj_trans, 0);
   pri_cam_params.Save(output_pri_cam_parameters_file);
 
   ProjectorParameters initial_proj_params(input_proj_parameters_file);
-  ProjectorParameters proj_params(proj_intrinsics, proj_lens_distortion, 0, initial_proj_params.resolution_x(),
+  ProjectorParameters proj_params(proj_intrinsics, proj_lens_distortion, 0,
+                                  initial_proj_params.resolution_x(),
                                   initial_proj_params.resolution_y());
   proj_params.Save(output_proj_parameters_file);
 
-  // Note: Optimised extrinsics in BA is w.r.t. transformation from secondary camera to primary camera. We need to
-  // compute the transformation matrix from projector to secondary camera
+  // Note: Optimised extrinsics in BA is w.r.t. transformation from secondary camera to primary
+  // camera. We need to compute the transformation matrix from projector to secondary camera
   cv::Matx33f sec_cam_rot_mat;
   cv::Vec3f sec_cam_trans;
   cv::Mat transformation_matrix_sec_cam_to_pri_cam = cv::Mat(3, 4, CV_32F, cv::Scalar(0.0));
-  cv::Mat(rot_mat_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(0, 3)));
-  cv::Mat(trans_sc_to_pc).copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(3, 4)));
+  cv::Mat(rot_mat_sc_to_pc)
+      .copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(0, 3)));
+  cv::Mat(trans_sc_to_pc)
+      .copyTo(transformation_matrix_sec_cam_to_pri_cam(cv::Range(0, 3), cv::Range(3, 4)));
   cv::Mat transformation_matrix_pri_cam_to_sec_cam;
-  SwapFramesCVMat(transformation_matrix_sec_cam_to_pri_cam, transformation_matrix_pri_cam_to_sec_cam);
+  SwapFramesCVMat(transformation_matrix_sec_cam_to_pri_cam,
+                  transformation_matrix_pri_cam_to_sec_cam);
   cv::Mat transformation_matrix_projector_to_sec_cam =
       pri_cam_params.GetTransformationMatrix() * transformation_matrix_pri_cam_to_sec_cam;
 
-  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(0, 3)).copyTo(sec_cam_rot_mat);
-  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(3, 4)).copyTo(sec_cam_trans);
+  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(0, 3))
+      .copyTo(sec_cam_rot_mat);
+  transformation_matrix_projector_to_sec_cam(cv::Range(0, 3), cv::Range(3, 4))
+      .copyTo(sec_cam_trans);
 
   CameraParameters initial_sec_cam_params(input_sec_cam_parameters_file);
-  CameraParameters sec_cam_params(sec_cam_intrinsics, sec_cam_lens_distortion, 0, initial_sec_cam_params.resolution_x(),
-                                  initial_sec_cam_params.resolution_y(), sec_cam_rot_mat, sec_cam_trans, 0);
+  CameraParameters sec_cam_params(
+      sec_cam_intrinsics, sec_cam_lens_distortion, 0, initial_sec_cam_params.resolution_x(),
+      initial_sec_cam_params.resolution_y(), sec_cam_rot_mat, sec_cam_trans, 0);
   sec_cam_params.Save(output_sec_cam_parameters_file);
 
   // Clean up
   delete problem;
 
-  if (!ba_problem.WriteFile(output_ba_problem_file))
-  {
+  if (!ba_problem.WriteFile(output_ba_problem_file)) {
     std::cerr << "ERROR: unable to open file " << output_ba_problem_file << "\n";
     return 1;
   }

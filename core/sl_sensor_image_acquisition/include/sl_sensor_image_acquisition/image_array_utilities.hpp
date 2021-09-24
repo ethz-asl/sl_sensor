@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_IMAGE_ACQUISITION_IMAGE_ARRAY_UTILITIES_HPP_
+#define SL_SENSOR_IMAGE_ACQUISITION_IMAGE_ARRAY_UTILITIES_HPP_
 
 #include <cv_bridge/cv_bridge.h>
 #include <ros/ros.h>
@@ -73,3 +74,5 @@ void PopulateImageArrayInformation(sl_sensor_image_acquisition::ImageArray& imag
 
 }  // namespace image_acquisition
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_IMAGE_ACQUISITION_IMAGE_ARRAY_UTILITIES_HPP_

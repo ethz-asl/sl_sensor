@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SL_SENSOR_PROJECTOR_LIGHTCRAFTER_SINGLE_PATTERN_HPP_
+#define SL_SENSOR_PROJECTOR_LIGHTCRAFTER_SINGLE_PATTERN_HPP_
+
 #include <iostream>
 
 namespace sl_sensor {
@@ -36,5 +38,6 @@ struct LightcrafterSinglePattern {
 std::ostream& operator<<(std::ostream& out, const LightcrafterSinglePattern& single_pattern);
 
 }  // namespace projector
-
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_PROJECTOR_LIGHTCRAFTER_SINGLE_PATTERN_HPP_
