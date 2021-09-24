@@ -1,4 +1,21 @@
 /***************************************************************************************************
+ * This file is part of sl_sensor.
+ *
+ * sl_sensor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sl_sensor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with sl_sensor.  If not, see <https://www.gnu.org/licenses/>.
+ ***************************************************************************************************/
+
+/***************************************************************************************************
  * Multi-Camera Calibration Suite was built to help with intrinsic and extrinsic multi-camera
  * calibration. It also specifically contains a bundle adjustment module to help with the joint
  * calibration of the cameras.
