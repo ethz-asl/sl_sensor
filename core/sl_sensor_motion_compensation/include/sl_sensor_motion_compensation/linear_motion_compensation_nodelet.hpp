@@ -11,6 +11,12 @@
 
 namespace sl_sensor {
 namespace motion_compensation {
+
+/**
+ * @brief Nodelet that subscribes to a image array topic, performs linear motion compensation and
+ * then publishes the processed images as an image array. Currently only works for monochromatic
+ * images
+ */
 class LinearMotionCompensationNodelet : public nodelet::Nodelet {
  public:
   LinearMotionCompensationNodelet();
@@ -22,7 +28,9 @@ class LinearMotionCompensationNodelet : public nodelet::Nodelet {
   std::string sub_topic_ = "/image_array_input";
   std::string pub_topic_ = "/image_array_output";
   std::string pattern_direction_ = "both";
-  std::string filter_id_ = "";
+  std::string filter_id_ = "";  // If this is non empty, nodelet will only process image arrays with
+                                // an id field that matches filter_id. Used when you want different
+                                // pipelines for different patterns/camera feeds
   ShiftingOption shifting_option_ = ShiftingOption::kBothDirectionsShifting;
 
   double subsample_factor_ = 1.0f;
