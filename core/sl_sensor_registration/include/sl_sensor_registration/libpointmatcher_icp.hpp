@@ -20,6 +20,11 @@
 
 namespace sl_sensor {
 namespace registration {
+
+/**
+ * @brief PointCloudRegistrationAlgorithm that runs LibPointMatcher ICP
+ *
+ */
 class LibpointmatcherICP : public PointCloudRegistrationAlgorithm {
   typedef PointMatcher<float> PM;
   typedef PM::DataPoints DP;

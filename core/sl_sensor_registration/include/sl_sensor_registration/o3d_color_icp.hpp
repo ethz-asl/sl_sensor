@@ -9,23 +9,53 @@
 
 namespace sl_sensor {
 namespace registration {
+
+/**
+ * @brief PointCloudRegistrationAlgorithm that runs Open3D Color ICP
+ * Note: We follow the implementation documented in
+ * http://www.open3d.org/docs/release/tutorial/pipelines/colored_pointcloud_registration.html but in
+ * C++ instead of Python
+ */
 class O3dColorIcp : public PointCloudRegistrationAlgorithm {
  public:
+  /**
+   * @brief Construct a new O3dColorIcp object
+   *
+   */
   O3dColorIcp();
 
+  /**
+   * @brief Load ICP settings from ROS node handle
+   *
+   * @param nh
+   */
   virtual void LoadSettingsFromROSNodeHandle(ros::NodeHandle nh) override;
 
+  /**
+   * @brief Register point cloud (XYZ Points)
+   *
+   * @param reference_pc - Point cloud to be registered
+   * @param guess - initial guess transform
+   */
   virtual void RegisterPointCloud(
       const pcl::PointCloud<pcl::PointXYZRGB>::Ptr reference_pc_ptr,
       const Eigen::Matrix4f& guess = Eigen::Matrix4f::Identity()) override;
 
+  /**
+   * @brief Given a point cloud, return multiple point cloud that are subsample to various degrees,
+   * and also their normals computed so they are ready to be used for colour ICP
+   *
+   * @param input_cloud
+   * @param voxel_radius - Vector of radii used for voxel subsampling
+   * @param normal_radius - Vector of radii used for normal computation, should be of same length as
+   * voxel_radius
+   * @return std::shared_ptr<std::vector<std::shared_ptr<open3d::geometry::PointCloud>>> - Pointer
+   * to vector of output point clouds. Size of vector will be the same as voxel_radius and
+   * normal_radius
+   */
   std::shared_ptr<std::vector<std::shared_ptr<open3d::geometry::PointCloud>>> GetDownsampledPcs(
       const open3d::geometry::PointCloud& input_cloud, const std::vector<double>& voxel_radius,
       const std::vector<double>& normal_radius);
-
-  void VisualiseRegistration(const open3d::geometry::PointCloud& source,
-                             const open3d::geometry::PointCloud& target,
-                             const Eigen::Matrix4d& Transformation);
 
  private:
   bool received_first_point_cloud_ = false;

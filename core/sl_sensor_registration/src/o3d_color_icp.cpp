@@ -109,16 +109,6 @@ void O3dColorIcp::RegisterPointCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Pt
                 << " Fitness: " << result_icp.fitness_ << std::endl;
     }
 
-    /**
-    if ((bool)settings_.at("visualise_point_cloud"))
-    {
-      VisualiseRegistration(*((*curr_downsampled_pcs_ptr)[0]), *((*prev_downsampled_pcs_ptr_)[0]),
-                            guess.cast<double>());
-      VisualiseRegistration(*((*curr_downsampled_pcs_ptr)[0]), *((*prev_downsampled_pcs_ptr_)[0]),
-                            current_transformation);
-    }
-    **/
-
     // Output Transformation is T[prev->curr]
     relative_transform_ = current_transformation.cast<float>();
     // T[0->curr] = T[0->prev] * T[prev->curr]
@@ -170,25 +160,6 @@ O3dColorIcp::GetDownsampledPcs(const open3d::geometry::PointCloud& input_cloud,
   }
 
   return output_ptr;
-}
-
-void O3dColorIcp::VisualiseRegistration(const open3d::geometry::PointCloud& source,
-                                        const open3d::geometry::PointCloud& target,
-                                        const Eigen::Matrix4d& Transformation) {
-  std::shared_ptr<open3d::geometry::PointCloud> source_transformed_ptr(
-      new open3d::geometry::PointCloud);
-  std::shared_ptr<open3d::geometry::PointCloud> target_ptr(new open3d::geometry::PointCloud);
-
-  *source_transformed_ptr = source;
-  *target_ptr = target;
-
-  source_transformed_ptr->PaintUniformColor(Eigen::Vector3d{1, 0.706, 0});
-  target_ptr->PaintUniformColor(Eigen::Vector3d{0, 0.651, 0.929});
-
-  source_transformed_ptr->Transform(Transformation);
-
-  open3d::visualization::DrawGeometries({source_transformed_ptr, target_ptr}, "Registration result",
-                                        640, 480, 50, 50, false);
 }
 
 }  // namespace registration
