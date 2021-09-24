@@ -1,7 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#ifndef INTRINSIC_PARAMETERS_HPP_
-#define INTRINSIC_PARAMETERS_HPP_
+#ifndef SL_SENSOR_CALIBRATION_INTRINSIC_PARAMETERS_HPP_
+#define SL_SENSOR_CALIBRATION_INTRINSIC_PARAMETERS_HPP_
 
 #include <opencv2/opencv.hpp>
 #include <string>
@@ -47,4 +47,4 @@ std::ostream& operator<<(std::ostream& os, const IntrinsicParameters& dt);
 }  // namespace calibration
 }  // namespace sl_sensor
 
-#endif  // INTRINSIC_PARAMETERS_HPP_
+#endif  // SL_SENSOR_CALIBRATION_INTRINSIC_PARAMETERS_HPP_

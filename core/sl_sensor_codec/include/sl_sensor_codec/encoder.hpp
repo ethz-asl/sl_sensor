@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef SL_SENSOR_CODEC_ENCODER_HPP_
+#define SL_SENSOR_CODEC_ENCODER_HPP_
 
 #include <yaml-cpp/yaml.h>
 #include <opencv2/opencv.hpp>
@@ -94,3 +95,5 @@ class Encoder {
 
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_ENCODER_HPP_

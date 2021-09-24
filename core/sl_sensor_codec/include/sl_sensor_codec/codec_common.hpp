@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef SL_SENSOR_CODEC_CODEC_COMMON_HPP_
+#define SL_SENSOR_CODEC_CODEC_COMMON_HPP_
 
 #include <yaml-cpp/yaml.h>
 
@@ -18,3 +19,5 @@ std::tuple<unsigned int, unsigned int, CodecDirection> GetBasicCodecInformationF
 
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_CODEC_COMMON_HPP_

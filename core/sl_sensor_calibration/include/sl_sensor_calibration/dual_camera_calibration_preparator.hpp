@@ -1,5 +1,5 @@
-#ifndef DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_
-#define DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_
+#ifndef SL_SENSOR_CALIBRATION_DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_
+#define SL_SENSOR_CALIBRATION_DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_
 
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/intrinsic_parameters.hpp"
@@ -118,4 +118,4 @@ class DualCameraCalibrationPreparator {
 }  // namespace calibration
 }  // namespace sl_sensor
 
-#endif  // DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_
+#endif  // SL_SENSOR_CALIBRATION_DUAL_CAMERA_CALIBRATION_PREPARATOR_HPP_

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_CODEC_TWO_PLUS_ONE_WITH_TPU_ENCODER_HPP_
+#define SL_SENSOR_CODEC_TWO_PLUS_ONE_WITH_TPU_ENCODER_HPP_
 
 #include <vector>
 #include "sl_sensor_codec/encoder.hpp"
@@ -25,3 +26,5 @@ class TwoPlusOneWithTpuEncoder : public Encoder {
 };
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_TWO_PLUS_ONE_WITH_TPU_ENCODER_HPP_

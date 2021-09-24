@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef SL_SENSOR_CODEC_PHASE_SHIFT_UTILITIES_HPP_
+#define SL_SENSOR_CODEC_PHASE_SHIFT_UTILITIES_HPP_
 
 #include <opencv2/opencv.hpp>
 
@@ -52,3 +53,5 @@ cv::Mat UnwrapWithCue(const cv::Mat& up, const cv::Mat& up_cue, unsigned int n_p
 
 }  // namespace codec
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_CODEC_PHASE_SHIFT_UTILITIES_HPP_

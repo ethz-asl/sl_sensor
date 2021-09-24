@@ -1,5 +1,5 @@
-#ifndef PROJECTOR_PARAMETERS_HPP_
-#define PROJECTOR_PARAMETERS_HPP_
+#ifndef SL_SENSOR_CALIBRATION_PROJECTOR_PARAMETERS_HPP_
+#define SL_SENSOR_CALIBRATION_PROJECTOR_PARAMETERS_HPP_
 
 #include "sl_sensor_calibration/intrinsic_parameters.hpp"
 
@@ -15,4 +15,4 @@ typedef IntrinsicParameters ProjectorParameters;
 }  // namespace calibration
 }  // namespace sl_sensor
 
-#endif  // PROJECTOR_PARAMETERS_HPP_
+#endif  // SL_SENSOR_CALIBRATION_PROJECTOR_PARAMETERS_HPP_

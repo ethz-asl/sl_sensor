@@ -1,5 +1,5 @@
-#ifndef CALIBRATION_UTILITIES_HPP_
-#define CALIBRATION_UTILITIES_HPP_
+#ifndef SL_SENSOR_CALIBRATION_CALIBRATION_UTILITIES_HPP_
+#define SL_SENSOR_CALIBRATION_CALIBRATION_UTILITIES_HPP_
 
 #include <opencv2/opencv.hpp>
 
@@ -116,4 +116,4 @@ void SwapFramesCVMat(const cv::Mat& input_transformation_matrix,
 }  // namespace calibration
 }  // namespace sl_sensor
 
-#endif  // CALIBRATION_UTILITIES_HPP_
+#endif  // SL_SENSOR_CALIBRATION_CALIBRATION_UTILITIES_HPP_
