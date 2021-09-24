@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SL_SENSOR_TIMER_TIMER_HPP_
+#define SL_SENSOR_TIMER_TIMER_HPP_
+
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -58,5 +60,6 @@ class Timer {
 };
 
 }  // namespace timer
-
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_TIMER_TIMER_HPP_
