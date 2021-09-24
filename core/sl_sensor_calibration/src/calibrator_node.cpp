@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <sl_sensor_projector/projector_utils.hpp>
+#include <sl_sensor_projector/projector_utilities.hpp>
 
 #include "sl_sensor_calibration/calibration_flags.hpp"
 #include "sl_sensor_calibration/calibration_utilities.hpp"

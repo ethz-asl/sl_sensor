@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
 #include <sl_sensor_calibration/projector_parameters.hpp>
-#include <sl_sensor_projector/projector_utils.hpp>
+#include <sl_sensor_projector/projector_utilities.hpp>
 
 #include "sl_sensor_codec/codec_factory.hpp"
 #include "sl_sensor_codec/encoder.hpp"
