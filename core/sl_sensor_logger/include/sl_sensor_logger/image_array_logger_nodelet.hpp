@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_LOGGER_IMAGE_ARRAY_LOGGER_NODELET_HPP_
+#define SL_SENSOR_LOGGER_IMAGE_ARRAY_LOGGER_NODELET_HPP_
 
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
@@ -34,3 +35,5 @@ class ImageArrayLoggerNodelet : public sl_sensor::logger::LoggerNodelet {
 }  // namespace sl_sensor
 
 PLUGINLIB_EXPORT_CLASS(sl_sensor::logger::ImageArrayLoggerNodelet, nodelet::Nodelet);
+
+#endif  // SL_SENSOR_LOGGER_IMAGE_ARRAY_LOGGER_NODELET_HPP_
