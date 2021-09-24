@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_HPP_
+#define SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_HPP_
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -192,3 +193,5 @@ class Triangulator {
 
 }  // namespace reconstruction
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_RECONSTRUCTION_TRIANGULATOR_HPP_
