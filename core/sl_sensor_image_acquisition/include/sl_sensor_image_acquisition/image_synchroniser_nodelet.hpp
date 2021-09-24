@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_IMAGE_ACQUISITION_IMAGE_SYNCHRONISER_NODELET_HPP_
+#define SL_SENSOR_IMAGE_ACQUISITION_IMAGE_SYNCHRONISER_NODELET_HPP_
 
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
@@ -183,3 +184,5 @@ class ImageSynchroniserNodelet : public nodelet::Nodelet {
 }  // namespace sl_sensor
 
 PLUGINLIB_EXPORT_CLASS(sl_sensor::image_acquisition::ImageSynchroniserNodelet, nodelet::Nodelet);
+
+#endif  // SL_SENSOR_IMAGE_ACQUISITION_IMAGE_SYNCHRONISER_NODELET_HPP_
