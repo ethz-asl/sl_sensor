@@ -120,8 +120,6 @@ int main(int argc, char **argv) {
 
   Eigen::Matrix4f vo_pose = Eigen::Matrix4f::Identity();
 
-  Eigen::Matrix4f initial_guess_transform = Eigen::Matrix4f::Identity();
-
   std::cout << "Start point cloud registration" << std::endl;
 
   for (size_t row = (size_t)row_min; row <= (size_t)row_max; row++) {

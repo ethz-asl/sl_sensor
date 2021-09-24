@@ -83,7 +83,7 @@ void O3dColorIcp::RegisterPointCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Pt
   if (received_first_point_cloud_) {
     Eigen::Matrix4d current_transformation = guess.cast<double>();
 
-    for (int i = 0; i < (int)voxel_radius_.size(); i++) {
+    for (size_t i = 0; i < voxel_radius_.size(); i++) {
       int max_iter = max_iter_[i];
       color_icp_.lambda_geometric_ = settings_["lambda_geometric"];
 
@@ -132,7 +132,7 @@ O3dColorIcp::GetDownsampledPcs(const open3d::geometry::PointCloud& input_cloud,
           "must "
           "be the same");
 
-  for (int i = 0; i < voxel_radius.size(); i++) {
+  for (size_t i = 0; i < voxel_radius.size(); i++) {
     double v_rad = voxel_radius[i];
     double n_rad = normal_radius[i];
 
