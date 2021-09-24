@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SL_SENSOR_REGISTRATION_PC_UTILITIES_HPP_
+#define SL_SENSOR_REGISTRATION_PC_UTILITIES_HPP_
 
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/point_cloud.h>
@@ -81,3 +82,5 @@ inline typename pcl::PointCloud<PointT>::Ptr ScalePointCloud(
 
 }  // namespace registration
 }  // namespace sl_sensor
+
+#endif  // SL_SENSOR_REGISTRATION_PC_UTILITIES_HPP_
