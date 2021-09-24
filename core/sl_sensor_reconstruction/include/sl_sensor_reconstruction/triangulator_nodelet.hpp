@@ -18,7 +18,18 @@ namespace sl_sensor {
 namespace reconstruction {
 /**
  * @brief Nodelet that generates point clouds from decoded images
- *
+ * Takes in an image array message that has either 4 or 5 images
+ * For standard cam-projector triangulation, we expect 4 images in sequence (up, vp, mask, shading)
+ * For cam-projector triangulation + colour information from colour camera, we expect 5 images (up,
+ * vp, mask, shading, rgb image from colour camera) --> Please provide colour camera intrinsic
+ * parameters file directory
+ *  Nodelet also performs some post point cloud processing:
+ *  - Bounding box filter so output point cloud only has points within certain bounds
+ *  - Scaling to convert point clouds in mm to m (useful when calibration is done in mm but tf
+ * messages from ROS are in m)
+ *  - Translating point cloud to another camera's frame (useful when you have two cameras and one of
+ * them is set to be the sensor frame and you are triangulating from the other camera) --> Please
+ * provide frame_camera camera intrinsic parameters file directory
  */
 class TriangulatorNodelet : public nodelet::Nodelet {
  public:
@@ -69,6 +80,12 @@ class TriangulatorNodelet : public nodelet::Nodelet {
   bool apply_scaling_ = false;
   float scaling_factor_ = 1.0;
 
+  /**
+   * @brief Apply crop box filter
+   *
+   * @tparam PointT PCL point type
+   * @param pc_ptr - Point to pcl point cloud to be filtered
+   */
   template <typename PointT>
   void ApplyCropBox(typename pcl::PointCloud<PointT>::Ptr pc_ptr) {
     pcl::CropBox<PointT> crop_box;
@@ -78,6 +95,14 @@ class TriangulatorNodelet : public nodelet::Nodelet {
     crop_box.filter(*pc_ptr);
   };
 
+  /**
+   * @brief Publish a triangulated point cloud
+   *
+   * @tparam PointT PCL point type
+   * @param pc_ptr - Point to pcl point cloud to be published
+   * @param image_array_ptr - Original image array message that has the images from which the point
+   * cloud was triangulated
+   */
   template <typename PointT>
   void PublishPointCloud(typename pcl::PointCloud<PointT>::Ptr pc_ptr,
                          const sl_sensor_image_acquisition::ImageArrayConstPtr& image_array_ptr) {
@@ -114,6 +139,14 @@ class TriangulatorNodelet : public nodelet::Nodelet {
     return transformed_ptr;
   }
 
+  /**
+   * @brief Perform post processing of a point cloud before publishing
+   *
+   * @tparam PointT - Type of pcl point
+   * @param pc_ptr - Point to pcl point cloud to be published
+   * @param image_array_ptr - Original image array message that has the images from which the point
+   * cloud was triangulated
+   **/
   template <typename PointT>
   void PostProcessAndPublishPointCloud(
       typename pcl::PointCloud<PointT>::Ptr pc_ptr,
