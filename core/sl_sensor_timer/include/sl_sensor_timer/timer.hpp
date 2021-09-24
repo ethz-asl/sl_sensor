@@ -52,11 +52,11 @@ class Timer {
   ~Timer();
 
  private:
-  std::string _name = "";
-  bool _timing_in_progess = false;
-  int _counter = 0;
-  double _total_time = 0.0f;
-  std::chrono::time_point<std::chrono::high_resolution_clock> _start_time;
+  std::string name_ = "";
+  bool timing_in_progess_ = false;
+  int counter_ = 0;
+  double total_time_ = 0.0f;
+  std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
 };
 
 }  // namespace timer
