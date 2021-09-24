@@ -6,7 +6,7 @@
 namespace sl_sensor {
 namespace codec {
 /**
- * @brief Decoder for Two plus one with tpu
+ * @brief Decoder for Two plus one with TPU
  *
  */
 class TwoPlusOneWithTpuDecoder : public Decoder {

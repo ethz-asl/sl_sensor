@@ -41,13 +41,15 @@ void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_seque
 void PhaseCorrelateRegisterImageSequence(const std::vector<cv::Mat> &image_sequence,
                                          size_t reference_index, std::vector<cv::Point2d> &shifts,
                                          double subsample_factor) {
-  if (subsample_factor <= 0.0f) {
+  // We do not subsample if subsample factor is negative or larger than /equal to 1.0
+  if (subsample_factor <= 0.0f || subsample_factor > 0.99999f) {
     PhaseCorrelateRegisterImageSequence(image_sequence, reference_index, shifts);
   } else {
     std::vector<cv::Mat> subsampled_image_sequence = {};
     SubsampleImageSequence(image_sequence, subsampled_image_sequence, subsample_factor);
     PhaseCorrelateRegisterImageSequence(subsampled_image_sequence, reference_index, shifts);
 
+    // Rescale computed shifts
     for (auto &shift : shifts) {
       shift /= subsample_factor;
     }

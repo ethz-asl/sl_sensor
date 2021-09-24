@@ -9,6 +9,11 @@
 
 namespace sl_sensor {
 namespace logger {
+
+/**
+ * @brief Nodelet that subscribes to a topic for sl_sensor_image_acquisition::ImageArray messages
+ * and saves them into separate .bmp images
+ */
 class ImageArrayLoggerNodelet : public sl_sensor::logger::LoggerNodelet {
  public:
   ImageArrayLoggerNodelet();

@@ -10,6 +10,12 @@
 
 namespace sl_sensor {
 namespace logger {
+
+/**
+ * @brief Base class for data loggers. It has a service that can be called to enable and disable the
+ * logger. See EnableLogger.srv for more information
+ *
+ */
 class LoggerNodelet : public nodelet::Nodelet {
  public:
   LoggerNodelet();

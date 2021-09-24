@@ -5,13 +5,15 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-namespace sl_sensor
-{
-namespace calibration
-{
-class IntrinsicParameters
-{
-public:
+namespace sl_sensor {
+namespace calibration {
+
+/**
+ * @brief Class object to store camera intrinsic parameters
+ *
+ */
+class IntrinsicParameters {
+ public:
   IntrinsicParameters(const cv::Matx33f& intrinsic_mat, const cv::Vec<float, 5>& lens_distortion,
                       double calibration_error, int resolution_x, int resolution_y);
 
@@ -31,7 +33,7 @@ public:
 
   static std::string GetFileExtension(const std::string& filename);
 
-protected:
+ protected:
   cv::Matx33f intrinsic_mat_ = cv::Matx33f::eye();
   cv::Vec<float, 5> lens_distortion_ = cv::Vec<float, 5>(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
   double calibration_error_ = 0.0f;

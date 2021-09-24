@@ -19,6 +19,13 @@ namespace codec {
  */
 class CodecFactory {
  public:
+  /**
+   * @brief Get the Instance Encoder object
+   *
+   * @param encoder_name - Name of decoder
+   * @param node - YAML Node where required parameters will be extracted from
+   * @return std::unique_ptr<Encoder> - Unique pointer to new Encoder
+   */
   static std::unique_ptr<Encoder> GetInstanceEncoder(const std::string& encoder_name,
                                                      const YAML::Node& node) {
     std::unique_ptr<Encoder> output_ptr;
@@ -38,6 +45,13 @@ class CodecFactory {
     return std::move(output_ptr);
   };
 
+  /**
+   * @brief Get the Instance Decoder object
+   *
+   * @param decoder_name
+   * @param node - YAML Node where required parameters will be extracted from
+   * @return std::unique_ptr<Decoder> - Unique pointer to new Decoder
+   */
   static std::unique_ptr<Decoder> GetInstanceDecoder(const std::string& decoder_name,
                                                      const YAML::Node& node) {
     std::unique_ptr<Decoder> output_ptr;

@@ -43,18 +43,29 @@ class Triangulator {
   std::pair<calibration::ProjectorParameters, calibration::CameraParameters> GetCalibrationParams();
 
   /**
-   * @brief Perform triangulation
+   * @brief Perform triangulation, for Monochrome shading
    *
    * @param up - Horizontal projector coordinates. If not applicable, provide an empty vector
    * @param vp - Vertical projector coordinates . If not applicable, provide an empty vector
    * @param mask - Masking layer
-   * @param shading - Shading information
-   * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud
+   * @param shading - Shading information, should be a monochrome image (CV_8UC1)
+   * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud, shading is
+   * in the intensity field
    */
   pcl::PointCloud<pcl::PointXYZI>::Ptr TriangulateMonochrome(const cv::Mat &up, const cv::Mat &vp,
                                                              const cv::Mat &mask,
                                                              const cv::Mat &shading);
 
+  /**
+   * @brief Perform triangulation, for rgb shading
+   *
+   * @param up - Horizontal projector coordinates. If not applicable, provide an empty vector
+   * @param vp - Vertical projector coordinates . If not applicable, provide an empty vector
+   * @param mask - Masking layer
+   * @param shading - Shading information, should be a rgb image (CV_8UC3)
+   * @return pcl::PointCloud<pcl::PointXYZRGB>::Ptr - Pointer to triangulated point cloud, shading
+   * is in the rgb fields
+   */
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr TriangulateColour(const cv::Mat &up, const cv::Mat &vp,
                                                            const cv::Mat &mask,
                                                            const cv::Mat &colour_shading);
@@ -63,44 +74,92 @@ class Triangulator {
   /**
    * @brief Perform triangulation using horizontal projector coordinates
    *
-   * @param up
-   * @param xyz
+   * @param up - Decoded horizontal pixel coordinate
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
    */
   void TriangulateFromUp(const cv::Mat &up, cv::Mat &xyz);
 
   /**
    * @brief Perform triangulation using vertical projector coordinates
    *
-   * @param vp
-   * @param xyz
+   * @param vp - Decoded vertical pixel coordinate
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
    */
   void TriangulateFromVp(const cv::Mat &vp, cv::Mat &xyz);
 
   /**
    * @brief Perform triangulation using both horizontal and vertical projector coordinates
    *
-   * @param up
-   * @param vp
-   * @param xyz
+   * @param up - Decoded horizontal pixel coordinate
+   * @param vp - Decoded vertical pixel coordinate
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
    */
   void TriangulateFromUpVp(const cv::Mat &up, const cv::Mat &vp, cv::Mat &xyz);
 
-  pcl::PointCloud<pcl::PointXYZI>::Ptr ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz,
-                                                                       const cv::Mat &mask,
-                                                                       const cv::Mat &shading);
-
+  /**
+   * @brief Perform triangulation. Will call TriangulateFromUp, TriangulateFromVp or
+   * TriangulateFromUpVp based on whether up and/or vp are non-empty then apply masking to the
+   * points (NAN values for pixels where mask is set to false)
+   *
+   * @param up - Decoded horizontal pixel coordinate
+   * @param vp - Decoded vertical pixel coordinate
+   * @param mask - 0 for pixels to be masked
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
+   */
   void Triangulate(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask, cv::Mat &xyz);
 
   void InitColourShadingInfo();
 
   void InitTriangulationParameters();
 
+  /**
+   * @brief Undistort up, vp, mask and shading using the initialised camera intrinsic parameters
+   *
+   * @param up
+   * @param vp
+   * @param mask
+   * @param shading
+   * @param up_undistorted
+   * @param vp_undistorted
+   * @param mask_undistorted
+   * @param shading_undistorted
+   */
   void UndistortImages(const cv::Mat &up, const cv::Mat &vp, const cv::Mat &mask,
                        const cv::Mat &shading, cv::Mat &up_undistorted, cv::Mat &vp_undistorted,
                        cv::Mat &mask_undistorted, cv::Mat &shading_undistorted);
 
+  /**
+   * @brief Convert xyz matrix from triangulation methods to pcl rgb point clouds. Note: will use
+   * colour_camera_parameters_ to project 3D points to colour camera's image (colour_shading) to
+   * obtain rgb information
+   *
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
+   * @param mask - 0 for pixels to be masked
+   * @param colour_shading - Colour CV_8UC3 rgb image from colour camera
+   * @return pcl::PointCloud<pcl::PointXYZRGB>::Ptr - Pointer to triangulated point cloud, shading
+   * is in the rgb fields
+   */
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr ConvertToColourPCLPointCloud(
       const cv::Mat &xyz, const cv::Mat &mask, const cv::Mat &colour_shading);
+
+  /**
+   * @brief  Convert xyz matrix from triangulation methods to pcl rgb point clouds.
+   *
+   * @param xyz - Output is a matrix with the same number of rows and cols as the image with three
+   * chanels (CV_32FC3). The channels contain the x, y and z coordinates for each image pixel
+   * @param mask - 0 for pixels to be masked
+   * @param shading - Monochrome CV_8UC1 image to be used for shading
+   * @return pcl::PointCloud<pcl::PointXYZI>::Ptr - Pointer to triangulated point cloud, shading is
+   * in the intensity field
+   */
+  pcl::PointCloud<pcl::PointXYZI>::Ptr ConvertToMonochomePCLPointCLoud(const cv::Mat &xyz,
+                                                                       const cv::Mat &mask,
+                                                                       const cv::Mat &shading);
 
   /**
    * @brief Struct to hold information required to get rgb information from coloured image from
@@ -132,5 +191,4 @@ class Triangulator {
 };
 
 }  // namespace reconstruction
-
 }  // namespace sl_sensor

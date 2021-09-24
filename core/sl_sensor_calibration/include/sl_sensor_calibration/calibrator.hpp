@@ -10,13 +10,18 @@
 #include "sl_sensor_calibration/camera_parameters.hpp"
 #include "sl_sensor_calibration/projector_parameters.hpp"
 
-namespace sl_sensor
-{
-namespace calibration
-{
-class Calibrator
-{
-public:
+namespace sl_sensor {
+namespace calibration {
+
+/**
+ * @brief Class object used to before camera-projector calibration
+ * Usage:
+ * 1) Construct and input the necessary information using the Set methods
+ * 2) Add sequences using AddSingleCalibrationSequence
+ * 3) Call Calibrate to start the calibration process
+ */
+class Calibrator {
+ public:
   Calibrator();
   void SetProjectorResolution(unsigned int projector_cols, unsigned int projector_rows);
   void SetCheckerboardInformation(unsigned int checkerboard_cols, unsigned int checkerboard_rows,
@@ -25,16 +30,53 @@ public:
   void SetCameraCalibrationFlags(const CalibrationFlags& camera_calibration_flags);
   void SetProjectorCalibrationFlags(const CalibrationFlags& projector_calibration_flags);
   void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
-  bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask, const cv::Mat& up,
-                                    const cv::Mat& vp, const std::string& label = "");
-  bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params);
+  void SetReprojectionErrorWarningThreshold(float threshold);
 
+  /**
+   * @brief Add calibration images to be used for calibration
+   *
+   * @param camera_shading
+   * @param camera_mask
+   * @param up
+   * @param vp
+   * @param label - A string that would be used to identify this set of calibration images
+   * @return true - Checkerboard detected and corner information stored successfully
+   * @return false - Checkerbaord information failed, images will not be used for calibration
+   */
+  bool AddSingleCalibrationSequence(const cv::Mat& camera_shading, const cv::Mat& camera_mask,
+                                    const cv::Mat& up, const cv::Mat& vp,
+                                    const std::string& label = "");
+
+  /**
+   * @brief Perform calibration
+   *
+   * @param proj_params - Output projector parameters
+   * @param cam_params - Input camera parameters
+   * @param projector_residuals - Projector reprojection errors for all corners used for calibration
+   * @param camera_residuals - Camera reprojection errors for all corners used for calibration
+   * @return true - Successful calibration
+   * @return false - Unsuccessful calibration
+   */
   bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params,
                  std::vector<double>& projector_residuals, std::vector<double>& camera_residuals);
-  void SetReprojectionErrorWarningThreshold(float threshold);
+
+  /**
+   * @brief Function override, in the case that residuals are note required
+   *
+   * @param proj_params
+   * @param cam_params
+   * @return true
+   * @return false
+   */
+  bool Calibrate(ProjectorParameters& proj_params, CameraParameters& cam_params);
+
+  /**
+   * @brief Clear all calibration data current stored in class object and start over
+   *
+   */
   void Clear();
 
-private:
+ private:
   unsigned int resolution_x_proj_ = 0;
   unsigned int resolution_y_proj_ = 0;
   unsigned int window_radius_ = 10;

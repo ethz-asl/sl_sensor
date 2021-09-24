@@ -6,7 +6,7 @@
 
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
 
-  <license>BSD3</license>
+  <license>GPLv3</license>
 
   <build_depend>message_generation</build_depend>
 

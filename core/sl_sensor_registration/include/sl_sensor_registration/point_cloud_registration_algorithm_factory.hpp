@@ -7,8 +7,20 @@
 
 namespace sl_sensor {
 namespace registration {
+
+/**
+ * @brief Class that generates Point Cloud Registration Algorithms
+ *
+ */
 class PointCloudRegistrationAlgorithmFactory {
  public:
+  /**
+   * @brief Get a Point Cloud Registration Algorithms Instance
+   *
+   * @param algo_name - Algorithm name
+   * @return std::unique_ptr<PointCloudRegistrationAlgorithm> - Unique pointer to constructed
+   * PointCloudRegistrationAlgorithm
+   */
   static std::unique_ptr<PointCloudRegistrationAlgorithm> GetInstance(
       const std::string &algo_name) {
     std::unique_ptr<PointCloudRegistrationAlgorithm> output_ptr;

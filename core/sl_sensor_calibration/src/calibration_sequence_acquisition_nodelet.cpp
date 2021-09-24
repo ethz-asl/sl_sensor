@@ -197,15 +197,6 @@ void CalibrationSequenceAcquisitionNodelet::ImageArrayCb(
   SendProjectorCommand("white", 0);
 }
 
-bool CalibrationSequenceAcquisitionNodelet::GetInputAndCheckIfItIsExpectedChar(
-    const std::string& message, char expected_char) {
-  std::string input;
-  std::cout << message;
-  std::getline(std::cin, input);
-  return (!input.empty() && input.length() == 1 && (input.c_str())[0] == expected_char) ? true
-                                                                                        : false;
-}
-
 bool DirectoryExists(const char* path) {
   struct stat info;
 
@@ -295,7 +286,7 @@ void CalibrationSequenceAcquisitionNodelet::SendProjectorCommand(const std::stri
   }
 }
 
-void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv::Mat>& cv_img_ptr_vec) {
+void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv::Mat>& cv_img_vec) {
   std::string status_message =
       "[CalibrationSequenceAcquisitionNodelet] Saving sequence " + std::to_string(counter_);
   ROS_INFO("%s", status_message.c_str());
@@ -308,23 +299,23 @@ void CalibrationSequenceAcquisitionNodelet::SaveData(const std::vector<cv::Mat>&
     std::string up_directory = save_directory_ + save_filename_ + "/" + "proj" + number + "/" +
                                "up" + "/" + counter + ".xml";
     cv::FileStorage up_file(up_directory, cv::FileStorage::WRITE);
-    up_file << "up" << cv_img_ptr_vec[i * 4];
+    up_file << "up" << cv_img_vec[i * 4];
 
     // Save decoded vertical projector coordinates (vp) to xml file
     std::string vp_directory = save_directory_ + save_filename_ + "/" + "proj" + number + "/" +
                                "vp" + "/" + counter + ".xml";
     cv::FileStorage vp_file(vp_directory, cv::FileStorage::WRITE);
-    vp_file << "vp" << cv_img_ptr_vec[i * 4 + 1];
+    vp_file << "vp" << cv_img_vec[i * 4 + 1];
 
     // Save mask to bmp file
     std::string mask_directory = save_directory_ + save_filename_ + "/" + "cam" + number + "/" +
                                  "mask" + "/" + counter + ".bmp";
-    cv::imwrite(mask_directory, cv_img_ptr_vec[i * 4 + 2]);
+    cv::imwrite(mask_directory, cv_img_vec[i * 4 + 2]);
 
     // Save shading to bmp file
     std::string shading_directory = save_directory_ + save_filename_ + "/" + "cam" + number + "/" +
                                     "shading" + "/" + counter + ".bmp";
-    cv::imwrite(shading_directory, cv_img_ptr_vec[i * 4 + 3]);
+    cv::imwrite(shading_directory, cv_img_vec[i * 4 + 3]);
   }
 
   // Increment count for number of sequences saved

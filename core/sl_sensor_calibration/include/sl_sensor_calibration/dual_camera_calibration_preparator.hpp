@@ -8,30 +8,82 @@
 #include <string>
 #include <vector>
 
-namespace sl_sensor
-{
-namespace calibration
-{
-class DualCameraCalibrationPreparator
-{
-public:
-  DualCameraCalibrationPreparator(const ProjectorParameters& proj_params, const CameraParameters& pri_cam_params,
-                                  const CameraParameters& sec_cam_params, unsigned int checkerboard_cols,
-                                  unsigned int checkerboard_rows, double checkerboard_size,
-                                  double projector_acceptance_tol = 0.25);
+namespace sl_sensor {
+namespace calibration {
 
-  bool AddSingleCalibrationSequence(const cv::Mat& pri_camera_shading, const cv::Mat& pri_camera_mask,
-                                    const cv::Mat& pri_up, const cv::Mat& pri_vp, const cv::Mat& sec_camera_shading,
-                                    const cv::Mat& sec_camera_mask, const cv::Mat& sec_up, const cv::Mat& sec_vp,
-                                    const std::string& label = "");
+/**
+ * @brief Class object that takes in a calibration sequence where the calibration board is visible
+ * to both cameras, extracts the checkerboard corners, and writes a bundle adjustment (BA) problem
+ * files used for BA calibration (Experimental)
+ *
+ * Usage:
+ * 1) Construct DualCameraCalibrationPreparator
+ * 2) Add calibration sequences using AddSingleCalibrationSequence
+ * 3) Generate BA problem file using ExportFile
+ */
+class DualCameraCalibrationPreparator {
+ public:
+  /**
+   * @brief Construct a new Dual Camera Calibration Preparator object
+   *
+   * @param proj_params
+   * @param pri_cam_params
+   * @param sec_cam_params
+   * @param checkerboard_cols
+   * @param checkerboard_rows
+   * @param checkerboard_size
+   * @param projector_acceptance_tol
+   */
+  DualCameraCalibrationPreparator(const ProjectorParameters& proj_params,
+                                  const CameraParameters& pri_cam_params,
+                                  const CameraParameters& sec_cam_params,
+                                  unsigned int checkerboard_cols, unsigned int checkerboard_rows,
+                                  double checkerboard_size, double projector_acceptance_tol = 0.25);
 
-  void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
+  /**
+   * @brief Process a single set of calibration images from both primary and secondary camera
+   *
+   * @param pri_camera_shading
+   * @param pri_camera_mask
+   * @param pri_up
+   * @param pri_vp
+   * @param sec_camera_shading
+   * @param sec_camera_mask
+   * @param sec_up
+   * @param sec_vp
+   * @param label - A string that would be used to identify this set of calibration images
+   * @return true - Checkerboard detected and corner information stored successfully
+   * @return false - Checkerbaord information failed, images will not be used for calibration
+   */
+  bool AddSingleCalibrationSequence(const cv::Mat& pri_camera_shading,
+                                    const cv::Mat& pri_camera_mask, const cv::Mat& pri_up,
+                                    const cv::Mat& pri_vp, const cv::Mat& sec_camera_shading,
+                                    const cv::Mat& sec_camera_mask, const cv::Mat& sec_up,
+                                    const cv::Mat& sec_vp, const std::string& label = "");
 
-  void Reset();
-
+  /**
+   * @brief Write BA adjustment
+   *
+   * @param filename - Name of BA problem file to be written
+   */
   void ExportFile(const std::string& filename);
 
-private:
+  /**
+   * @brief Set the Local Homography Settings
+   *
+   * @param window_radius - Window size used for homography matrix
+   * @param minimum_valid_pixels - Minimum number of non-masked pixels within window before we
+   * perform homography
+   */
+  void SetLocalHomographySettings(unsigned int window_radius, unsigned int minimum_valid_pixels);
+
+  /**
+   * @brief Clear all intermediate data
+   *
+   */
+  void Reset();
+
+ private:
   ProjectorParameters proj_params_;
   CameraParameters pri_cam_params_;
   CameraParameters sec_cam_params_;

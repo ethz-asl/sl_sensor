@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>Buttons that send calibration sequence acquisition nodelet to get calibration sequences</description>
   <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
-  <license>BSD3</license>
+  <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
