@@ -1,6 +1,9 @@
 // Code adapted from SLStudio
 // Code adapted from Projector-Camera Calibration Software http://dx.doi.org/10.1109/3DIMPVT.2012.77
 
+#ifndef CALIBRATOR_HPP_
+#define CALIBRATOR_HPP_
+
 #pragma once
 
 #include <opencv2/opencv.hpp>
@@ -99,3 +102,5 @@ class Calibrator {
 
 }  // namespace calibration
 }  // namespace sl_sensor
+
+#endif  // CALIBRATOR_HPP_

@@ -1,6 +1,6 @@
 #include "sl_sensor_calibration/dual_camera_calibration_preparator.hpp"
 
-#include "sl_sensor_calibration/calibration_utils.hpp"
+#include "sl_sensor_calibration/calibration_utilities.hpp"
 
 #include <math.h>
 #include <cmath>

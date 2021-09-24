@@ -21,7 +21,7 @@ cs_add_library(${PROJECT_NAME}
   src/intrinsic_parameters.cpp
   src/camera_parameters.cpp
   src/dual_camera_calibration_preparator.cpp
-  src/calibration_utils.cpp
+  src/calibration_utilities.cpp
   src/BAProblem.cpp
   )
 

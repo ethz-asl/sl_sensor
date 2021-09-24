@@ -1,6 +1,7 @@
 // Code adapted from SLStudio https://github.com/jakobwilm/slstudio
 
-#pragma once
+#ifndef CAMERA_PARAMETERS_HPP_
+#define CAMERA_PARAMETERS_HPP_
 
 #include "sl_sensor_calibration/intrinsic_parameters.hpp"
 
@@ -62,5 +63,6 @@ class CameraParameters {
 std::ostream& operator<<(std::ostream& os, const CameraParameters& dt);
 
 }  // namespace calibration
-
 }  // namespace sl_sensor
+
+#endif  // CAMERA_PARAMETERS_HPP_

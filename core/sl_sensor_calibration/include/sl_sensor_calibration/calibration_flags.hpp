@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CALIBRATION_FLAGS_HPP_
+#define CALIBRATION_FLAGS_HPP_
+
 #include <opencv2/opencv.hpp>
 
 namespace sl_sensor {
@@ -56,5 +58,6 @@ struct CalibrationFlags {
 };
 
 }  // namespace calibration
-
 }  // namespace sl_sensor
+
+#endif  // CALIBRATION_FLAGS_HPP_

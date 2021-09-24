@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PROJECTOR_PARAMETERS_HPP_
+#define PROJECTOR_PARAMETERS_HPP_
 
 #include "sl_sensor_calibration/intrinsic_parameters.hpp"
 
@@ -13,3 +14,5 @@ namespace calibration {
 typedef IntrinsicParameters ProjectorParameters;
 }  // namespace calibration
 }  // namespace sl_sensor
+
+#endif  // PROJECTOR_PARAMETERS_HPP_
