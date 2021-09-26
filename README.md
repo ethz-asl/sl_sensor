@@ -1,42 +1,29 @@
 # sl_sensor
-Code package that runs with the SL Sensor
 
-## Required Packages
+SL Sensor is an open-source, ROS-based, structured light sensor for high-accuracy 3D scanning.
 
-* Specific catkin packages
-  * versavis (devel/sl_sensor branch from [forked repo](https://github.com/tengfoonglam/versavis/tree/devel/sl_sensor))
-  * flir_camera_driver (devel/sl_sensor branch from [forked repo](https://github.com/tengfoonglam/flir_camera_driver)) 
-  * [libpointmatcher](https://github.com/ethz-asl/libpointmatcher)
-  * [libpointmatcher_ros](https://github.com/ethz-asl/ethzasl_icp_mapping)
-  * [eigen_catkin](https://github.com/ethz-asl/eigen_catkin)
-* Standard ROS packages
-  * roscpp
-  * geometry_msgs
-  * sensor_msgs
-  * pcl_ros
-  * cv_bridge
-  * tf_conversions
-* External Libraries
-  * [yaml-cpp](https://github.com/jbeder/yaml-cpp)
-  * OpenCV 3.2.0 with extra modules (opencv_contrib)
-  * Point Cloud Library (PCL) Version 1.8
+## System Requirements
 
+* Ubuntu 18.04 with ROS Melodic installed
+* Required Libraries (* included in 18.04 installation)
+  *   *yaml-cpp (Version 0.5.2)
+  *   *OpenCV 3.2.0
+  *   *Point Cloud LIbrary PCL (Version 1.8)
+  *   [Spinnaker](https://flir.app.boxcn.net/v/SpinnakerSDK/folder/68522911814) (Version 2.4.0.143) 
+  *   [Open3d](https://github.com/isl-org/Open3D) (Version 0.13.0) NOTE: Please refer to this [issue](https://github.com/ros-perception/perception_open3d/issues/16) to ensure that you can build and install Open3d that is ROS-compatible
+
+## Contained Packages
+
+## Build
+
+1. Set up your Personal Access Token so you can clone over SSH
+2. Install ros-melodic
+3. Clone this repository into the src folder of your workspace.
+4. Configure your workspace to build in release: catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+5. Install vcstool and catkin-tools from apt: sudo apt install python3-catkin-tools python3-vcstool
+6. From the src folder of your workspace, clone source dependencies with vcs tool: vcs import < sl_sensor/dependencies.vcs
+7. From the src folder of your workspace, install the system dependencies with rosdep: rosdep install --from-paths . --ignore-src -r -y
+8. Build the FLIR camera driver 'catkin build flir_camera_driver'
+9. Build the SL Sensor package 'catkin build sl_sensor'
 
 ## Running the Example Code
-
-There are two examples that are provided. 
-
-1. **pairwise_registration_demo** shows code on how to merge multiple point clouds using pairwise registration
-2. **structured_light_odometry** runs the VO pipeline for the structured light sensor with the rumlang1 rosbag
-
-Steps to run examples:
-1. Compile the sl_sensor package
-2. Download and extract the *ma_thesis_submission_dataset*
-3. To run **pairwise_registration_demo**:
-   1. Open ./core/sl_sensor_registration/launch/pairwise_registration_demo.launch
-   2. Edit the directories in the launch file to point to the extracted folder
-   3. Run the command `roslaunch sl_sensor_registration pairwise_registration_demo.launch`
-4. To run **structured_light_odometry**:
-   1. Open ./core/sl_sensor_vo/launch/structured_light_odometry.launch
-   2. Edit the directories in the launch file to point to the extracted folder
-   3. Run the command `roslaunch sl_sensor_vo structured_light_odometry.launch`
