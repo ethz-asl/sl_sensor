@@ -1,0 +1,45 @@
+repositories:
+  src/catkin_simple:
+    type: git
+    url: git@github.com:catkin/catkin_simple.git
+    version: master
+  src/ceres_catkin:
+    type: git
+    url: git@github.com:ethz-asl/ceres_catkin.git
+    version: master
+  src/eigen_catkin:
+    type: git
+    url: git@github.com:ethz-asl/eigen_catkin.git
+    version: master
+  src/flir_camera_driver:
+    type: git
+    url: git@github.com:ethz-asl/flir_camera_driver.git
+    version: devel/sl_sensor
+  src/gflags_catkin:
+    type: git
+    url: git@github.com:ethz-asl/gflags_catkin.git
+    version: master
+  src/glog_catkin:
+    type: git
+    url: git@github.com:ethz-asl/glog_catkin.git
+    version: master
+  src/libnabo:
+    type: git
+    url: git@github.com:ethz-asl/libnabo.git
+    version: master
+  src/libpointmatcher:
+    type: git
+    url: git@github.com:ethz-asl/libpointmatcher
+    version: master
+  src/perception_open3d:
+    type: git
+    url: git@github.com:ros-perception/perception_open3d.git
+    version: melodic-devel
+  src/sl_sensor:
+    type: git
+    url: git@github.com:ethz-asl/sl_sensor.git
+    version: master
+  src/versavis:
+    type: git
+    url: git@github.com:ethz-asl/versavis.git
+    version: devel/sl_sensor
