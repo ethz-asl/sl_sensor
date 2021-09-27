@@ -2,6 +2,8 @@
 
 SL Sensor is an open-source, ROS-based, structured light sensor for high-accuracy 3D scanning. It can produce high-fidelity point clouds in real-time at 5Hz using hardware triggering of the camera and the projector.
 
+<img src="https://user-images.githubusercontent.com/19413243/134910454-87785a6d-0c3f-4dab-95fc-e076042a359c.png" alt="drawing" width="500"/>
+
 Refer to the Wiki pages for the wiring schematics, CAD as well as steps to calibrate/setup the sensor.
 
 The sample build we have provided contains two cameras (because we want it as a research platform to test our linear motion compensation strategy in both directions) but it can be modified to work with only one camera as well.
