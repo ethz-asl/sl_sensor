@@ -33,7 +33,7 @@ repositories:
     version: master
   ethzasl_icp_mapping:
     type: git
-    url: https://github.com/ethz-asl/ethzasl_icp_mapping.git
+    url: git@github.com:ethz-asl/ethzasl_icp_mapping.git
     version: reintegrate/master_into_indigo_devel
   perception_open3d:
     type: git
