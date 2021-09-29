@@ -59,7 +59,7 @@ Work in progress
 6. Roslaunch the reconstruction pipeline that has the same pattern name as the rosbag in the downloaded folder
    * For example, if you want to run `rosbag play --clock 2p1_tpu_horizontal.bag` (make sure terminal is in the 2p1_tpu_horizontal folder)
    * Run `roslaunch sl_sensor 2p1_tpu_horizontal_motion_compensation.launch` to see motion compensation in action
-   * Run `rosluanch sl_sensor 2p1_tpu_horizontal.launch` if you want to see the distortion due to motion if a standard reconstruction pipeline is used
+   * Run `roslaunch sl_sensor 2p1_tpu_horizontal.launch` if you want to see the distortion due to motion if a standard reconstruction pipeline is used
 
 ## Acknowledgements
 This repo contains code adapted from:
