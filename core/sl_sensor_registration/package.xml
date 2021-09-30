@@ -4,8 +4,8 @@
   <version>0.0.0</version>
   <description>Package that performed point cloud registration</description>
 
-  <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
-
+  <maintainer email="teng.foong@ethz-asl.ch">Lam Teng Foong</maintainer>
+  
   <license>GPLv3</license>
 
   <build_depend>libpointmatcher</build_depend>

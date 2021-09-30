@@ -4,8 +4,8 @@
   <version>0.0.0</version>
   <description>Package that runs with the SL sensor</description>
 
-  <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
-
+  <maintainer email="teng.foong@ethz-asl.ch">Lam Teng Foong</maintainer>
+  
   <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>

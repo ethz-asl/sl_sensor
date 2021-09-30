@@ -4,8 +4,8 @@
   <version>0.0.0</version>
   <description>Grab images and groups them based on projector trigger</description>
 
-  <maintainer email="tlam@student.ethz.ch">Lam Teng Foong</maintainer>
-
+  <maintainer email="teng.foong@ethz-asl.ch">Lam Teng Foong</maintainer>
+  
   <license>GPLv3</license>
 
   <build_depend>message_generation</build_depend>
