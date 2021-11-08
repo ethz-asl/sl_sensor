@@ -12,9 +12,15 @@ The sample build we have provided contains two cameras (because we want it as a 
 
 Some experience with C++ and ROS is required to troubleshoot and configure roslaunch files to make it work on your system.
 
-## Videos
+## Demos
 
-Work in progress
+### Scanning of brick and mortar wall
+
+https://user-images.githubusercontent.com/19413243/140678239-58d45401-ebac-4b78-907e-b910440c43c0.mov
+
+### Colour Scanning (Depth Information using top camera, RGB information using left camera)
+
+https://user-images.githubusercontent.com/19413243/140679279-821adcbb-1930-419e-af2e-e022aaa04d4a.mov
 
 ## System Requirements
 
