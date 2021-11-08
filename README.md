@@ -14,9 +14,17 @@ Some experience with C++ and ROS is required to troubleshoot and configure rosla
 
 ## Demos
 
-### Scanning of brick and mortar wall
+### Scanning of Brick and Mortar Wall
 
 https://user-images.githubusercontent.com/19413243/140678239-58d45401-ebac-4b78-907e-b910440c43c0.mov
+
+### Scanning of Table Tennis Balls (vs RealSense L515)
+
+
+
+### Linear Motion Compensation
+
+https://user-images.githubusercontent.com/19413243/140685541-cc4db604-444c-4e43-932a-87a7f24c87e4.mov
 
 ### Colour Scanning (Depth Information using top camera, RGB information using left camera)
 
