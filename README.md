@@ -1,4 +1,4 @@
-<img src="https://user-images.githubusercontent.com/19413243/140636195-c58c5ec1-e38b-4b75-a1fe-b03624708d1f.png" alt="drawing" width="250"/>
+<img src="https://user-images.githubusercontent.com/19413243/140749627-b45cf6cd-61ed-4880-b4b3-86a8684c82fe.png" alt="drawing" width="250"/>
 
 #
 
@@ -18,9 +18,9 @@ Some experience with C++ and ROS is required to troubleshoot and configure rosla
 
 https://user-images.githubusercontent.com/19413243/140678239-58d45401-ebac-4b78-907e-b910440c43c0.mov
 
-### Scanning of Table Tennis Balls (vs RealSense L515)
+### Scans of Table Tennis Balls (vs RealSense L515)
 
-
+<img src="https://user-images.githubusercontent.com/19413243/140750462-cd4e6b25-6e07-4b35-bfba-e862faf8493b.png" alt="drawing" width="1000"/>
 
 ### Linear Motion Compensation
 
