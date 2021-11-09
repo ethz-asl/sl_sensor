@@ -2,7 +2,7 @@
 
 <arg name="open_dashboard" doc="Whether to open rqt scanning dashboard" default="true" />
 
-<arg name="save_point_cloud" doc="Save point clouds" default="true" />
+<arg name="save_point_cloud" doc="Save point clouds" default="false" />
 <arg name="save_images" doc="Save images" default="false" />
 <arg name="save_header" doc="Header appended to start of saved files" default="log" />
 
@@ -87,9 +87,9 @@
   <param name="input_topic" type="str" value="/decoder_horizontal/decoded_images" />
   <param name="triangulation_camera_parameters_filename" type="str" value="$(arg horizontal_camera_parameters_filename)" />
   <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
-  <param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" /> <!-- Translate to frame of vertical pattern camera (top camera)-->
+  <param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" /> <!-- Transform to primary camera frame -->
   <param name="apply_scaling" type="bool" value="true" />
-  <param name="scaling_factor" type="double" value="0.001" />
+  <param name="scaling_factor" type="double" value="1" />
   <param name="apply_transform_using_tf" type="bool" value="true" />
   <param name="base_frame_id" type="str" value="world" />
 </node>		  
@@ -100,7 +100,7 @@
   <param name="triangulation_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" />
   <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
   <param name="apply_scaling" type="bool" value="true" />
-  <param name="scaling_factor" type="double" value="0.001" />
+  <param name="scaling_factor" type="double" value="1" />
   <param name="apply_transform_using_tf" type="bool" value="true" />
   <param name="base_frame_id" type="str" value="world" />
 </node>		  

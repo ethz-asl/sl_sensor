@@ -194,6 +194,9 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Triangulator::TriangulateMonochrome(const c
   // Perform triangulation
   cv::Mat xyz;
   Triangulate(up_undistorted, vp_undistorted, mask_undistorted, xyz);
+  // Small bug fix
+  cv::Rect crop(0, 0, 720, 540);
+  xyz = xyz(crop);
 
   // Convert coordinates to point cloud, with shading as intensity values
   return ConvertToMonochomePCLPointCLoud(xyz, mask_undistorted, shading_undistorted);
@@ -220,6 +223,9 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Triangulator::TriangulateColour(
   // Perform triangulation
   cv::Mat xyz;
   Triangulate(up_undistorted, vp_undistorted, mask_undistorted, xyz);
+  // Small bug fix
+  cv::Rect crop(0, 0, 720, 540);
+  xyz = xyz(crop);
 
   // Convert coordinates to point cloud, with shading as intensity values
   return ConvertToColourPCLPointCloud(xyz, mask_undistorted, colour_shading);
