@@ -87,10 +87,10 @@
   <param name="input_topic" type="str" value="/decoder_horizontal/decoded_images" />
   <param name="triangulation_camera_parameters_filename" type="str" value="$(arg horizontal_camera_parameters_filename)" />
   <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
-  <param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" /> <!-- Transform to primary camera frame -->
+  <!--<param name="frame_camera_parameters_filename" type="str" value="$(arg vertical_camera_parameters_filename)" />--> <!-- Transform to primary camera frame -->
   <param name="apply_scaling" type="bool" value="true" />
   <param name="scaling_factor" type="double" value="0.001" />
-  <param name="apply_transform_using_tf" type="bool" value="true" />
+  <param name="apply_transform_using_tf" type="bool" value="false" />
   <param name="base_frame_id" type="str" value="world" />
 </node>		  
 
@@ -101,7 +101,7 @@
   <param name="projector_parameters_filename" type="str" value="$(arg projector_parameters_filename)" />
   <param name="apply_scaling" type="bool" value="true" />
   <param name="scaling_factor" type="double" value="0.001" />
-  <param name="apply_transform_using_tf" type="bool" value="true" />
+  <param name="apply_transform_using_tf" type="bool" value="false" />
   <param name="base_frame_id" type="str" value="world" />
 </node>		  
 

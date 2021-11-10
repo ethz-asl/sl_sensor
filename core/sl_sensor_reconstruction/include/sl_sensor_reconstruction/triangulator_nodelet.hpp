@@ -127,8 +127,8 @@ class TriangulatorNodelet : public nodelet::Nodelet {
     // Publish point cloud
     sensor_msgs::PointCloud2Ptr pc_msg_ptr = boost::make_shared<sensor_msgs::PointCloud2>();
     pcl::toROSMsg(*pc_ptr, *pc_msg_ptr);
-        // Assign used camera as frame_id
-    if(ros::this_node::getName() == "triangulator_vertical"){
+    // Assign used camera as frame_id
+    if(triangulation_camera_parameters_filename_.find("primary") != std::string::npos){
       pc_msg_ptr->header.frame_id = "cam1";
     }else{
       pc_msg_ptr->header.frame_id = "cam2";
