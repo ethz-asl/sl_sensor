@@ -22,7 +22,7 @@ cs_add_library(${PROJECT_NAME}
   src/camera_parameters.cpp
   src/dual_camera_calibration_preparator.cpp
   src/calibration_utilities.cpp
-  src/BAProblem.cpp
+  #src/BAProblem.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/include" ${OpenCV_INCLUDE_DIRS})
@@ -38,8 +38,8 @@ target_link_libraries(calibrator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs ya
 cs_add_executable(dual_camera_calibration_preparator_node src/dual_camera_calibration_preparator_node.cpp)
 target_link_libraries(dual_camera_calibration_preparator_node ${PROJECT_NAME} ${OpenCV_LIBS} stdc++fs yaml-cpp)
 
-cs_add_executable(run_bundle_adjustment_node src/run_bundle_adjustment_node.cpp)
-target_link_libraries(run_bundle_adjustment_node ${PROJECT_NAME} ${OpenCV_LIBS})
+#cs_add_executable(run_bundle_adjustment_node src/run_bundle_adjustment_node.cpp)
+#target_link_libraries(run_bundle_adjustment_node ${PROJECT_NAME} ${OpenCV_LIBS})
 
 cs_install_scripts(python_scripts/visualise_residuals.py)
 
