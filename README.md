@@ -64,6 +64,9 @@ https://user-images.githubusercontent.com/19413243/140679279-821adcbb-1930-419e-
 7. From the src folder of your workspace, install the system dependencies with rosdep: rosdep install --from-paths . --ignore-src -r -y
 8. Build the FLIR camera driver `catkin build flir_camera_driver`
 9. Build the SL Sensor package `catkin build sl_sensor`
+10. To ensure the scannning RQt dashboard loads properly, change the directories in the following RQt perspective files to reflect the actual location in your computer
+    * sl_sensor/core/sl_sensor_rqt_guis/sl_sensor_rqt_guis_common/rqt_perspectives/scan_gui_monochrome.perspective: <br />Change line 527 ("repr": "u'/home/ltf/catkin_ws/src/sl_sensor/sl_sensor/rviz/scan_rqt_gui_monochrome.rviz'")
+    * sl_sensor/core/sl_sensor_rqt_guis/sl_sensor_rqt_guis_common/rqt_perspectives/scan_gui_colour.perspective: <br />Change line 527 ("repr": "u'/home/ltf/catkin_ws/src/sl_sensor/sl_sensor/rviz/scan_rqt_gui_colour.rviz'")
 
 ## Making sure that the package is working
 
