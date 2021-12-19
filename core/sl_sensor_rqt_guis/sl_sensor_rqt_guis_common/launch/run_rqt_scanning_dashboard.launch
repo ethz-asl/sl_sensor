@@ -2,8 +2,15 @@
 <launch>
 
   <arg name="projector_pattern_names" doc="Projector pattern names to be displayed in the combo box, separated by single spaces" default="" />
+  <arg name="is_colour_point_cloud" doc="Whether point cloud is colour (Reconstruction pipeline outputs pcl::PointXYZRGB points) or monochrome (Reconstruction pipeline outputs pcl::PointXYZI points)" default="false" />
   <param name="/sl_sensor_scanning_gui/projector_patterns" value="$(arg projector_pattern_names)"/>
 
-  <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen" args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui.perspective"/>
+  <group if="$(arg is_colour_point_cloud)">
+    <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen" args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui_colour.perspective"/>
+  </group>
+
+  <group unless="$(arg is_colour_point_cloud)">
+    <node name="rqt_scanning_dashboard" pkg="rqt_gui" type="rqt_gui" output="screen" args="--perspective-file $(find sl_sensor_rqt_guis_common)/rqt_perspectives/scan_gui_monochrome.perspective"/>
+  </group>
 
 </launch>
