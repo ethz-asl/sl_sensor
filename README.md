@@ -2,11 +2,11 @@
 
 #
 
-**SL Sensor** is an open-source, ROS-based, structured light sensor for high-accuracy 3D scanning. It can produce high-fidelity point clouds in real-time at 5Hz using hardware triggering of the camera and the projector.
+**SL Sensor** is an open-source, ROS-based, structured light sensor for high-accuracy 3D scanning. It can produce high-fidelity point clouds in real-time at 5Hz using hardware triggering of the camera and the projector. Detailed information can be found in this [publication](https://www.sciencedirect.com/science/article/pii/S0926580522002977).
 
 <img src="https://user-images.githubusercontent.com/19413243/134910454-87785a6d-0c3f-4dab-95fc-e076042a359c.png" alt="drawing" width="500"/>
 
-Refer to the Wiki pages for the wiring schematics, CAD as well as steps to calibrate/setup the sensor.
+Refer to the [Wiki pages](https://github.com/ethz-asl/sl_sensor/wiki) for the wiring schematics, CAD as well as steps to calibrate/setup the sensor.
 
 The sample build we have provided contains two cameras (because we want it as a research platform to test our linear motion compensation strategy in both directions) but it can be modified to work with only one camera as well.
 
@@ -79,6 +79,23 @@ https://user-images.githubusercontent.com/19413243/140679279-821adcbb-1930-419e-
    * For example, if you want to run `rosbag play --clock 2p1_tpu_horizontal.bag` (make sure terminal is in the 2p1_tpu_horizontal folder)
    * Run `roslaunch sl_sensor 2p1_tpu_horizontal_motion_compensation.launch` to see motion compensation in action
    * Run `roslaunch sl_sensor 2p1_tpu_horizontal.launch` if you want to see the distortion due to motion if a standard reconstruction pipeline is used
+
+## Citing this Work
+If you used this repository for academic research, please cite the following publication:
+
+```
+@article{TengFoongLamSLSensor2022,
+title = {SL Sensor: An open-source, real-time and robot operating system-based structured light sensor for high accuracy construction robotic applications},
+journal = {Automation in Construction},
+volume = {142},
+pages = {104424},
+year = {2022},
+issn = {0926-5805},
+doi = {https://doi.org/10.1016/j.autcon.2022.104424},
+url = {https://www.sciencedirect.com/science/article/pii/S0926580522002977},
+author = {Teng Foong Lam and Hermann Blum and Roland Siegwart and Abel Gawel}
+}
+```
 
 ## Acknowledgements
 This repo contains code adapted from:
