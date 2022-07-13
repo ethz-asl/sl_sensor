@@ -4,7 +4,8 @@
 
 **SL Sensor** is an open-source, ROS-based, structured light sensor for high-accuracy 3D scanning. It can produce high-fidelity point clouds in real-time at 5Hz using hardware triggering of the camera and the projector. Detailed information can be found in this [publication](https://www.sciencedirect.com/science/article/pii/S0926580522002977).
 
-<img src="https://user-images.githubusercontent.com/19413243/134910454-87785a6d-0c3f-4dab-95fc-e076042a359c.png" alt="drawing" width="500"/>
+<img src="https://user-images.githubusercontent.com/19413243/134910454-87785a6d-0c3f-4dab-95fc-e076042a359c.png" alt="drawing" width="450"/><img src="https://user-images.githubusercontent.com/19413243/178830696-7eb96052-d56c-46d5-9774-16048128242f.jpg" alt="drawing" width="450"/>
+
 
 Refer to the [Wiki pages](https://github.com/ethz-asl/sl_sensor/wiki) for the wiring schematics, CAD as well as steps to calibrate/setup the sensor.
 
