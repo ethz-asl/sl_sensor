@@ -32,7 +32,11 @@ preferred-citation:
   - family-names: "Gawel"
     given-names: "Abel"
     orcid: "https://orcid.org/0000-0003-2919-4040"
-  journal: "arXiv"
-  title: "SL Sensor: An Open-Source, ROS-Based, Real-Time Structured Light Sensor for High Accuracy Construction Robotic Applications"
+  journal: "Automation in Construction"
+  title: "SL Sensor: An open-source, real-time and robot operating system-based structured light sensor for high accuracy construction robotic applications"
   year: 2022
-  url: "https://arxiv.org/abs/2201.09025"
+  doi: "https://doi.org/10.1016/j.autcon.2022.104424"
+  url: "https://www.sciencedirect.com/science/article/pii/S0926580522002977"
+  volume: 142
+  pages: 104424
+  issn: 0926-5805
