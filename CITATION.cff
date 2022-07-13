@@ -38,5 +38,5 @@ preferred-citation:
   doi: "https://doi.org/10.1016/j.autcon.2022.104424"
   url: "https://www.sciencedirect.com/science/article/pii/S0926580522002977"
   volume: 142
-  pages: 104424
-  issn: 0926-5805
+  pages: "104424"
+  issn: "0926-5805"
